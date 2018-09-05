@@ -121,25 +121,26 @@ public:
         nDefaultPort = 9333;
         nPruneAfterHeight = 100000;
 
-        genesis = CreateGenesisBlock(1317972665, 2084524493, 0x1e0ffff0, 1, 50 * COIN);
+        // JWU change the timestamp!
+        genesis = CreateGenesisBlock(1317972665, 176784, 0x1e0ffff0, 1, 50 * COIN);
 
         //JW remove the following code!
         arith_uint256 hashTarget = arith_uint256().SetCompact(genesis.nBits);
         uint256 hashGenesisBlock = uint256S("0x01");
-        if (true && genesis.GetHash() != hashGenesisBlock) {
+        if (false && genesis.GetHash() != hashGenesisBlock) {
             printf("recalculating params for mainnet.\n");
             printf("old mainnet genesis nonce: %d\n", genesis.nNonce);
             printf("old mainnet genesis hash:  %s\n", hashGenesisBlock.ToString().c_str());
             // deliberately empty for loop finds nonce value.
-            for(genesis.nNonce = 0; hashTarget < UintToArith256(genesis.GetHash()); genesis.nNonce++){}
+            for(genesis.nNonce = 0; hashTarget < UintToArith256(genesis.GetPoWHash()); genesis.nNonce++){}
             printf("new mainnet genesis merkle root: %s\n", genesis.hashMerkleRoot.ToString().c_str());
             printf("new mainnet genesis nonce: %d\n", genesis.nNonce);
             printf("new mainnet genesis hash: %s\n", genesis.GetHash().ToString().c_str());
         }
 
         consensus.hashGenesisBlock = genesis.GetHash();
-        assert(consensus.hashGenesisBlock == uint256S("0x12a765e31ffd4059bada1e25190f6e98c99d9714d334efa41a195a7e7e04bfe2"));
-        assert(genesis.hashMerkleRoot == uint256S("0x97ddfbbae6be97fd6cdf3e7ca13232a3afff2353e29badfab7f73011edd4ced9"));
+        assert(consensus.hashGenesisBlock == uint256S("0xd7a681608b8fc3bd6d85110317357920291e1c6a4fdf6ee38e5d04c49b878c33"));
+        assert(genesis.hashMerkleRoot == uint256S("0x677b0cc3aa49a118484f34bc1b1065e4ecdbd9a895e43d7fcd1c4b74beb492da"));
 
         // Note that of those with the service bits flag, most only support a subset of possible options
         vSeeds.emplace_back("seed-a.litecoin.loshan.co.uk");
@@ -247,12 +248,12 @@ public:
         //JW remove the following code!
         arith_uint256 hashTarget = arith_uint256().SetCompact(genesis.nBits);
         uint256 hashGenesisBlock = uint256S("0x01");
-        if (true && genesis.GetHash() != hashGenesisBlock) {
+        if (false && genesis.GetHash() != hashGenesisBlock) {
             printf("recalculating params for mainnet.\n");
             printf("old mainnet genesis nonce: %d\n", genesis.nNonce);
             printf("old mainnet genesis hash:  %s\n", hashGenesisBlock.ToString().c_str());
             // deliberately empty for loop finds nonce value.
-            for(genesis.nNonce = 0; hashTarget < UintToArith256(genesis.GetHash()); genesis.nNonce++){}
+            for(genesis.nNonce = 0; hashTarget < UintToArith256(genesis.GetPoWHash()); genesis.nNonce++){}
             printf("new mainnet genesis merkle root: %s\n", genesis.hashMerkleRoot.ToString().c_str());
             printf("new mainnet genesis nonce: %d\n", genesis.nNonce);
             printf("new mainnet genesis hash: %s\n", genesis.GetHash().ToString().c_str());
@@ -348,12 +349,12 @@ public:
         //JW remove the following code!
         arith_uint256 hashTarget = arith_uint256().SetCompact(genesis.nBits);
         uint256 hashGenesisBlock = uint256S("0x01");
-        if (true && genesis.GetHash() != hashGenesisBlock) {
+        if (false && genesis.GetHash() != hashGenesisBlock) {
             printf("recalculating params for mainnet.\n");
             printf("old mainnet genesis nonce: %d\n", genesis.nNonce);
             printf("old mainnet genesis hash:  %s\n", hashGenesisBlock.ToString().c_str());
             // deliberately empty for loop finds nonce value.
-            for(genesis.nNonce = 0; hashTarget < UintToArith256(genesis.GetHash()); genesis.nNonce++){}
+            for(genesis.nNonce = 0; hashTarget < UintToArith256(genesis.GetPoWHash()); genesis.nNonce++){}
             printf("new mainnet genesis merkle root: %s\n", genesis.hashMerkleRoot.ToString().c_str());
             printf("new mainnet genesis nonce: %d\n", genesis.nNonce);
             printf("new mainnet genesis hash: %s\n", genesis.GetHash().ToString().c_str());
