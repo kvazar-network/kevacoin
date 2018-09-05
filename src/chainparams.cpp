@@ -114,10 +114,10 @@ public:
          * The characters are rarely used upper ASCII, not valid as UTF-8, and produce
          * a large 32-bit integer with any alignment.
          */
-        pchMessageStart[0] = 0xfb;
-        pchMessageStart[1] = 0xc0;
-        pchMessageStart[2] = 0xb6;
-        pchMessageStart[3] = 0xdb;
+         pchMessageStart[0] = 0x6a;
+         pchMessageStart[1] = 0xc6;
+         pchMessageStart[2] = 0x07;
+         pchMessageStart[3] = 0x9a;
         nDefaultPort = 9333;
         nPruneAfterHeight = 100000;
 
@@ -236,10 +236,10 @@ public:
         // By default assume that the signatures in ancestors of this block are valid.
         consensus.defaultAssumeValid = uint256S("0x1efb29c8187d5a496a33377941d1df415169c3ce5d8c05d055f25b683ec3f9a3"); //612653
 
-        pchMessageStart[0] = 0x6a;
-        pchMessageStart[1] = 0xc6;
-        pchMessageStart[2] = 0x07;
-        pchMessageStart[3] = 0x9a;
+        pchMessageStart[0] = 0xfe;
+        pchMessageStart[1] = 0xec;
+        pchMessageStart[2] = 0x65;
+        pchMessageStart[3] = 0xe4;
         nDefaultPort = 19335;
         nPruneAfterHeight = 1000;
 
@@ -337,10 +337,10 @@ public:
         // By default assume that the signatures in ancestors of this block are valid.
         consensus.defaultAssumeValid = uint256S("0x00");
 
-        pchMessageStart[0] = 0xfa;
-        pchMessageStart[1] = 0xbf;
-        pchMessageStart[2] = 0xb5;
-        pchMessageStart[3] = 0xda;
+        pchMessageStart[0] = 0xe3;
+        pchMessageStart[1] = 0x0c;
+        pchMessageStart[2] = 0x1a;
+        pchMessageStart[3] = 0x2f;
         nDefaultPort = 19444;
         nPruneAfterHeight = 1000;
 
@@ -358,7 +358,7 @@ public:
             printf("new mainnet genesis nonce: %d\n", genesis.nNonce);
             printf("new mainnet genesis hash: %s\n", genesis.GetHash().ToString().c_str());
         }
-        
+
         consensus.hashGenesisBlock = genesis.GetHash();
         assert(consensus.hashGenesisBlock == uint256S("0x530827f38f93b43ed12af0b3ad25a288dc02ed74d6d7857862df51fc56c416f9"));
         assert(genesis.hashMerkleRoot == uint256S("0x97ddfbbae6be97fd6cdf3e7ca13232a3afff2353e29badfab7f73011edd4ced9"));
