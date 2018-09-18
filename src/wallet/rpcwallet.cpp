@@ -3532,6 +3532,8 @@ extern UniValue removeprunedfunds(const JSONRPCRequest& request);
 extern UniValue importmulti(const JSONRPCRequest& request);
 extern UniValue rescanblockchain(const JSONRPCRequest& request);
 
+extern UniValue keva_put(const JSONRPCRequest& request); // in rpckeva.cpp
+
 static const CRPCCommand commands[] =
 { //  category              name                        actor (function)           argNames
     //  --------------------- ------------------------    -----------------------  ----------
@@ -3588,6 +3590,9 @@ static const CRPCCommand commands[] =
     { "wallet",             "rescanblockchain",         &rescanblockchain,         {"start_height", "stop_height"} },
 
     { "generating",         "generate",                 &generate,                 {"nblocks","maxtries"} },
+
+    // Kevacoin-specific wallet calls.
+    { "kevacoin",           "keva_put",                 &keva_put,                 {"namespace", "key", "value", "create_namespace"} }
 };
 
 void RegisterWalletRPCCommands(CRPCTable &t)
