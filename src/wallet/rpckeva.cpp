@@ -25,6 +25,78 @@
 /* ************************************************************************** */
 
 UniValue
+keva_namespace (const JSONRPCRequest& request)
+{
+  CWallet* const pwallet = GetWalletForJSONRPCRequest(request);
+  if (!EnsureWalletIsAvailable (pwallet, request.fHelp))
+    return NullUniValue;
+
+  if (request.fHelp || request.params.size () != 1)
+    throw std::runtime_error (
+        "keva_namespace \"display_name\"\n"
+        "\nStart creation of the given namespace.\n"
+        + HelpRequiringPassphrase (pwallet) +
+        "\nArguments:\n"
+        "1. \"display_name\"          (string, required) the display name of the namespace\n"
+        "\nResult:\n"
+        "[\n"
+        "  xxxxx,   (string) the txid, required for keva_put\n"
+        "]\n"
+        "\nExamples:\n"
+        + HelpExampleCli ("keva_namespace", "\"display name\"")
+      );
+
+  RPCTypeCheck (request.params, {UniValue::VSTR});
+
+  ObserveSafeMode ();
+
+  const std::string nameStr = request.params[0].get_str ();
+  const valtype name = ValtypeFromString (nameStr);
+  if (name.size () > MAX_NAME_LENGTH)
+    throw JSONRPCError (RPC_INVALID_PARAMETER, "the name is too long");
+
+  /* No explicit locking should be necessary.  CReserveKey takes care
+     of locking the wallet, and CommitTransaction (called when sending
+     the tx) locks cs_main as necessary.  */
+
+  EnsureWalletIsUnlocked (pwallet);
+
+  CReserveKey keyName(pwallet);
+  CPubKey pubKey;
+  const bool ok = keyName.GetReservedKey (pubKey, true);
+  assert (ok);
+  const CScript addrName = GetScriptForDestination (pubKey.GetID ());
+  const CScript newScript = CNameScript::buildNameNew (addrName, hash);
+
+  valtype rand(20);
+  GetRandBytes (&rand[0], rand.size ());
+
+  valtype toHash(rand);
+  toHash.insert (toHash.end (), name.begin (), name.end ());
+  const uint160 hash = Hash160 (toHash);
+
+  CCoinControl coinControl;
+  CWalletTx wtx;
+  SendMoneyToScript (pwallet, newScript, nullptr,
+                     NAME_LOCKED_AMOUNT, false, wtx, coinControl);
+
+  keyName.KeepKey ();
+
+  const std::string randStr = HexStr (rand);
+  const std::string txid = wtx.GetHash ().GetHex ();
+  LogPrintf ("name_new: name=%s, rand=%s, tx=%s\n",
+             nameStr.c_str (), randStr.c_str (), txid.c_str ());
+
+  UniValue res(UniValue::VARR);
+  res.push_back (txid);
+  res.push_back (randStr);
+
+  return res;
+}
+
+/* ************************************************************************** */
+
+UniValue
 keva_put (const JSONRPCRequest& request)
 {
   CWallet* const pwallet = GetWalletForJSONRPCRequest(request);
@@ -32,7 +104,7 @@ keva_put (const JSONRPCRequest& request)
     return NullUniValue;
 
   if (request.fHelp
-      || (request.params.size () != 3 && request.params.size () != 4))
+      || (request.params.size () != 3))
     throw std::runtime_error (
         "keva_put \"namespace\" \"key\" \"value\" (\"create_namespace\")\n"
         "\nUpdate a name and possibly transfer it.\n"
@@ -40,17 +112,15 @@ keva_put (const JSONRPCRequest& request)
         "\nArguments:\n"
         "1. \"namespace\"            (string, required) the namespace to insert the key to\n"
         "2. \"key\"                  (string, required) value for the key\n"
-        "4. \"value\"                (string, required) value for the name\n"
-        "5. \"create_namespace\"     (boolean, optional, default=false) create the namespace if it does not exist yet\n"
+        "3. \"value\"                (string, required) value for the name\n"
         "\nResult:\n"
         "\"txid\"             (string) the keva_put's txid\n"
         "\nExamples:\n"
         + HelpExampleCli ("keva_put", "\"mynamespace\", \"new-key\", \"new-value\"")
-        + HelpExampleCli ("keva_put", "\"mynamespace\", \"new-key\", \"new-value\", true")
       );
 
   RPCTypeCheck (request.params,
-    {UniValue::VSTR, UniValue::VSTR, UniValue::VSTR, UniValue::VSTR, UniValue::VBOOL});
+    {UniValue::VSTR, UniValue::VSTR, UniValue::VSTR, UniValue::VSTR});
 
   ObserveSafeMode ();
 

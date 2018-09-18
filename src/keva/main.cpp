@@ -19,21 +19,6 @@
 
 
 /* ************************************************************************** */
-/* CNameData.  */
-
-bool
-CNameData::isExpired () const
-{
-  return isExpired (chainActive.Height ());
-}
-
-bool
-CNameData::isExpired (unsigned h) const
-{
-  return ::isExpired (nHeight, h);
-}
-
-/* ************************************************************************** */
 /* CNameTxUndo.  */
 
 void
@@ -148,48 +133,6 @@ CKevaMemPool::removeConflicts (const CTransaction& tx)
               pool.removeRecursive (mit2->GetTx (),
                                     MemPoolRemovalReason::NAME_CONFLICT);
             }
-        }
-    }
-}
-
-void
-CKevaMemPool::removeUnexpireConflicts (const std::set<valtype>& unexpired)
-{
-  AssertLockHeld (pool.cs);
-
-  for (const auto& name : unexpired)
-    {
-      LogPrint (BCLog::NAMES, "unexpired: %s, mempool: %u\n",
-                ValtypeToString (name).c_str (), mapNameRegs.count (name));
-
-      const NameTxMap::const_iterator mit = mapNameRegs.find (name);
-      if (mit != mapNameRegs.end ())
-        {
-          const CTxMemPool::txiter mit2 = pool.mapTx.find (mit->second);
-          assert (mit2 != pool.mapTx.end ());
-          pool.removeRecursive (mit2->GetTx (),
-                                MemPoolRemovalReason::NAME_CONFLICT);
-        }
-    }
-}
-
-void
-CKevaMemPool::removeExpireConflicts (const std::set<valtype>& expired)
-{
-  AssertLockHeld (pool.cs);
-
-  for (const auto& name : expired)
-    {
-      LogPrint (BCLog::NAMES, "expired: %s, mempool: %u\n",
-                ValtypeToString (name).c_str (), mapNameUpdates.count (name));
-
-      const NameTxMap::const_iterator mit = mapNameUpdates.find (name);
-      if (mit != mapNameUpdates.end ())
-        {
-          const CTxMemPool::txiter mit2 = pool.mapTx.find (mit->second);
-          assert (mit2 != pool.mapTx.end ());
-          pool.removeRecursive (mit2->GetTx (),
-                                MemPoolRemovalReason::NAME_CONFLICT);
         }
     }
 }

@@ -202,21 +202,6 @@ public:
   void removeConflicts (const CTransaction& tx);
 
   /**
-   * Remove conflicts in the mempool due to unexpired names.  This removes
-   * conflicting name registrations that are no longer possible.
-   * @param unexpired The set of unexpired names.
-   * @param removed Put removed tx here.
-   */
-  void removeUnexpireConflicts (const std::set<valtype>& unexpired);
-  /**
-   * Remove conflicts in the mempool due to expired names.  This removes
-   * conflicting name updates that are no longer possible.
-   * @param expired The set of expired names.
-   * @param removed Put removed tx here.
-   */
-  void removeExpireConflicts (const std::set<valtype>& expired);
-
-  /**
    * Perform sanity checks.  Throws if it fails.
    * @param coins The coins view this represents.
    */
