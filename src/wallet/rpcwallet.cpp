@@ -3532,7 +3532,11 @@ extern UniValue removeprunedfunds(const JSONRPCRequest& request);
 extern UniValue importmulti(const JSONRPCRequest& request);
 extern UniValue rescanblockchain(const JSONRPCRequest& request);
 
-extern UniValue keva_put(const JSONRPCRequest& request); // in rpckeva.cpp
+//extern UniValue keva_put(const JSONRPCRequest& request); // in rpckeva.cpp
+UniValue keva_put(const JSONRPCRequest& request) {
+    UniValue ret();
+    return ret;
+}
 
 static const CRPCCommand commands[] =
 { //  category              name                        actor (function)           argNames

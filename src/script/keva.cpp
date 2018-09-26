@@ -65,7 +65,8 @@ CKevaScript::buildKevaPut(const CScript& addr, const valtype& nameSpace,
 }
 
 CScript CKevaScript::buildKevaNamespace(const CScript& addr, const valtype& nameSpace,
-                                const valtype& displayName) {
+                                const valtype& displayName)
+{
   CScript prefix;
   prefix << OP_KEVA_NAMESPACE << nameSpace << displayName
          << OP_2DROP << OP_2DROP;

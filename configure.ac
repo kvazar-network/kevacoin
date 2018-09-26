@@ -273,6 +273,13 @@ fi
 # compatibility.
 AX_CHECK_COMPILE_FLAG([-msse4.2],[[SSE42_CXXFLAGS="-msse4.2"]],,[[$CXXFLAG_WERROR]])
 
+# Cryptonight requires aes-ni instruction.
+AX_CHECK_COMPILE_FLAG([-maes],[[AES_CFLAGS="-maes"]],[[AES_CFLAGS="no"]],[[$CXXFLAG_WERROR]])
+if  test x$AES_CFLAGS = xno; then
+  AC_MSG_ERROR("Compiler does not support -maes which is required by Cryptonight.")
+fi
+CFLAGS="$CXXFLAGS $AES_CFLAGS"
+
 TEMP_CXXFLAGS="$CXXFLAGS"
 CXXFLAGS="$CXXFLAGS $SSE42_CXXFLAGS"
 AC_MSG_CHECKING(for assembler crc32 support)
