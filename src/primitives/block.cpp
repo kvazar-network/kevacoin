@@ -10,7 +10,10 @@
 #include <utilstrencodings.h>
 #include <crypto/common.h>
 //#include <crypto/scrypt.h>
-#include <cryptonight/hash-ops.h>
+extern "C"
+{
+    #include <cryptonight/hash-ops.h>
+}
 
 uint256 CBlockHeader::GetHash() const
 {

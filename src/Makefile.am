@@ -279,6 +279,21 @@ crypto_libbitcoin_crypto_a_SOURCES = \
   crypto/sha512.cpp \
   crypto/sha512.h
 
+crypto_libbitcoin_crypto_a_SOURCES += \
+  cryptonight/slow-hash.c \
+  cryptonight/oaes_lib.c \
+  cryptonight/hash.c \
+  cryptonight/aesb.c \
+  cryptonight/keccak.c \
+  cryptonight/blake256.c \
+  cryptonight/groestl.c \
+  cryptonight/hash-extra-blake.c \
+  cryptonight/hash-extra-groestl.c \
+  cryptonight/hash-extra-skein.c \
+  cryptonight/hash-extra-jh.c \
+  cryptonight/skein.c \
+  cryptonight/jh.c
+
 if USE_ASM
 crypto_libbitcoin_crypto_a_SOURCES += crypto/sha256_sse4.cpp
 endif
