@@ -82,7 +82,7 @@ public:
         consensus.BIP34Hash = uint256S("fa09d204a83a768ed5a7c8d441fa62f2043abf420cff1226c7b4329aeb9d51cf");
         consensus.BIP65Height = 918684; // bab3041e8977e0dc3eeff63fe707b92bde1dd449d8efafb248c27c8264cc311a
         consensus.BIP66Height = 811879; // 7aceee012833fa8952f8835d8b1b3ae233cd6ab08fdb27a771d2bd7bdc491894
-        consensus.powLimit = uint256S("00000fffffffffffffffffffffffffffffffffffffffffffffffffffffffffff");
+        consensus.powLimit = uint256S("0007ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff");
         consensus.nPowTargetTimespan = 3.5 * 24 * 60 * 60; // 3.5 days
         consensus.nPowTargetSpacing = 2.5 * 60;
         consensus.fPowAllowMinDifficultyBlocks = false;
@@ -122,24 +122,29 @@ public:
         nPruneAfterHeight = 100000;
 
         // JWU change the timestamp!
-        genesis = CreateGenesisBlock(1317972665, 176784, 0x1e0ffff0, 1, 50 * COIN);
+        genesis = CreateGenesisBlock(1317972665, 1260, 0x1f07ffff, 1, 50 * COIN);   // Cryptonight
+        //genesis = CreateGenesisBlock(1317972665, 176784, 0x1e0ffff0, 1, 50 * COIN); // Scrypt
 
         //JW remove the following code!
         arith_uint256 hashTarget = arith_uint256().SetCompact(genesis.nBits);
+        //arith_uint256 hashTarget = UintToArith256(uint256S("0x00ffff0000000000000000000000000000000000000000c1bfe2bbe614f41260"));
         uint256 hashGenesisBlock = uint256S("0x01");
         if (false && genesis.GetHash() != hashGenesisBlock) {
             printf("recalculating params for mainnet.\n");
             printf("old mainnet genesis nonce: %d\n", genesis.nNonce);
             printf("old mainnet genesis hash:  %s\n", hashGenesisBlock.ToString().c_str());
-            // deliberately empty for loop finds nonce value.
-            for(genesis.nNonce = 0; hashTarget < UintToArith256(genesis.GetPoWHash()); genesis.nNonce++){}
+            // deliberately empty for loop finds nonce value.            
+            for(genesis.nNonce = 1000; hashTarget < UintToArith256(genesis.GetPoWHash()); genesis.nNonce++) {                
+                printf("JWU nNonce: %d\n\n", genesis.nNonce);
+            }
             printf("new mainnet genesis merkle root: %s\n", genesis.hashMerkleRoot.ToString().c_str());
             printf("new mainnet genesis nonce: %d\n", genesis.nNonce);
             printf("new mainnet genesis hash: %s\n", genesis.GetHash().ToString().c_str());
         }
 
         consensus.hashGenesisBlock = genesis.GetHash();
-        assert(consensus.hashGenesisBlock == uint256S("0xd7a681608b8fc3bd6d85110317357920291e1c6a4fdf6ee38e5d04c49b878c33"));
+        assert(consensus.hashGenesisBlock == uint256S("0xf50e810cb73b256207f90075a48dbb7a39ac2ec68b489d76daab7487f4687bcc")); //Cryptonight
+        //assert(consensus.hashGenesisBlock == uint256S("0xd7a681608b8fc3bd6d85110317357920291e1c6a4fdf6ee38e5d04c49b878c33")); // Scrypt
         assert(genesis.hashMerkleRoot == uint256S("0x677b0cc3aa49a118484f34bc1b1065e4ecdbd9a895e43d7fcd1c4b74beb492da"));
 
         // Note that of those with the service bits flag, most only support a subset of possible options
@@ -210,7 +215,7 @@ public:
         consensus.BIP34Hash = uint256S("8075c771ed8b495ffd943980a95f702ab34fce3c8c54e379548bda33cc8c0573");
         consensus.BIP65Height = 76; // 8075c771ed8b495ffd943980a95f702ab34fce3c8c54e379548bda33cc8c0573
         consensus.BIP66Height = 76; // 8075c771ed8b495ffd943980a95f702ab34fce3c8c54e379548bda33cc8c0573
-        consensus.powLimit = uint256S("00000fffffffffffffffffffffffffffffffffffffffffffffffffffffffffff");
+        consensus.powLimit = uint256S("0007ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff");
         consensus.nPowTargetTimespan = 3.5 * 24 * 60 * 60; // 3.5 days
         consensus.nPowTargetSpacing = 2.5 * 60;
         consensus.fPowAllowMinDifficultyBlocks = true;
