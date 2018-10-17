@@ -57,9 +57,7 @@ enum opcodetype
     OP_RESERVED = 0x50,
     OP_1 = 0x51,
     OP_TRUE=OP_1,
-    OP_KEVA_PUT=OP_1,
     OP_2 = 0x52,
-    OP_KEVA_NAMESPACE=OP_2,
     OP_3 = 0x53,
     OP_4 = 0x54,
     OP_5 = 0x55,
@@ -182,6 +180,10 @@ enum opcodetype
     OP_NOP8 = 0xb7,
     OP_NOP9 = 0xb8,
     OP_NOP10 = 0xb9,
+
+    // Keva
+    OP_KEVA_PUT=0xd0,
+    OP_KEVA_NAMESPACE=0xd1,
 
 
     // template matching params

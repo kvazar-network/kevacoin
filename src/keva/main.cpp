@@ -1,3 +1,7 @@
+// Copyright (c) 2014-2017 Daniel Kraft
+// Distributed under the MIT software license, see the accompanying
+// file COPYING or http://www.opensource.org/licenses/mit-license.php.
+
 // Copyright (c) 2018 Jianping Wu
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
@@ -19,29 +23,29 @@
 
 
 /* ************************************************************************** */
-/* CNameTxUndo.  */
+/* CKevaTxUndo.  */
 
 void
-CNameTxUndo::fromOldState (const valtype& nm, const CCoinsView& view)
+CKevaTxUndo::fromOldState(const valtype& nm, const CCoinsView& view)
 {
   name = nm;
-  isNew = !view.GetName (name, oldData);
+  isNew = !view.GetName(name, oldData);
 }
 
 void
-CNameTxUndo::apply (CCoinsViewCache& view) const
+CKevaTxUndo::apply (CCoinsViewCache& view) const
 {
   if (isNew)
-    view.DeleteName (name);
+    view.DeleteName(name);
   else
-    view.SetName (name, oldData, true);
+    view.SetName(name, oldData, true);
 }
 
 /* ************************************************************************** */
 /* CKevaMemPool.  */
 
 uint256
-CKevaMemPool::getTxForName (const valtype& name) const
+CKevaMemPool::getTxForName(const valtype& name) const
 {
   NameTxMap::const_iterator mi;
 
@@ -536,7 +540,7 @@ ApplyNameTransaction (const CTransaction& tx, unsigned nHeight,
           LogPrint (BCLog::NAMES, "Updating name at height %d: %s\n",
                     nHeight, ValtypeToString (name).c_str ());
 
-          CNameTxUndo opUndo;
+          CKevaTxUndo opUndo;
           opUndo.fromOldState (name, view);
           undo.vnameundo.push_back (opUndo);
 

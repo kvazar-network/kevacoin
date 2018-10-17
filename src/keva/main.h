@@ -1,3 +1,7 @@
+// Copyright (c) 2014-2017 Daniel Kraft
+// Distributed under the MIT software license, see the accompanying
+// file COPYING or http://www.opensource.org/licenses/mit-license.php.
+
 // Copyright (c) 2018 Jianping Wu
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
@@ -33,14 +37,14 @@ static const unsigned MAX_VALUE_LENGTH     = 1023;
 static const CAmount KEVA_LOCKED_AMOUNT = COIN / 100;
 
 /* ************************************************************************** */
-/* CNameTxUndo.  */
+/* CKevaTxUndo.  */
 
 /**
  * Undo information for one name operation.  This contains either the
  * information that the name was newly created (and should thus be
  * deleted entirely) or that it was updated including the old value.
  */
-class CNameTxUndo
+class CKevaTxUndo
 {
 
 private:

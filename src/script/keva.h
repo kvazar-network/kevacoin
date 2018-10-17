@@ -52,25 +52,26 @@ public:
   inline bool
   isNameOp () const
   {
-    switch (op)
-      {
-      case OP_KEVA_PUT:      
+    switch (op) {
+      case OP_KEVA_PUT:
+        return true;
+
+      case OP_KEVA_NAMESPACE:
         return true;
 
       case OP_NOP:
         return false;
 
       default:
-        assert (false);
-      }
+        assert(false);
+    }
   }
 
   /**
    * Return the non-name script.
    * @return The address part.
    */
-  inline const CScript&
-  getAddress () const
+  inline const CScript& getAddress() const
   {
     return address;
   }
@@ -80,17 +81,18 @@ public:
    * or OP_NAME_UPDATE.  Do not call if this is not a name script.
    * @return The name operation opcode.
    */
-  inline opcodetype
-  getNameOp () const
+  inline opcodetype getNameOp() const
   {
-    switch (op)
-      {
+    switch (op) {
       case OP_KEVA_PUT:      
+        return op;
+
+      case OP_KEVA_NAMESPACE:      
         return op;
 
       default:
         assert (false);
-      }
+    }
   }
 
   /**
@@ -98,54 +100,54 @@ public:
    * whether this creates a name index update/entry.
    * @return True iff this is NAME_FIRSTUPDATE or NAME_UPDATE.
    */
-  inline bool
-  isAnyUpdate () const
+  inline bool isAnyUpdate () const
   {
-    switch (op)
-      {
+    switch (op) {
       case OP_KEVA_PUT:
-        return true;      
+        return true;
+
+      case OP_KEVA_NAMESPACE:
+        return true;
 
       default:
-        assert (false);
-      }
+        assert(false);
+    }
   }
 
   /**
    * Return the name operation name.  This call is only valid for
-   * OP_NAME_FIRSTUPDATE or OP_NAME_UPDATE.
+   * OP_KEVA_NAMESPACE or OP_KEVA_PUT.
    * @return The name operation's name.
    */
-  inline const valtype&
-  getOpName () const
+  inline const valtype& getOpName () const
   {
-    switch (op)
-      {
+    switch (op) {
       case OP_KEVA_PUT:
         return args[0];
 
+      case OP_KEVA_NAMESPACE:
+        return args[0];
+
       default:
-        assert (false);
-      }
+        assert(false);
+    }
   }
 
   /**
    * Return the name operation value.  This call is only valid for
-   * OP_NAME_FIRSTUPDATE or OP_NAME_UPDATE.
+   * OP_KEVA_PUT.
    * @return The name operation's value.
    */
-  inline const valtype&
-  getOpValue () const
+  inline const valtype& getOpValue () const
   {
-    switch (op)
-      {
+    switch (op) {
       case OP_KEVA_PUT:
         // args[1] is namespace
         return args[2];
 
       default:
         assert (false);
-      }
+    }
   }
 
   /**
@@ -153,8 +155,7 @@ public:
    * for OP_NAME_FIRSTUPDATE.
    * @return The name operation's rand.
    */
-  inline const valtype&
-  getOpRand () const
+  inline const valtype& getOpRand() const
   {
     assert (op == OP_NAME_FIRSTUPDATE);
     return args[1];

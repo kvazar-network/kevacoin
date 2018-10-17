@@ -2662,7 +2662,9 @@ OutputType CWallet::TransactionChangeType(OutputType change_type, const std::vec
     return g_address_type;
 }
 
-bool CWallet::CreateTransaction(const std::vector<CRecipient>& vecSend, CWalletTx& wtxNew, CReserveKey& reservekey, CAmount& nFeeRet,
+bool CWallet::CreateTransaction(const std::vector<CRecipient>& vecSend,
+                                const CTxIn* withInput,
+                                CWalletTx& wtxNew, CReserveKey& reservekey, CAmount& nFeeRet,
                                 int& nChangePosInOut, std::string& strFailReason, const CCoinControl& coin_control, bool sign)
 {
     CAmount nValue = 0;
@@ -2686,9 +2688,25 @@ bool CWallet::CreateTransaction(const std::vector<CRecipient>& vecSend, CWalletT
         return false;
     }
 
+    /* If we have an input to include, find its value.  This value will be
+    subtracted later on during coin selection, since the input is added
+    additionally to the selected coins.  */
+    CAmount nInputValue = 0;
+    const CWalletTx* withInputTx = nullptr;
+    if (withInput) {
+        if (!FindValueInNameInput(*withInput, nInputValue, withInputTx, strFailReason))
+            return false;
+    }
+
     wtxNew.fTimeReceivedIsTxTime = true;
     wtxNew.BindWallet(this);
     CMutableTransaction txNew;
+
+#if 0
+    // JWU TODO implement this!
+    if (isNamecoin)
+        txNew.SetNamecoin();
+#endif
 
     // Discourage fee sniping.
     //
@@ -3021,6 +3039,37 @@ bool CWallet::CreateTransaction(const std::vector<CRecipient>& vecSend, CWalletT
               100 * feeCalc.est.fail.withinTarget / (feeCalc.est.fail.totalConfirmed + feeCalc.est.fail.inMempool + feeCalc.est.fail.leftMempool),
               feeCalc.est.fail.withinTarget, feeCalc.est.fail.totalConfirmed, feeCalc.est.fail.inMempool, feeCalc.est.fail.leftMempool);
     return true;
+}
+
+bool
+CWallet::FindValueInNameInput (const CTxIn& nameInput,
+                               CAmount& value, const CWalletTx*& walletTx,
+                               std::string& strFailReason) const
+{
+#if 0
+    // JWU TODO: implement this!
+    walletTx = GetWalletTx (nameInput.prevout.hash);
+    if (!walletTx) {
+        strFailReason = _("Input tx not found in wallet");
+        return false;
+    }
+
+    const CTxOut& output = walletTx->tx->vout[nameInput.prevout.n];
+    if (IsMine (output) != ISMINE_SPENDABLE) {
+        strFailReason = _("Input tx is not mine");
+        return false;
+    }
+
+    if (!CKevaScript::isKevaScript (output.scriptPubKey)) {
+        strFailReason = _("Input tx is not a name operation");
+        return false;
+    }
+
+    value = output.nValue;
+    return true;
+#else
+    return true;
+#endif
 }
 
 /**

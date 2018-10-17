@@ -440,6 +440,56 @@ static void SendMoney(CWallet * const pwallet, const CTxDestination &address, CA
     }
 }
 
+void SendMoneyToScript(CWallet* const pwallet, const CScript &scriptPubKey,
+                       const CTxIn* withInput, CAmount nValue,
+                       bool fSubtractFeeFromAmount, CWalletTx& wtxNew,
+                       const CCoinControl& coin_control)
+{
+    CAmount curBalance = pwallet->GetBalance();
+
+    // Check amount
+    if (nValue <= 0)
+        throw JSONRPCError(RPC_INVALID_PARAMETER, "Invalid amount");
+
+    /* If we have an additional input that is a name, we have to take this
+       name's value into account as well for the balance check.  Otherwise one
+       sees spurious "Insufficient funds" errors when updating names when the
+       wallet's balance it smaller than the amount locked in the name.  */
+    CAmount lockedValue = 0;
+    std::string strError;
+    if (withInput) {
+        const CWalletTx* dummyWalletTx;
+        if (!pwallet->FindValueInNameInput (*withInput, lockedValue,
+                                            dummyWalletTx, strError))
+            throw JSONRPCError(RPC_WALLET_ERROR, strError);
+    }
+
+    if (nValue > curBalance + lockedValue)
+        throw JSONRPCError(RPC_WALLET_INSUFFICIENT_FUNDS, "Insufficient funds");
+
+    if (pwallet->GetBroadcastTransactions() && !g_connman) {
+        throw JSONRPCError(RPC_CLIENT_P2P_DISABLED, "Error: Peer-to-peer functionality missing or disabled");
+    }
+
+    // Create and send the transaction
+    CReserveKey reservekey(pwallet);
+    CAmount nFeeRequired;
+    std::vector<CRecipient> vecSend;
+    int nChangePosRet = -1;
+    CRecipient recipient = {scriptPubKey, nValue, fSubtractFeeFromAmount};
+    vecSend.push_back(recipient);
+    if (!pwallet->CreateTransaction(vecSend, withInput, wtxNew, reservekey, nFeeRequired, nChangePosRet, strError, coin_control)) {
+        if (!fSubtractFeeFromAmount && nValue + nFeeRequired > curBalance)
+            strError = strprintf("Error: This transaction requires a transaction fee of at least %s", FormatMoney(nFeeRequired));
+        throw JSONRPCError(RPC_WALLET_ERROR, strError);
+    }
+    CValidationState state;
+    if (!pwallet->CommitTransaction(wtxNew, reservekey, g_connman.get(), state)) {
+        strError = strprintf("Error: The transaction was rejected! Reason given: %s", state.GetRejectReason());
+        throw JSONRPCError(RPC_WALLET_ERROR, strError);
+    }
+}
+
 UniValue sendtoaddress(const JSONRPCRequest& request)
 {
     CWallet * const pwallet = GetWalletForJSONRPCRequest(request);
@@ -3532,11 +3582,8 @@ extern UniValue removeprunedfunds(const JSONRPCRequest& request);
 extern UniValue importmulti(const JSONRPCRequest& request);
 extern UniValue rescanblockchain(const JSONRPCRequest& request);
 
-//extern UniValue keva_put(const JSONRPCRequest& request); // in rpckeva.cpp
-UniValue keva_put(const JSONRPCRequest& request) {
-    UniValue ret();
-    return ret;
-}
+extern UniValue keva_namespace(const JSONRPCRequest& request); // in rpckeva.cpp
+extern UniValue keva_put(const JSONRPCRequest& request);       // in rpckeva.cpp
 
 static const CRPCCommand commands[] =
 { //  category              name                        actor (function)           argNames
@@ -3596,7 +3643,8 @@ static const CRPCCommand commands[] =
     { "generating",         "generate",                 &generate,                 {"nblocks","maxtries"} },
 
     // Kevacoin-specific wallet calls.
-    { "kevacoin",           "keva_put",                 &keva_put,                 {"namespace", "key", "value", "create_namespace"} }
+    { "kevacoin",           "keva_namespace",           &keva_namespace,           {"namespace", "key", "value", "create_namespace"} }
+    { "kevacoin",           "keva_put",                 &keva_put,                 {"namespace", "key", "value", "put_value"} }
 };
 
 void RegisterWalletRPCCommands(CRPCTable &t)
