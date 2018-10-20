@@ -176,6 +176,9 @@ BITCOIN_CORE_H = \
   zmq/zmqnotificationinterface.h \
   zmq/zmqpublishnotifier.h
 
+BITCOIN_CORE_H += \
+  keva/main.h \
+  keva/common.h
 
 obj/build.h: FORCE
 	@$(MKDIR_P) $(builddir)/obj
@@ -225,6 +228,7 @@ libbitcoin_server_a_SOURCES = \
   validation.cpp \
   validationinterface.cpp \
   versionbits.cpp \
+  keva/main.cpp \
   $(BITCOIN_CORE_H)
 
 if ENABLE_ZMQ
@@ -253,6 +257,9 @@ libbitcoin_wallet_a_SOURCES = \
   wallet/walletdb.cpp \
   wallet/walletutil.cpp \
   $(BITCOIN_CORE_H)
+
+libbitcoin_wallet_a_SOURCES += \
+  wallet/rpckeva.cpp
 
 # crypto primitives library
 crypto_libbitcoin_crypto_a_CPPFLAGS = $(AM_CPPFLAGS) $(SSL_CFLAGS)
@@ -331,7 +338,9 @@ libbitcoin_consensus_a_SOURCES = \
   uint256.h \
   utilstrencodings.cpp \
   utilstrencodings.h \
-  version.h
+  version.h \
+  script/keva.h \
+  script/keva.cpp
 
 # common: shared between bitcoind, and bitcoin-qt and non-server tools
 libbitcoin_common_a_CPPFLAGS = $(AM_CPPFLAGS) $(BITCOIN_INCLUDES)
@@ -354,6 +363,7 @@ libbitcoin_common_a_SOURCES = \
   script/sign.cpp \
   script/standard.cpp \
   warnings.cpp \
+  keva/common.cpp \
   $(BITCOIN_CORE_H)
 
 # util: shared between all executables.

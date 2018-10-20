@@ -153,29 +153,6 @@ public:
   }
 
   /**
-   * Return the name operation's rand value.  This is only valid
-   * for OP_NAME_FIRSTUPDATE.
-   * @return The name operation's rand.
-   */
-  inline const valtype& getOpRand() const
-  {
-    assert (op == OP_NAME_FIRSTUPDATE);
-    return args[1];
-  }
-
-  /**
-   * Return the name operation's hash value.  This is only valid
-   * for OP_NAME_NEW.
-   * @return The name operation's hash.
-   */
-  inline const valtype&
-  getOpHash () const
-  {
-    assert (op == OP_NAME_NEW);
-    return args[0];
-  }
-
-  /**
    * Check if the given script is a name script.  This is a utility method.
    * @param script The script to parse.
    * @return True iff it is a name script.

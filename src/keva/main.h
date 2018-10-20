@@ -58,7 +58,7 @@ private:
   bool isNew;
 
   /** The old name value that was overwritten by the operation.  */
-  CNameData oldData;
+  CKevaData oldData;
 
 public:
 
@@ -137,8 +137,8 @@ public:
    * Construct with reference to parent mempool.
    * @param p The parent pool.
    */
-  explicit inline CNameMemPool (CTxMemPool& p)
-    : pool(p), mapNamespaceRegs(), mapKeyRegs(), mapNameUpdates()
+  explicit inline CKevaMemPool (CTxMemPool& p)
+    : pool(p), mapNamespaceRegs()
   {}
 
   /**
@@ -149,9 +149,9 @@ public:
    * @return True iff there's a matching namespace registration in the pool.
    */
   inline bool
-  registersNamespace (const valtype& namespace) const
+  registersNamespace (const valtype& nameSpace) const
   {
-    return mapNamespaceRegs.count (name) > 0;
+    return mapNamespaceRegs.count(nameSpace) > 0;
   }
 
   /**
@@ -162,7 +162,8 @@ public:
   inline bool
   updatesName (const valtype& name) const
   {
-    return mapNameUpdates.count (name) > 0;
+    //return mapNameUpdates.count (name) > 0;
+    return true;
   }
 
   /**
@@ -179,9 +180,11 @@ public:
   inline void
   clear ()
   {
+    /*
     mapNameRegs.clear ();
     mapNameUpdates.clear ();
     mapNameNews.clear ();
+    */
   }
 
   /**
