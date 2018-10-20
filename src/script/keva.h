@@ -7,6 +7,8 @@
 
 #include <script/script.h>
 
+typedef std::vector<unsigned char> valtype;
+
 class uint160;
 
 /**
@@ -191,7 +193,7 @@ public:
    * @param hash The hash to use.
    * @return The full KEVA_NAMESPACE script.
    */
-  static CScript buildKevaNamespace(const CScript& addr, const valtype& nameSpace,
+  static CScript buildKevaNamespace(const CScript& addr, const uint160& nameSpace,
                                 const valtype& displayName);
 
   /**

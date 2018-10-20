@@ -28,6 +28,8 @@ class CTxMemPool;
 class CTxMemPoolEntry;
 class CValidationState;
 
+typedef std::vector<unsigned char> valtype;
+
 /* Some constants defining namespace, key and value limits.  */
 static const unsigned MAX_NAMESPACE_LENGTH = 255;
 static const unsigned MAX_KEY_LENGTH       = 255;

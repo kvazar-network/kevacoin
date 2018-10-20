@@ -7,8 +7,10 @@
 
 #include <string>
 
+class CCoinControl;
 class CRPCTable;
 class CWallet;
+class CWalletTx;
 class JSONRPCRequest;
 
 void RegisterWalletRPCCommands(CRPCTable &t);

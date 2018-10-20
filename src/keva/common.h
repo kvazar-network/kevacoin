@@ -21,6 +21,8 @@
 class CKevaScript;
 class CDBBatch;
 
+typedef std::vector<unsigned char> valtype;
+
 /** Whether or not name history is enabled.  */
 extern bool fNameHistory;
 

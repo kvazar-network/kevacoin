@@ -72,11 +72,11 @@ CKevaScript::buildKevaPut(const CScript& addr, const valtype& nameSpace,
   return prefix + addr;
 }
 
-CScript CKevaScript::buildKevaNamespace(const CScript& addr, const valtype& nameSpace,
+CScript CKevaScript::buildKevaNamespace(const CScript& addr, const uint160& nameSpace,
                                 const valtype& displayName)
 {
   CScript prefix;
-  prefix << OP_KEVA_NAMESPACE << nameSpace << displayName << OP_2DROP;
+  prefix << OP_KEVA_NAMESPACE << ToByteVector(nameSpace) << displayName << OP_2DROP;
 
   return prefix + addr;
 }

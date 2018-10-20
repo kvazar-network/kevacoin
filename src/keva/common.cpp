@@ -10,6 +10,8 @@
 
 #include <script/keva.h>
 
+typedef std::vector<unsigned char> valtype;
+
 bool fNameHistory = false;
 
 /* ************************************************************************** */

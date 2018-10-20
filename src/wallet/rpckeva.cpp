@@ -63,16 +63,22 @@ keva_namespace (const JSONRPCRequest& request)
 
   CReserveKey keyName(pwallet);
   CPubKey pubKey;
-  const bool ok = keyName.GetReservedKey (pubKey, true);
+  const bool ok = keyName.GetReservedKey(pubKey, true);
   assert (ok);
-  const CScript addrName = GetScriptForDestination(pubKey.GetID());
-  const CScript newScript = CKevaScript::buildKevaNamespace(addrName, namespaceHash, displayName);
 
-  //const uint160 hash = Hash160(toHash);
+  CKeyID keyId = pubKey.GetID()
+
+  // The namespace is: Hash160(Hash160(keyId) || displayName)
+  valtype toHash = ToByteVector(Hash160(ToByteVector(keyId)));
+  toHash.insert(toHash.end(), displayName.begin(), displayName.end());
+  const uint160 namespaceHash = Hash160(toHash);
+
+  const CScript addrName = GetScriptForDestination(keyId);
+  const CScript newScript = CKevaScript::buildKevaNamespace(addrName, namespaceHash, displayName);
 
   CCoinControl coinControl;
   CWalletTx wtx;
-  SendMoneyToScript (pwallet, newScript, nullptr,
+  SendMoneyToScript(pwallet, newScript, nullptr,
                      NAME_LOCKED_AMOUNT, false, wtx, coinControl);
 
   keyName.KeepKey();
