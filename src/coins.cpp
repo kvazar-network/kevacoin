@@ -10,6 +10,8 @@
 bool CCoinsView::GetCoin(const COutPoint &outpoint, Coin &coin) const { return false; }
 uint256 CCoinsView::GetBestBlock() const { return uint256(); }
 std::vector<uint256> CCoinsView::GetHeadBlocks() const { return std::vector<uint256>(); }
+bool CCoinsView::GetName(const valtype &nameSpace, const valtype &key, CKevaData &data) const { return false; }
+bool CCoinsView::GetNamesForHeight(unsigned nHeight, std::set<valtype>& names) const { return false; }
 bool CCoinsView::BatchWrite(CCoinsMap &mapCoins, const uint256 &hashBlock) { return false; }
 CCoinsViewCursor *CCoinsView::Cursor() const { return nullptr; }
 
@@ -24,6 +26,8 @@ bool CCoinsViewBacked::GetCoin(const COutPoint &outpoint, Coin &coin) const { re
 bool CCoinsViewBacked::HaveCoin(const COutPoint &outpoint) const { return base->HaveCoin(outpoint); }
 uint256 CCoinsViewBacked::GetBestBlock() const { return base->GetBestBlock(); }
 std::vector<uint256> CCoinsViewBacked::GetHeadBlocks() const { return base->GetHeadBlocks(); }
+bool CCoinsViewBacked::GetName(const valtype &nameSpace, const valtype &key, CKevaData &data) const { return false; }
+bool CCoinsViewBacked::GetNamesForHeight(unsigned nHeight, std::set<valtype>& names) const { return false; }
 void CCoinsViewBacked::SetBackend(CCoinsView &viewIn) { base = &viewIn; }
 bool CCoinsViewBacked::BatchWrite(CCoinsMap &mapCoins, const uint256 &hashBlock) { return base->BatchWrite(mapCoins, hashBlock); }
 CCoinsViewCursor *CCoinsViewBacked::Cursor() const { return base->Cursor(); }
@@ -140,6 +144,96 @@ uint256 CCoinsViewCache::GetBestBlock() const {
 
 void CCoinsViewCache::SetBestBlock(const uint256 &hashBlockIn) {
     hashBlock = hashBlockIn;
+}
+
+bool CCoinsViewCache::GetName(const valtype &nameSpace, const valtype &key, CKevaData &data) const {
+    if (cacheNames.isDeleted(nameSpace, key))
+        return false;
+    if (cacheNames.get(nameSpace, key, data))
+        return true;
+
+    /* Note: This does not attempt to cache name queries.  The cache
+       only keeps track of changes!  */
+
+    return base->GetName(nameSpace, key, data);
+}
+
+
+bool CCoinsViewCache::GetNamesForHeight(unsigned nHeight, std::set<valtype>& names) const {
+    /* Query the base view first, and then apply the cached changes (if
+       there are any).  */
+
+    if (!base->GetNamesForHeight(nHeight, names))
+        return false;
+
+    cacheNames.updateNamesForHeight(nHeight, names);
+    return true;
+}
+
+/* undo is set if the change is due to disconnecting blocks / going back in
+   time.  The ordinary case (!undo) means that we update the name normally,
+   going forward in time.  This is important for keeping track of the
+   name history.  */
+void CCoinsViewCache::SetName(const valtype &nameSpace, const valtype &key, const CKevaData& data, bool undo) {
+    CKevaData oldData;
+    if (GetName(nameSpace, key, oldData))
+    {
+#if 0
+        cacheNames.removeExpireIndex(name, oldData.getHeight());
+
+        /* Update the name history.  If we are undoing, we expect that
+           the top history item matches the data being set now.  If we
+           are not undoing, push the overwritten data onto the history stack.
+           Note that we only have to do this if the name already existed
+           in the database.  Otherwise, no special action is required
+           for the name history.  */
+        if (fNameHistory)
+        {
+            CNameHistory history;
+            if (!GetNameHistory(name, history))
+            {
+                /* Ensure that the history stack is indeed (still) empty
+                   and was not modified by the failing GetNameHistory call.  */
+                assert(history.empty());
+            }
+
+            if (undo)
+                history.pop(data);
+            else
+                history.push(oldData);
+
+            cacheNames.setHistory(name, history);
+        }
+#endif
+    } else
+        assert (!undo);
+
+    cacheNames.set(nameSpace, key, data);
+#if 0
+    cacheNames.addExpireIndex(name, data.getHeight());
+#endif
+}
+
+void CCoinsViewCache::DeleteName(const valtype &nameSpace, const valtype &key) {
+    CKevaData oldData;
+    if (GetName(nameSpace, key, oldData)) {
+#if 0        
+        cacheNames.removeExpireIndex(name, oldData.getHeight());
+#endif
+    }
+    else
+        assert(false);
+
+#if 0
+    if (fNameHistory)
+    {
+        /* When deleting a name, the history should already be clean.  */
+        CNameHistory history;
+        assert (!GetNameHistory(name, history) || history.empty());
+    }
+#endif
+
+    cacheNames.remove(nameSpace, key);
 }
 
 bool CCoinsViewCache::BatchWrite(CCoinsMap &mapCoins, const uint256 &hashBlockIn) {

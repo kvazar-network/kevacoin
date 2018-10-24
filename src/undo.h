@@ -101,6 +101,9 @@ class CBlockUndo
 public:
     std::vector<CTxUndo> vtxundo; // for all but the coinbase
 
+    /** Stack of operations done to the keva database.  */
+    std::vector<CKevaTxUndo> vkevaundo;
+
     ADD_SERIALIZE_METHODS;
 
     template <typename Stream, typename Operation>

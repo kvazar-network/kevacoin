@@ -26,19 +26,20 @@
 /* CKevaTxUndo.  */
 
 void
-CKevaTxUndo::fromOldState(const valtype& nm, const CCoinsView& view)
+CKevaTxUndo::fromOldState(const valtype& nameSpace, const valtype& key, const CCoinsView& view)
 {
-  name = nm;
-  isNew = !view.GetName(name, oldData);
+  this->nameSpace = nameSpace;
+  this->key = key;
+  isNew = !view.GetName(nameSpace, key, oldData);
 }
 
 void
-CKevaTxUndo::apply (CCoinsViewCache& view) const
+CKevaTxUndo::apply(CCoinsViewCache& view) const
 {
   if (isNew)
-    view.DeleteName(name);
+    view.DeleteName(nameSpace, key);
   else
-    view.SetName(name, oldData, true);
+    view.SetName(nameSpace, key, oldData, true);
 }
 
 /* ************************************************************************** */
@@ -504,6 +505,7 @@ ApplyNameTransaction (const CTransaction& tx, unsigned nHeight,
 {
   assert (nHeight != MEMPOOL_HEIGHT);
 
+#if 0
   /* Handle historic bugs that should *not* be applied.  Names that are
      outputs should be marked as unspendable in this case.  Otherwise,
      we get an inconsistency between the UTXO set and the name database.  */
@@ -521,34 +523,34 @@ ApplyNameTransaction (const CTransaction& tx, unsigned nHeight,
           }
       return;
     }
+#endif
 
   /* This check must be done *after* the historic bug fixing above!  Some
      of the names that must be handled above are actually produced by
      transactions *not* marked as Namecoin tx.  */
-  if (!tx.IsNamecoin ())
+  if (!tx.IsKevacoin ())
     return;
 
   /* Changes are encoded in the outputs.  We don't have to do any checks,
      so simply apply all these.  */
 
-  for (unsigned i = 0; i < tx.vout.size (); ++i)
-    {
-      const CNameScript op(tx.vout[i].scriptPubKey);
-      if (op.isNameOp () && op.isAnyUpdate ())
-        {
-          const valtype& name = op.getOpName ();
-          LogPrint (BCLog::NAMES, "Updating name at height %d: %s\n",
-                    nHeight, ValtypeToString (name).c_str ());
+  for (unsigned i = 0; i < tx.vout.size (); ++i) {
+    const CKevaScript op(tx.vout[i].scriptPubKey);
+    if (op.isKevaOp () && op.isAnyUpdate ()) {
+      const valtype& nameSpace = op.getOpNamespace();
+      const valtype& key = op.getOpKey();
+      LogPrint (BCLog::KEVA, "Updating name at height %d: %s\n",
+                nHeight, ValtypeToString (nameSpace).c_str ());
 
-          CKevaTxUndo opUndo;
-          opUndo.fromOldState (name, view);
-          undo.vnameundo.push_back (opUndo);
+      CKevaTxUndo opUndo;
+      opUndo.fromOldState(nameSpace, key, view);
+      undo.vkevaundo.push_back(opUndo);
 
-          CNameData data;
-          data.fromScript (nHeight, COutPoint (tx.GetHash (), i), op);
-          view.SetName (name, data, false);
-        }
+      CKevaData data;
+      data.fromScript (nHeight, COutPoint (tx.GetHash (), i), op);
+      view.SetName (nameSpace, key, data, false);
     }
+  }
 }
 
 bool

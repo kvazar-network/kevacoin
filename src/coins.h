@@ -11,6 +11,7 @@
 #include <core_memusage.h>
 #include <hash.h>
 #include <memusage.h>
+#include <keva/common.h>
 #include <serialize.h>
 #include <uint256.h>
 
@@ -163,6 +164,12 @@ public:
     //! the old block hash, in that order.
     virtual std::vector<uint256> GetHeadBlocks() const;
 
+    // Get a name (if it exists)
+    virtual bool GetName(const valtype& nameSpace, const valtype& key, CKevaData& data) const;    
+
+    // Query for names that were updated at the given height
+    virtual bool GetNamesForHeight(unsigned nHeight, std::set<valtype>& names) const;
+
     //! Do a bulk modification (multiple Coin changes + BestBlock change).
     //! The passed mapCoins can be modified.
     virtual bool BatchWrite(CCoinsMap &mapCoins, const uint256 &hashBlock);
@@ -190,6 +197,8 @@ public:
     bool HaveCoin(const COutPoint &outpoint) const override;
     uint256 GetBestBlock() const override;
     std::vector<uint256> GetHeadBlocks() const override;
+    bool GetName(const valtype& nameSpace, const valtype& key, CKevaData& data) const override;
+    bool GetNamesForHeight(unsigned nHeight, std::set<valtype>& names) const override;
     void SetBackend(CCoinsView &viewIn);
     bool BatchWrite(CCoinsMap &mapCoins, const uint256 &hashBlock) override;
     CCoinsViewCursor *Cursor() const override;
@@ -211,6 +220,9 @@ protected:
     /* Cached dynamic memory usage for the inner Coin objects. */
     mutable size_t cachedCoinsUsage;
 
+    /** Name changes cache.  */
+    CKevaCache cacheNames;
+
 public:
     CCoinsViewCache(CCoinsView *baseIn);
 
@@ -224,10 +236,16 @@ public:
     bool HaveCoin(const COutPoint &outpoint) const override;
     uint256 GetBestBlock() const override;
     void SetBestBlock(const uint256 &hashBlock);
+    bool GetName(const valtype &nameSpace, const valtype &key, CKevaData &data) const override;
+    bool GetNamesForHeight(unsigned nHeight, std::set<valtype>& names) const override;
     bool BatchWrite(CCoinsMap &mapCoins, const uint256 &hashBlock) override;
     CCoinsViewCursor* Cursor() const override {
         throw std::logic_error("CCoinsViewCache cursor iteration not supported.");
     }
+
+    /* Changes to the name database.  */
+    void SetName(const valtype &nameSpace, const valtype &key, const CKevaData &data, bool undo);
+    void DeleteName(const valtype &nameSpace, const valtype &key);
 
     /**
      * Check if we have the given utxo already loaded in this cache.

@@ -52,7 +52,7 @@ public:
    * @return True iff this is a name operation.
    */
   inline bool
-  isNameOp () const
+  isKevaOp () const
   {
     switch (op) {
       case OP_KEVA_PUT:
@@ -80,10 +80,10 @@ public:
 
   /**
    * Return the name operation.  This returns OP_NAME_NEW, OP_NAME_FIRSTUPDATE
-   * or OP_NAME_UPDATE.  Do not call if this is not a name script.
+   * or OP_NAME_UPDATE.  Do not call if this is not a keva script.
    * @return The name operation opcode.
    */
-  inline opcodetype getNameOp() const
+  inline opcodetype getKevaOp() const
   {
     switch (op) {
       case OP_KEVA_PUT:      
@@ -119,9 +119,9 @@ public:
   /**
    * Return the name operation name.  This call is only valid for
    * OP_KEVA_NAMESPACE or OP_KEVA_PUT.
-   * @return The name operation's name.
+   * @return The keva operation's namespace.
    */
-  inline const valtype& getOpName () const
+  inline const valtype& getOpNamespace() const
   {
     switch (op) {
       case OP_KEVA_PUT:
@@ -140,7 +140,7 @@ public:
    * OP_KEVA_PUT.
    * @return The name operation's value.
    */
-  inline const valtype& getOpValue () const
+  inline const valtype& getOpNamespaceValue() const
   {
     switch (op) {
       case OP_KEVA_PUT:
@@ -153,15 +153,51 @@ public:
   }
 
   /**
-   * Check if the given script is a name script.  This is a utility method.
+   * Return the keva operation key.  This call is only valid for
+   * OP_KEVA_PUT.
+   * @return The keva operation's value.
+   */
+  inline const valtype& getOpKey() const
+  {
+    switch (op) {
+      case OP_KEVA_PUT:
+        return args[0];
+
+      case OP_KEVA_NAMESPACE:
+        return args[0];
+
+      default:
+        assert(false);
+    }
+  }
+
+  /**
+   * Return the keva operation value.  This call is only valid for
+   * OP_KEVA_PUT.
+   * @return The keva operation's value.
+   */
+  inline const valtype& getOpValue() const
+  {
+    switch (op) {
+      case OP_KEVA_PUT:
+        // args[1] is namespace
+        return args[2];
+
+      default:
+        assert (false);
+    }
+  }
+
+  /**
+   * Check if the given script is a keva script.  This is a utility method.
    * @param script The script to parse.
    * @return True iff it is a name script.
    */
   static inline bool
-  isNameScript (const CScript& script)
+  isKevaScript (const CScript& script)
   {
     const CKevaScript op(script);
-    return op.isNameOp ();
+    return op.isKevaOp ();
   }
 
  /**

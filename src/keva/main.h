@@ -51,8 +51,11 @@ class CKevaTxUndo
 
 private:
 
-  /** The name this concerns.  */
-  valtype name;
+  /** The namespace this concerns.  */
+  valtype nameSpace;
+
+  /** The key this concerns.  */
+  valtype key;
 
   /** Whether this was an entirely new name (no update).  */
   bool isNew;
@@ -79,7 +82,7 @@ public:
    * @param nm The name that is being updated.
    * @param view The (old!) chain state.
    */
-  void fromOldState (const valtype& nm, const CCoinsView& view);
+  void fromOldState (const valtype& nameSpace, const valtype& key, const CCoinsView& view);
 
   /**
    * Apply the undo to the chain state given.

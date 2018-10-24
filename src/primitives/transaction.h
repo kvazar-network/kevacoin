@@ -266,6 +266,7 @@ class CTransaction
 public:
     // Default transaction version.
     static const int32_t CURRENT_VERSION=2;
+    static const int32_t KEVACOIN_VERSION=0x7100;
 
     // Changing the default transaction version requires a two step process: first
     // adapting relay policy by bumping MAX_STANDARD_VERSION, and then later date
@@ -333,6 +334,11 @@ public:
     bool IsCoinBase() const
     {
         return (vin.size() == 1 && vin[0].prevout.IsNull());
+    }
+
+    bool IsKevacoin() const
+    {
+        return nVersion == KEVACOIN_VERSION;
     }
 
     friend bool operator==(const CTransaction& a, const CTransaction& b)
@@ -404,6 +410,12 @@ struct CMutableTransaction
         }
         return false;
     }
+
+    /**
+     * Turn this into a Kevacoin version transaction.  It is assumed
+     * that it isn't already.
+     */
+    void SetKevacoin();
 };
 
 typedef std::shared_ptr<const CTransaction> CTransactionRef;

@@ -274,7 +274,7 @@ public:
  * new names (or updates to them), this also keeps track of deleted names
  * (when rolling back changes).
  */
-class CNameCache
+class CKevaCache
 {
 
 private:
@@ -306,6 +306,7 @@ public:
    * the height is serialised as byte-array with little-endian order,
    * which does not correspond to the ordering by actual value.
    */
+#if 0
   class ExpireEntry
   {
   public:
@@ -369,6 +370,7 @@ public:
     }
 
   };
+#endif
 
   /**
    * Type of name entry map.  This is public because it is also used
@@ -383,17 +385,21 @@ private:
   /** Deleted names.  */
   std::set<valtype> deleted;
 
+#if 0
   /**
    * New or updated history stacks.  If they are empty, the corresponding
    * database entry is deleted instead.
    */
   std::map<valtype, CNameHistory> history;
+#endif
 
+#if 0
   /**
    * Changes to be performed to the expire index.  The entry is mapped
    * to either "true" (meaning to add it) or "false" (delete).
    */
   std::map<ExpireEntry, bool> expireIndex;
+#endif
 
   friend class CCacheNameIterator;
 
@@ -404,8 +410,10 @@ public:
   {
     entries.clear ();
     deleted.clear ();
+#if 0
     history.clear ();
     expireIndex.clear ();
+#endif
   }
 
   /**
@@ -417,38 +425,40 @@ public:
   inline bool
   empty () const
   {
-    if (entries.empty () && deleted.empty ())
-      {
-        assert (history.empty () && expireIndex.empty ());
-        return true;
-      }
+    if (entries.empty () && deleted.empty ()) {
+#if 0
+      assert (history.empty () && expireIndex.empty ());
+#endif
+      return true;
+    }
 
     return false;
   }
 
   /* See if the given name is marked as deleted.  */
   inline bool
-  isDeleted (const valtype& name) const
+  isDeleted (const valtype& nameSpace, const valtype& key) const
   {
     return (deleted.count (name) > 0); 
   }
 
   /* Try to get a name's associated data.  This looks only
      in entries, and doesn't care about deleted data.  */
-  bool get (const valtype& name, CKevaData& data) const;
+  bool get (const valtype& nameSpace, const valtype& key, CKevaData& data) const;
 
   /* Insert (or update) a name.  If it is marked as "deleted", this also
      removes the "deleted" mark.  */
-  void set (const valtype& name, const CKevaData& data);
+  void set (const valtype& nameSpace, const valtype& key, const CKevaData& data);
 
   /* Delete a name.  If it is in the "entries" set also, remove it there.  */
-  void remove (const valtype& name);
+  void remove (const valtype& nameSpace, const valtype& key);
 
   /* Return a name iterator that combines a "base" iterator with the changes
      made to it according to the cache.  The base iterator is taken
      ownership of.  */
   CNameIterator* iterateNames (CNameIterator* base) const;
 
+#if 0
   /**
    * Query for an history entry.
    * @param name The name to look up.
@@ -463,6 +473,7 @@ public:
    * @param data The new history entry.
    */
   void setHistory (const valtype& name, const CNameHistory& data);
+#endif
 
   /* Query the cached changes to the expire index.  In particular,
      for a given height and a given set of names that were indexed to
@@ -470,14 +481,16 @@ public:
      are represented by the cached expire index changes.  */
   void updateNamesForHeight (unsigned nHeight, std::set<valtype>& names) const;
 
+#if 0
   /* Add an expire-index entry.  */
   void addExpireIndex (const valtype& name, unsigned height);
 
   /* Remove an expire-index entry.  */
   void removeExpireIndex (const valtype& name, unsigned height);
+#endif
 
   /* Apply all the changes in the passed-in record on top of this one.  */
-  void apply (const CNameCache& cache);
+  void apply (const CKevaCache& cache);
 
   /* Write all cached changes to a database batch update object.  */
   void writeBatch (CDBBatch& batch) const;
