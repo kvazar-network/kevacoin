@@ -70,10 +70,12 @@ public:
   template<typename Stream, typename Operation>
     inline void SerializationOp (Stream& s, Operation ser_action)
   {
-    READWRITE (name);
+    READWRITE (nameSpace);
+    READWRITE (key);
     READWRITE (isNew);
-    if (!isNew)
+    if (!isNew) {
       READWRITE (oldData);
+    }
   }
 
   /**

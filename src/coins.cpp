@@ -14,6 +14,7 @@ bool CCoinsView::GetName(const valtype &nameSpace, const valtype &key, CKevaData
 bool CCoinsView::GetNamesForHeight(unsigned nHeight, std::set<valtype>& names) const { return false; }
 bool CCoinsView::BatchWrite(CCoinsMap &mapCoins, const uint256 &hashBlock) { return false; }
 CCoinsViewCursor *CCoinsView::Cursor() const { return nullptr; }
+bool CCoinsView::ValidateNameDB() const { return false; }
 
 bool CCoinsView::HaveCoin(const COutPoint &outpoint) const
 {
@@ -32,6 +33,7 @@ void CCoinsViewBacked::SetBackend(CCoinsView &viewIn) { base = &viewIn; }
 bool CCoinsViewBacked::BatchWrite(CCoinsMap &mapCoins, const uint256 &hashBlock) { return base->BatchWrite(mapCoins, hashBlock); }
 CCoinsViewCursor *CCoinsViewBacked::Cursor() const { return base->Cursor(); }
 size_t CCoinsViewBacked::EstimateSize() const { return base->EstimateSize(); }
+bool CCoinsViewBacked::ValidateNameDB() const { return base->ValidateNameDB(); }
 
 SaltedOutpointHasher::SaltedOutpointHasher() : k0(GetRand(std::numeric_limits<uint64_t>::max())), k1(GetRand(std::numeric_limits<uint64_t>::max())) {}
 
@@ -217,7 +219,7 @@ void CCoinsViewCache::SetName(const valtype &nameSpace, const valtype &key, cons
 void CCoinsViewCache::DeleteName(const valtype &nameSpace, const valtype &key) {
     CKevaData oldData;
     if (GetName(nameSpace, key, oldData)) {
-#if 0        
+#if 0
         cacheNames.removeExpireIndex(name, oldData.getHeight());
 #endif
     }

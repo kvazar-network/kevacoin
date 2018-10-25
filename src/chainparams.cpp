@@ -199,6 +199,11 @@ public:
             0.06     // * estimated number of transactions per second after that timestamp
         };
     }
+
+    int DefaultCheckNameDB() const
+    {
+        return -1;
+    }
 };
 
 /**
@@ -304,6 +309,11 @@ public:
         };
 
     }
+
+    int DefaultCheckNameDB() const
+    {
+        return -1;
+    }
 };
 
 /**
@@ -395,6 +405,11 @@ public:
         base58Prefixes[EXT_SECRET_KEY] = {0x04, 0x35, 0x83, 0x94};
 
         bech32_hrp = "rltc";
+    }
+
+    int DefaultCheckNameDB() const
+    {
+        return 0;
     }
 };
 

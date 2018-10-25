@@ -12,7 +12,7 @@
 #include "rpc/mining.h"
 #include "rpc/safemode.h"
 #include "rpc/server.h"
-#include "script/kava.h"
+#include "script/keva.h"
 #include "txmempool.h"
 #include "util.h"
 #include "validation.h"

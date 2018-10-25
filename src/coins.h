@@ -165,7 +165,7 @@ public:
     virtual std::vector<uint256> GetHeadBlocks() const;
 
     // Get a name (if it exists)
-    virtual bool GetName(const valtype& nameSpace, const valtype& key, CKevaData& data) const;    
+    virtual bool GetName(const valtype& nameSpace, const valtype& key, CKevaData& data) const;
 
     // Query for names that were updated at the given height
     virtual bool GetNamesForHeight(unsigned nHeight, std::set<valtype>& names) const;
@@ -176,6 +176,9 @@ public:
 
     //! Get a cursor to iterate over the whole state
     virtual CCoinsViewCursor *Cursor() const;
+
+    // Validate the name database.
+    virtual bool ValidateNameDB() const;
 
     //! As we use CCoinsViews polymorphically, have a virtual destructor
     virtual ~CCoinsView() {}
@@ -203,6 +206,7 @@ public:
     bool BatchWrite(CCoinsMap &mapCoins, const uint256 &hashBlock) override;
     CCoinsViewCursor *Cursor() const override;
     size_t EstimateSize() const override;
+    bool ValidateNameDB() const;
 };
 
 
@@ -212,7 +216,7 @@ class CCoinsViewCache : public CCoinsViewBacked
 protected:
     /**
      * Make mutable so that we can "fill the cache" even from Get-methods
-     * declared as "const".  
+     * declared as "const".
      */
     mutable uint256 hashBlock;
     mutable CCoinsMap cacheCoins;
@@ -298,7 +302,7 @@ public:
     //! Calculate the size of the cache (in bytes)
     size_t DynamicMemoryUsage() const;
 
-    /** 
+    /**
      * Amount of bitcoins coming in to a transaction
      * Note that lightweight clients may not know anything besides the hash of previous transactions,
      * so may not be able to calculate this.

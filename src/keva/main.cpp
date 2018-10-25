@@ -75,7 +75,7 @@ CKevaMemPool::addUnchecked (const uint256& hash, const CTxMemPoolEntry& entry)
   if (entry.isNamespaceRegistration()) {
     const valtype& nameSpace = entry.getNamespace();
     assert(mapNamespaceRegs.count(nameSpace) == 0);
-    mapNamespaceRegs.insert(std::make_pair (nameSpace, hash));
+    mapNamespaceRegs.insert(std::make_pair(nameSpace, hash));
   }
 
   if (entry.isNamespaceKeyUpdate ()) {
@@ -83,7 +83,7 @@ CKevaMemPool::addUnchecked (const uint256& hash, const CTxMemPoolEntry& entry)
     const valtype& key = entry.getKey();
     NamespaceKeyTuple tuple(nameSpace, key);
     assert(mapNamespaceKeyUpdates.count(tuple) == 0);
-    mapNamespaceKeyUpdates.insert (std::make_pair (name, hash));
+    mapNamespaceKeyUpdates.insert (std::make_pair(tuple, hash));
   }
 }
 
@@ -143,7 +143,7 @@ CKevaMemPool::check(const CCoinsView& coins) const
     nHeight = mapBlockIndex.find (blockHash)->second->nHeight;
 
   std::set<valtype> nameRegs;
-  std::set<valtype> nameUpdates;
+  std::set<std::tuple<const valtype&, const valtype&>> namespaceKeyUpdates;
   for (const auto& entry : pool.mapTx) {
     const uint256 txHash = entry.GetTx ().GetHash ();
     if (entry.isNamespaceRegistration()) {
@@ -155,43 +155,54 @@ CKevaMemPool::check(const CCoinsView& coins) const
 
       assert (nameRegs.count(nameSpace) == 0);
       nameRegs.insert(nameSpace);
-
+#if 0
       /* The old name should be expired already.  Note that we use
           nHeight+1 for the check, because that's the height at which
           the mempool tx will actually be mined.  */
       CKevaData data;
       if (coins.GetName(name, data))
         assert (data.isExpired (nHeight + 1));
+#endif
     }
 
     if (entry.isNamespaceKeyUpdate()) {
-      const valtype& name = entry.getName ();
-
-      const NameTxMap::const_iterator mit = mapNameUpdates.find (name);
-      assert (mit != mapNameUpdates.end ());
+      const valtype& nameSpace = entry.getNamespace();
+      const valtype& key = entry.getKey();
+      std::tuple<const valtype&, const valtype&> tuple(nameSpace, key);
+      const NamespaceKeyTxMap::const_iterator mit = mapNamespaceKeyUpdates.find(tuple);
+      assert (mit != mapNamespaceKeyUpdates.end ());
       assert (mit->second == txHash);
 
-      assert (nameUpdates.count (name) == 0);
-      nameUpdates.insert(name);
+      assert (namespaceKeyUpdates.count(tuple) == 0);
+      namespaceKeyUpdates.insert(tuple);
 
+#if 0
       /* As above, use nHeight+1 for the expiration check.  */
       CKevaData data;
-      if (!coins.GetName(name, data))
+      if (!coins.GetName(name, data)) {
         assert (false);
+      }
       assert (!data.isExpired (nHeight + 1));
+#endif
     }
   }
 
-  assert (nameRegs.size () == mapNameRegs.size ());
-  assert (nameUpdates.size () == mapNameUpdates.size ());
+  assert(nameRegs.size() == mapNamespaceRegs.size());
+  assert(namespaceKeyUpdates.size() == mapNamespaceKeyUpdates.size());
 
   /* Check that nameRegs and nameUpdates are disjoint.  They must be since
      a name can only be in either category, depending on whether it exists
      at the moment or not.  */
-  for (const auto& name : nameRegs)
-    assert (nameUpdates.count (name) == 0);
-  for (const auto& name : nameUpdates)
-    assert (nameRegs.count (name) == 0);
+#if 0
+  // Is this neccesary?
+  for (const auto& nameSpace : nameRegs) {
+    assert(namespaceKeyUpdates.count(name) == 0);
+  }
+#endif
+
+  for (const auto& namespaceKey : namespaceKeyUpdates) {
+    assert(nameRegs.count(std::get<0>(namespaceKey)) == 0);
+  }
 }
 
 bool
@@ -221,7 +232,7 @@ CKevaMemPool::checkTx (const CTransaction& tx) const
         if (mi != mapNamespaceRegs.end ())
           return false;
         break;
-      }      
+      }
 
       case OP_KEVA_PUT:
       {
@@ -285,7 +296,7 @@ CheckNameTransaction (const CTransaction& tx, unsigned nHeight,
 {
   const std::string strTxid = tx.GetHash ().GetHex ();
   const char* txid = strTxid.c_str ();
-  const bool fMempool = (flags & SCRIPT_VERIFY_NAMES_MEMPOOL);
+  const bool fMempool = (flags & SCRIPT_VERIFY_KEVA_MEMPOOL);
 
 #if 0
   /* Ignore historic bugs.  */
@@ -354,9 +365,16 @@ CheckNameTransaction (const CTransaction& tx, unsigned nHeight,
                                  __func__, txid));
 
   /* Reject "greedy names".  */
+#if 0
   const Consensus::Params& params = Params ().GetConsensus ();
-  if (tx.vout[nameOut].nValue < params.rules->MinNameCoinAmount(nHeight))
+  if (tx.vout[nameOut].nValue < params.rules->MinNameCoinAmount(nHeight)) {
     return state.Invalid (error ("%s: greedy name", __func__));
+  }
+#else
+  if (tx.vout[nameOut].nValue < KEVA_LOCKED_AMOUNT) {
+    return state.Invalid (error ("%s: greedy name", __func__));
+  }
+#endif
 
 #if 0
   /* Handle NAME_NEW now, since this is easy and different from the other
@@ -392,7 +410,7 @@ CheckNameTransaction (const CTransaction& tx, unsigned nHeight,
 
   if (nameOpOut.getOpValue().size () > MAX_VALUE_LENGTH) {
     return state.Invalid (error ("CheckNameTransaction: value too long"));
-  }    
+  }
 
   /* Process KEVA_PUT next.  */
   const valtype& nameSpace = nameOpOut.getOpNamespace();
@@ -400,12 +418,12 @@ CheckNameTransaction (const CTransaction& tx, unsigned nHeight,
     if (!nameOpIn.isAnyUpdate ()) {
       return state.Invalid(error("CheckNameTransaction: KEVA_PUT with"
                                           " prev input that is no update"));
-    }      
+    }
 
     if (nameSpace != nameOpIn.getOpNamespace()) {
       return state.Invalid (error ("%s: KEVA_PUT namespace mismatch to prev tx"
                                           " found in %s", __func__, txid));
-    }      
+    }
 
     /* This is actually redundant, since expired names are removed
         from the UTXO set and thus not available to be spent anyway.
@@ -656,7 +674,7 @@ void
 CheckNameDB (bool disconnect)
 {
   const int option
-    = gArgs.GetArg ("-checknamedb", Params ().DefaultCheckNameDB ());
+    = gArgs.GetArg ("-checknamedb", Params().DefaultCheckNameDB ());
 
   if (option == -1)
     return;
@@ -669,7 +687,7 @@ CheckNameDB (bool disconnect)
     }
 
   pcoinsTip->Flush ();
-  const bool ok = pcoinsTip->ValidateNameDB ();
+  const bool ok = pcoinsTip->ValidateNameDB();
 
   /* The DB is inconsistent (mismatch between UTXO set and names DB) between
      (roughly) blocks 139,000 and 180,000.  This is caused by libcoin's

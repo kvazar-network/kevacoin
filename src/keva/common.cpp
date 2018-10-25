@@ -40,6 +40,7 @@ CNameIterator::~CNameIterator ()
 /* ************************************************************************** */
 /* CKevaCacheNameIterator.  */
 
+// JWU TODO: this doesn't work at all!!!!
 class CCacheNameIterator : public CNameIterator
 {
 
@@ -104,7 +105,7 @@ CCacheNameIterator::advanceBaseIterator ()
   assert (baseHasMore);
   do
     baseHasMore = base->next (baseName, baseData);
-  while (baseHasMore && cache.isDeleted (baseName));
+  while (baseHasMore && cache.isDeleted(baseName, baseName));
 }
 
 void
@@ -175,7 +176,8 @@ CCacheNameIterator::next (valtype& name, CKevaData& data)
 bool
 CKevaCache::get (const valtype& nameSpace, const valtype& key, CKevaData& data) const
 {
-  valtype name = nameSpace + key;
+  valtype name = nameSpace;
+  name.insert( name.end(), key.begin(), key.end() );
   const EntryMap::const_iterator i = entries.find (name);
   if (i == entries.end ())
     return false;
@@ -187,7 +189,8 @@ CKevaCache::get (const valtype& nameSpace, const valtype& key, CKevaData& data) 
 void
 CKevaCache::set (const valtype& nameSpace, const valtype& key, const CKevaData& data)
 {
-  valtype name = nameSpace + key;
+  valtype name = nameSpace;
+  name.insert( name.end(), key.begin(), key.end() );
   const std::set<valtype>::iterator di = deleted.find (name);
   if (di != deleted.end ())
     deleted.erase (di);
@@ -202,7 +205,8 @@ CKevaCache::set (const valtype& nameSpace, const valtype& key, const CKevaData& 
 void
 CKevaCache::remove (const valtype& nameSpace, const valtype& key)
 {
-  valtype name = nameSpace + key;
+  valtype name = nameSpace;
+  name.insert( name.end(), key.begin(), key.end() );
   const EntryMap::iterator ei = entries.find (name);
   if (ei != entries.end ())
     entries.erase (ei);
@@ -250,6 +254,7 @@ CKevaCache::updateNamesForHeight (unsigned nHeight,
   /* Seek in the map of cached entries to the first one corresponding
      to our height.  */
 
+#if 0
   const ExpireEntry seekEntry(nHeight, valtype ());
   std::map<ExpireEntry, bool>::const_iterator it;
 
@@ -265,8 +270,10 @@ CKevaCache::updateNamesForHeight (unsigned nHeight,
       else
         names.erase (cur.name);
     }
+#endif
 }
 
+#if 0
 void
 CKevaCache::addExpireIndex (const valtype& name, unsigned height)
 {
@@ -280,17 +287,19 @@ CKevaCache::removeExpireIndex (const valtype& name, unsigned height)
   const ExpireEntry entry(height, name);
   expireIndex[entry] = false;
 }
+#endif
 
+#if 0
 void
-CKevaCache::apply (const CKevaCache& cache)
+CKevaCache::apply(const CKevaCache& cache)
 {
-  for (EntryMap::const_iterator i = cache.entries.begin ();
-       i != cache.entries.end (); ++i)
+  for (EntryMap::const_iterator i = cache.entries.begin (); i != cache.entries.end (); ++i) {
     set (i->first, i->second);
+  }
 
-  for (std::set<valtype>::const_iterator i = cache.deleted.begin ();
-       i != cache.deleted.end (); ++i)
+  for (std::set<valtype>::const_iterator i = cache.deleted.begin (); i != cache.deleted.end (); ++i) {
     remove (*i);
+  }
 
   for (std::map<valtype, CNameHistory>::const_iterator i
         = cache.history.begin (); i != cache.history.end (); ++i)
@@ -300,3 +309,4 @@ CKevaCache::apply (const CKevaCache& cache)
         = cache.expireIndex.begin (); i != cache.expireIndex.end (); ++i)
     expireIndex[i->first] = i->second;
 }
+#endif

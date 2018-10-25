@@ -8,6 +8,7 @@
 
 #include <compressor.h>
 #include <consensus/consensus.h>
+#include <keva/main.h>
 #include <primitives/transaction.h>
 #include <serialize.h>
 

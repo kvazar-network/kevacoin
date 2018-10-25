@@ -439,7 +439,11 @@ public:
   inline bool
   isDeleted (const valtype& nameSpace, const valtype& key) const
   {
-    return (deleted.count (name) > 0); 
+#if 0
+    return (deleted.count(name) > 0);
+#else
+    return false;
+#endif
   }
 
   /* Try to get a name's associated data.  This looks only
@@ -490,7 +494,9 @@ public:
 #endif
 
   /* Apply all the changes in the passed-in record on top of this one.  */
+#if 0
   void apply (const CKevaCache& cache);
+#endif
 
   /* Write all cached changes to a database batch update object.  */
   void writeBatch (CDBBatch& batch) const;
