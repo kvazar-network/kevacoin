@@ -46,25 +46,25 @@ CKevaTxUndo::apply(CCoinsViewCache& view) const
 /* CKevaMemPool.  */
 
 uint256
-CKevaMemPool::getTxForName(const valtype& name) const
+CKevaMemPool::getTxForNamespace(const valtype& nameSpace) const
 {
-  NameTxMap::const_iterator mi;
+#if 0
+  // JWU TODO: implement this!
+  NamespaceTxMap::const_iterator mi;
 
-  mi = mapNameRegs.find (name);
-  if (mi != mapNameRegs.end ())
-    {
-      assert (mapNameUpdates.count (name) == 0);
-      return mi->second;
-    }
+  mi = mapNamespaceRegs.find(nameSpace);
+  if (mi != mapNamespaceRegs.end()) {
+    assert(mapNamespaceKeyUpdates.count(name) == 0);
+    return mi->second;
+  }
 
-  mi = mapNameUpdates.find (name);
-  if (mi != mapNameUpdates.end ())
-    {
-      assert (mapNameRegs.count (name) == 0);
-      return mi->second;
-    }
-
-  return uint256 ();
+  mi = mapNamespaceKeyUpdates.find(name);
+  if (mi != mapNameUpdates.end ()) {
+    assert (mapNameRegs.count (name) == 0);
+    return mi->second;
+  }
+#endif
+  return uint256();
 }
 
 void
@@ -72,29 +72,19 @@ CKevaMemPool::addUnchecked (const uint256& hash, const CTxMemPoolEntry& entry)
 {
   AssertLockHeld (pool.cs);
 
-  if (entry.isNameNew ())
-    {
-      const valtype& newHash = entry.getNameNewHash ();
-      const NameTxMap::const_iterator mit = mapNameNews.find (newHash);
-      if (mit != mapNameNews.end ())
-        assert (mit->second == hash);
-      else
-        mapNameNews.insert (std::make_pair (newHash, hash));
-    }
+  if (entry.isNamespaceRegistration()) {
+    const valtype& nameSpace = entry.getNamespace();
+    assert(mapNamespaceRegs.count(nameSpace) == 0);
+    mapNamespaceRegs.insert(std::make_pair (nameSpace, hash));
+  }
 
-  if (entry.isNameRegistration ())
-    {
-      const valtype& name = entry.getName ();
-      assert (mapNameRegs.count (name) == 0);
-      mapNameRegs.insert (std::make_pair (name, hash));
-    }
-
-  if (entry.isNameUpdate ())
-    {
-      const valtype& name = entry.getName ();
-      assert (mapNameUpdates.count (name) == 0);
-      mapNameUpdates.insert (std::make_pair (name, hash));
-    }
+  if (entry.isNamespaceKeyUpdate ()) {
+    const valtype& nameSpace = entry.getNamespace();
+    const valtype& key = entry.getKey();
+    NamespaceKeyTuple tuple(nameSpace, key);
+    assert(mapNamespaceKeyUpdates.count(tuple) == 0);
+    mapNamespaceKeyUpdates.insert (std::make_pair (name, hash));
+  }
 }
 
 void
@@ -102,18 +92,18 @@ CKevaMemPool::remove (const CTxMemPoolEntry& entry)
 {
   AssertLockHeld (pool.cs);
 
-  if (entry.isNameRegistration ())
-    {
-      const NameTxMap::iterator mit = mapNameRegs.find (entry.getName ());
-      assert (mit != mapNameRegs.end ());
-      mapNameRegs.erase (mit);
-    }
-  if (entry.isNameUpdate ())
-    {
-      const NameTxMap::iterator mit = mapNameUpdates.find (entry.getName ());
-      assert (mit != mapNameUpdates.end ());
-      mapNameUpdates.erase (mit);
-    }
+  if (entry.isNamespaceRegistration ()) {
+    const NamespaceTxMap::iterator mit = mapNamespaceRegs.find (entry.getNamespace());
+    assert (mit != mapNamespaceRegs.end());
+    mapNamespaceRegs.erase (mit);
+  }
+
+  if (entry.isNamespaceKeyUpdate ()) {
+    NamespaceKeyTuple tuple(entry.getNamespace(), entry.getKey());
+    const NamespaceKeyTxMap::iterator mit = mapNamespaceKeyUpdates.find(tuple);
+    assert (mit != mapNamespaceKeyUpdates.end());
+    mapNamespaceKeyUpdates.erase (mit);
+  }
 }
 
 void
@@ -121,29 +111,27 @@ CKevaMemPool::removeConflicts (const CTransaction& tx)
 {
   AssertLockHeld (pool.cs);
 
-  if (!tx.IsNamecoin ())
+  if (!tx.IsKevacoin ())
     return;
 
   for (const auto& txout : tx.vout)
     {
-      const CNameScript nameOp(txout.scriptPubKey);
-      if (nameOp.isNameOp () && nameOp.getNameOp () == OP_NAME_FIRSTUPDATE)
-        {
-          const valtype& name = nameOp.getOpName ();
-          const NameTxMap::const_iterator mit = mapNameRegs.find (name);
-          if (mit != mapNameRegs.end ())
-            {
-              const CTxMemPool::txiter mit2 = pool.mapTx.find (mit->second);
-              assert (mit2 != pool.mapTx.end ());
-              pool.removeRecursive (mit2->GetTx (),
-                                    MemPoolRemovalReason::NAME_CONFLICT);
-            }
+      const CKevaScript nameOp(txout.scriptPubKey);
+      if (nameOp.isKevaOp () && nameOp.getKevaOp () == OP_KEVA_PUT) {
+        const valtype& nameSpace = nameOp.getOpNamespace();
+        const NamespaceTxMap::const_iterator mit = mapNamespaceRegs.find(nameSpace);
+        if (mit != mapNamespaceRegs.end ()) {
+          const CTxMemPool::txiter mit2 = pool.mapTx.find (mit->second);
+          assert (mit2 != pool.mapTx.end ());
+          pool.removeRecursive (mit2->GetTx (),
+                                MemPoolRemovalReason::KEVA_CONFLICT);
         }
+      }
     }
 }
 
 void
-CKevaMemPool::check (const CCoinsView& coins) const
+CKevaMemPool::check(const CCoinsView& coins) const
 {
   AssertLockHeld (pool.cs);
 
@@ -156,55 +144,43 @@ CKevaMemPool::check (const CCoinsView& coins) const
 
   std::set<valtype> nameRegs;
   std::set<valtype> nameUpdates;
-  for (const auto& entry : pool.mapTx)
-    {
-      const uint256 txHash = entry.GetTx ().GetHash ();
-      if (entry.isNameNew ())
-        {
-          const valtype& newHash = entry.getNameNewHash ();
-          const NameTxMap::const_iterator mit = mapNameNews.find (newHash);
+  for (const auto& entry : pool.mapTx) {
+    const uint256 txHash = entry.GetTx ().GetHash ();
+    if (entry.isNamespaceRegistration()) {
+      const valtype& nameSpace = entry.getNamespace();
 
-          assert (mit != mapNameNews.end ());
-          assert (mit->second == txHash);
-        }
+      const NamespaceTxMap::const_iterator mit = mapNamespaceRegs.find(nameSpace);
+      assert (mit != mapNamespaceRegs.end());
+      assert (mit->second == txHash);
 
-      if (entry.isNameRegistration ())
-        {
-          const valtype& name = entry.getName ();
+      assert (nameRegs.count(nameSpace) == 0);
+      nameRegs.insert(nameSpace);
 
-          const NameTxMap::const_iterator mit = mapNameRegs.find (name);
-          assert (mit != mapNameRegs.end ());
-          assert (mit->second == txHash);
-
-          assert (nameRegs.count (name) == 0);
-          nameRegs.insert (name);
-
-          /* The old name should be expired already.  Note that we use
-             nHeight+1 for the check, because that's the height at which
-             the mempool tx will actually be mined.  */
-          CNameData data;
-          if (coins.GetName (name, data))
-            assert (data.isExpired (nHeight + 1));
-        }
-
-      if (entry.isNameUpdate ())
-        {
-          const valtype& name = entry.getName ();
-
-          const NameTxMap::const_iterator mit = mapNameUpdates.find (name);
-          assert (mit != mapNameUpdates.end ());
-          assert (mit->second == txHash);
-
-          assert (nameUpdates.count (name) == 0);
-          nameUpdates.insert (name);
-
-          /* As above, use nHeight+1 for the expiration check.  */
-          CNameData data;
-          if (!coins.GetName (name, data))
-            assert (false);
-          assert (!data.isExpired (nHeight + 1));
-        }
+      /* The old name should be expired already.  Note that we use
+          nHeight+1 for the check, because that's the height at which
+          the mempool tx will actually be mined.  */
+      CKevaData data;
+      if (coins.GetName(name, data))
+        assert (data.isExpired (nHeight + 1));
     }
+
+    if (entry.isNamespaceKeyUpdate()) {
+      const valtype& name = entry.getName ();
+
+      const NameTxMap::const_iterator mit = mapNameUpdates.find (name);
+      assert (mit != mapNameUpdates.end ());
+      assert (mit->second == txHash);
+
+      assert (nameUpdates.count (name) == 0);
+      nameUpdates.insert(name);
+
+      /* As above, use nHeight+1 for the expiration check.  */
+      CKevaData data;
+      if (!coins.GetName(name, data))
+        assert (false);
+      assert (!data.isExpired (nHeight + 1));
+    }
+  }
 
   assert (nameRegs.size () == mapNameRegs.size ());
   assert (nameUpdates.size () == mapNameUpdates.size ());
@@ -223,7 +199,7 @@ CKevaMemPool::checkTx (const CTransaction& tx) const
 {
   AssertLockHeld (pool.cs);
 
-  if (!tx.IsNamecoin ())
+  if (!tx.IsKevacoin ())
     return true;
 
   /* In principle, multiple name_updates could be performed within the
@@ -231,44 +207,35 @@ CKevaMemPool::checkTx (const CTransaction& tx) const
      since the current mempool implementation does not like it.  (We keep
      track of only a single update tx for each name.)  */
 
-  for (const auto& txout : tx.vout)
-    {
-      const CNameScript nameOp(txout.scriptPubKey);
-      if (!nameOp.isNameOp ())
-        continue;
+  for (const auto& txout : tx.vout) {
+    const CKevaScript nameOp(txout.scriptPubKey);
+    if (!nameOp.isKevaOp ())
+      continue;
 
-      switch (nameOp.getNameOp ())
-        {
-        case OP_NAME_NEW:
-          {
-            const valtype& newHash = nameOp.getOpHash ();
-            std::map<valtype, uint256>::const_iterator mi;
-            mi = mapNameNews.find (newHash);
-            if (mi != mapNameNews.end () && mi->second != tx.GetHash ())
-              return false;
-            break;
-          }
+    switch (nameOp.getKevaOp ()) {
+      case OP_KEVA_NAMESPACE:
+      {
+        const valtype& nameSpace = nameOp.getOpNamespace();
+        std::map<valtype, uint256>::const_iterator mi;
+        mi = mapNamespaceRegs.find(nameSpace);
+        if (mi != mapNamespaceRegs.end ())
+          return false;
+        break;
+      }      
 
-        case OP_NAME_FIRSTUPDATE:
-          {
-            const valtype& name = nameOp.getOpName ();
-            if (registersName (name))
-              return false;
-            break;
-          }
+      case OP_KEVA_PUT:
+      {
+        const valtype& nameSpace = nameOp.getOpNamespace();
+        const valtype& key = nameOp.getOpKey();
+        if (updatesKey(nameSpace, key))
+          return false;
+        break;
+      }
 
-        case OP_NAME_UPDATE:
-          {
-            const valtype& name = nameOp.getOpName ();
-            if (updatesName (name))
-              return false;
-            break;
-          }
-
-        default:
-          assert (false);
-        }
+      default:
+        assert (false);
     }
+  }
 
   return true;
 }
@@ -284,7 +251,7 @@ ConflictTrackerNotifyEntryRemoved (CNameConflictTracker* tracker,
                                    CTransactionRef txRemoved,
                                    MemPoolRemovalReason reason)
 {
-  if (reason == MemPoolRemovalReason::NAME_CONFLICT)
+  if (reason == MemPoolRemovalReason::KEVA_CONFLICT)
     tracker->AddConflictedEntry (txRemoved);
 }
 
@@ -320,17 +287,19 @@ CheckNameTransaction (const CTransaction& tx, unsigned nHeight,
   const char* txid = strTxid.c_str ();
   const bool fMempool = (flags & SCRIPT_VERIFY_NAMES_MEMPOOL);
 
+#if 0
   /* Ignore historic bugs.  */
   CChainParams::BugType type;
   if (Params ().IsHistoricBug (tx.GetHash (), nHeight, type))
     return true;
+#endif
 
   /* As a first step, try to locate inputs and outputs of the transaction
      that are name scripts.  At most one input and output should be
      a name operation.  */
 
   int nameIn = -1;
-  CNameScript nameOpIn;
+  CKevaScript nameOpIn;
   Coin coinIn;
   for (unsigned i = 0; i < tx.vin.size (); ++i)
     {
@@ -339,51 +308,47 @@ CheckNameTransaction (const CTransaction& tx, unsigned nHeight,
       if (!view.GetCoin (prevout, coin))
         return error ("%s: failed to fetch input coin for %s", __func__, txid);
 
-      const CNameScript op(coin.out.scriptPubKey);
-      if (op.isNameOp ())
-        {
-          if (nameIn != -1)
-            return state.Invalid (error ("%s: multiple name inputs into"
-                                         " transaction %s", __func__, txid));
-          nameIn = i;
-          nameOpIn = op;
-          coinIn = coin;
-        }
+      const CKevaScript op(coin.out.scriptPubKey);
+      if (op.isKevaOp()) {
+        if (nameIn != -1)
+          return state.Invalid (error ("%s: multiple name inputs into"
+                                        " transaction %s", __func__, txid));
+        nameIn = i;
+        nameOpIn = op;
+        coinIn = coin;
+      }
     }
 
   int nameOut = -1;
-  CNameScript nameOpOut;
-  for (unsigned i = 0; i < tx.vout.size (); ++i)
-    {
-      const CNameScript op(tx.vout[i].scriptPubKey);
-      if (op.isNameOp ())
-        {
-          if (nameOut != -1)
-            return state.Invalid (error ("%s: multiple name outputs from"
-                                         " transaction %s", __func__, txid));
-          nameOut = i;
-          nameOpOut = op;
-        }
+  CKevaScript nameOpOut;
+  for (unsigned i = 0; i < tx.vout.size (); ++i) {
+    const CKevaScript op(tx.vout[i].scriptPubKey);
+    if (op.isKevaOp()) {
+      if (nameOut != -1)
+        return state.Invalid (error ("%s: multiple name outputs from"
+                                      " transaction %s", __func__, txid));
+      nameOut = i;
+      nameOpOut = op;
     }
+  }
 
   /* Check that no name inputs/outputs are present for a non-Namecoin tx.
      If that's the case, all is fine.  For a Namecoin tx instead, there
      should be at least an output (for NAME_NEW, no inputs are expected).  */
 
-  if (!tx.IsNamecoin ())
-    {
-      if (nameIn != -1)
-        return state.Invalid (error ("%s: non-Namecoin tx %s has name inputs",
-                                     __func__, txid));
-      if (nameOut != -1)
-        return state.Invalid (error ("%s: non-Namecoin tx %s at height %u"
-                                     " has name outputs",
-                                     __func__, txid, nHeight));
+  if (!tx.IsKevacoin ()) {
+    if (nameIn != -1)
+      return state.Invalid (error ("%s: non-Namecoin tx %s has name inputs",
+                                    __func__, txid));
+    if (nameOut != -1)
+      return state.Invalid (error ("%s: non-Namecoin tx %s at height %u"
+                                    " has name outputs",
+                                    __func__, txid, nHeight));
 
-      return true;
-    }
+    return true;
+  }
 
-  assert (tx.IsNamecoin ());
+  assert(tx.IsKevacoin ());
   if (nameOut == -1)
     return state.Invalid (error ("%s: Namecoin tx %s has no name outputs",
                                  __func__, txid));
@@ -393,6 +358,7 @@ CheckNameTransaction (const CTransaction& tx, unsigned nHeight,
   if (tx.vout[nameOut].nValue < params.rules->MinNameCoinAmount(nHeight))
     return state.Invalid (error ("%s: greedy name", __func__));
 
+#if 0
   /* Handle NAME_NEW now, since this is easy and different from the other
      operations.  */
 
@@ -411,54 +377,65 @@ CheckNameTransaction (const CTransaction& tx, unsigned nHeight,
 
   /* Now that we have ruled out NAME_NEW, check that we have a previous
      name input that is being updated.  */
+#endif
 
-  assert (nameOpOut.isAnyUpdate ());
-  if (nameIn == -1)
-    return state.Invalid (error ("CheckNameTransaction: update without"
+  assert (nameOpOut.isAnyUpdate());
+  if (nameIn == -1) {
+    return state.Invalid(error("CheckNameTransaction: update without"
                                  " previous name input"));
-  const valtype& name = nameOpOut.getOpName ();
+  }
 
-  if (name.size () > MAX_NAME_LENGTH)
-    return state.Invalid (error ("CheckNameTransaction: name too long"));
-  if (nameOpOut.getOpValue ().size () > MAX_VALUE_LENGTH)
+  const valtype& key = nameOpOut.getOpKey();
+  if (key.size() > MAX_KEY_LENGTH) {
+    return state.Invalid (error ("CheckNameTransaction: key too long"));
+  }
+
+  if (nameOpOut.getOpValue().size () > MAX_VALUE_LENGTH) {
     return state.Invalid (error ("CheckNameTransaction: value too long"));
+  }    
 
-  /* Process NAME_UPDATE next.  */
+  /* Process KEVA_PUT next.  */
+  const valtype& nameSpace = nameOpOut.getOpNamespace();
+  if (nameOpOut.getKevaOp() == OP_KEVA_PUT) {
+    if (!nameOpIn.isAnyUpdate ()) {
+      return state.Invalid(error("CheckNameTransaction: KEVA_PUT with"
+                                          " prev input that is no update"));
+    }      
 
-  if (nameOpOut.getNameOp () == OP_NAME_UPDATE)
-    {
-      if (!nameOpIn.isAnyUpdate ())
-        return state.Invalid (error ("CheckNameTransaction: NAME_UPDATE with"
-                                     " prev input that is no update"));
+    if (nameSpace != nameOpIn.getOpNamespace()) {
+      return state.Invalid (error ("%s: KEVA_PUT namespace mismatch to prev tx"
+                                          " found in %s", __func__, txid));
+    }      
 
-      if (name != nameOpIn.getOpName ())
-        return state.Invalid (error ("%s: NAME_UPDATE name mismatch to prev tx"
-                                     " found in %s", __func__, txid));
-
-      /* This is actually redundant, since expired names are removed
-         from the UTXO set and thus not available to be spent anyway.
-         But it does not hurt to enforce this here, too.  It is also
-         exercised by the unit tests.  */
-      CNameData oldName;
-      if (!view.GetName (name, oldName))
-        return state.Invalid (error ("%s: NAME_UPDATE name does not exist",
-                                     __func__));
-      if (oldName.isExpired (nHeight))
-        return state.Invalid (error ("%s: trying to update expired name",
-                                     __func__));
-
-      /* This is an internal consistency check.  If everything is fine,
-         the input coins from the UTXO database should match the
-         name database.  */
-      assert (static_cast<unsigned> (coinIn.nHeight) == oldName.getHeight ());
-      assert (tx.vin[nameIn].prevout == oldName.getUpdateOutpoint ());
-
-      return true;
+    /* This is actually redundant, since expired names are removed
+        from the UTXO set and thus not available to be spent anyway.
+        But it does not hurt to enforce this here, too.  It is also
+        exercised by the unit tests.  */
+    CKevaData oldName;
+    const valtype& namespaceIn = nameOpIn.getOpNamespace();
+    const valtype& keyIn = nameOpIn.getOpKey();
+    if (!view.GetName(namespaceIn, keyIn, oldName)) {
+      return state.Invalid (error ("%s: KEVA_PUT name does not exist",
+                                          __func__));
     }
+#if 0
+    if (oldName.isExpired (nHeight))
+      return state.Invalid (error ("%s: trying to update expired name",
+                                    __func__));
+#endif
+    /* This is an internal consistency check.  If everything is fine,
+        the input coins from the UTXO database should match the
+        name database.  */
+    assert (static_cast<unsigned> (coinIn.nHeight) == oldName.getHeight());
+    assert (tx.vin[nameIn].prevout == oldName.getUpdateOutpoint());
 
+    return true;
+  }
+
+#if 0
   /* Finally, NAME_FIRSTUPDATE.  */
 
-  assert (nameOpOut.getNameOp () == OP_NAME_FIRSTUPDATE);
+  assert(nameOpOut.getNameOp () == OP_NAME_FIRSTUPDATE);
   if (nameOpIn.getNameOp () != OP_NAME_NEW)
     return state.Invalid (error ("CheckNameTransaction: NAME_FIRSTUPDATE"
                                  " with non-NAME_NEW prev tx"));
@@ -495,7 +472,7 @@ CheckNameTransaction (const CTransaction& tx, unsigned nHeight,
   /* We don't have to specifically check that miners don't create blocks with
      conflicting NAME_FIRSTUPDATE's, since the mining's CCoinsViewCache
      takes care of this with the check above already.  */
-
+#endif
   return true;
 }
 
@@ -553,6 +530,7 @@ ApplyNameTransaction (const CTransaction& tx, unsigned nHeight,
   }
 }
 
+#if 0
 bool
 ExpireNames (unsigned nHeight, CCoinsViewCache& view, CBlockUndo& undo,
              std::set<valtype>& names)
@@ -672,6 +650,7 @@ UnexpireNames (unsigned nHeight, CBlockUndo& undo, CCoinsViewCache& view,
 
   return true;
 }
+#endif
 
 void
 CheckNameDB (bool disconnect)

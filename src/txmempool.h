@@ -88,6 +88,9 @@ private:
     CAmount nModFeesWithAncestors;
     int64_t nSigOpCostWithAncestors;
 
+    /* Cache keva operation (if any) performed by this tx.  */
+    CKevaScript kevaOp;
+
 public:
     CTxMemPoolEntry(const CTransactionRef& _tx, const CAmount& _nFee,
                     int64_t _nTime, unsigned int _entryHeight,
@@ -126,6 +129,26 @@ public:
     uint64_t GetSizeWithAncestors() const { return nSizeWithAncestors; }
     CAmount GetModFeesWithAncestors() const { return nModFeesWithAncestors; }
     int64_t GetSigOpCostWithAncestors() const { return nSigOpCostWithAncestors; }
+
+    inline bool isNamespaceRegistration() const
+    {
+        return kevaOp.isKevaOp() && kevaOp.getKevaOp() == OP_KEVA_NAMESPACE;
+    }
+
+    inline bool isNamespaceKeyUpdate() const
+    {
+        return kevaOp.isKevaOp() && kevaOp.getKevaOp() == OP_KEVA_PUT;
+    }
+
+    inline const valtype& getNamespace() const
+    {
+        return kevaOp.getOpNamespace();
+    }
+
+    inline const valtype& getKey() const
+    {
+        return kevaOp.getOpKey();
+    }
 
     mutable size_t vTxHashesIdx; //!< Index in mempool's vTxHashes
 };
@@ -345,7 +368,8 @@ enum class MemPoolRemovalReason {
     REORG,       //! Removed for reorganization
     BLOCK,       //! Removed for block
     CONFLICT,    //! Removed for conflict with in-block transaction
-    REPLACED     //! Removed for replacement
+    REPLACED,    //! Removed for replacement,
+    KEVA_CONFLICT
 };
 
 class SaltedTxidHasher

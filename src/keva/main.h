@@ -126,13 +126,13 @@ private:
   NamespaceTxMap mapNamespaceRegs;
 
   /** Map pending name updates to transaction IDs.  */
-  NamespaceTxMap mapNamespaceUpdates;
+  //NamespaceTxMap mapNamespaceUpdates;
 
   /**
-   * Keep track of key that are registered by transactions in the pool.
+   * Keep track of key that are updated by transactions in the pool.
    * Map key to registering transaction.
    */
-  NamespaceKeyTxMap mapNamespaceKeyRegs;
+  NamespaceKeyTxMap mapNamespaceKeyUpdates;
 
 public:
 
@@ -163,10 +163,10 @@ public:
    * @return True iff there's a matching name update in the pool.
    */
   inline bool
-  updatesName (const valtype& name) const
+  updatesKey (const valtype& nameSpace, const valtype& key) const
   {
-    //return mapNameUpdates.count (name) > 0;
-    return true;
+    NamespaceKeyTuple tuple(nameSpace, key);
+    return mapNamespaceKeyUpdates.count(tuple) > 0;
   }
 
   /**
@@ -175,7 +175,9 @@ public:
    * @param name The name to check for.
    * @return The txid that registers/updates it.  Null if none.
    */
-  uint256 getTxForName (const valtype& name) const;
+  uint256 getTxForNamespace(const valtype& nameSpace) const;
+
+  uint256 getTxForNamespaceKey(const valtype& nameSpace, const valtype& key) const;
 
   /**
    * Clear all data.
@@ -183,11 +185,8 @@ public:
   inline void
   clear ()
   {
-    /*
-    mapNameRegs.clear ();
-    mapNameUpdates.clear ();
-    mapNameNews.clear ();
-    */
+    mapNamespaceRegs.clear();
+    mapNamespaceKeyUpdates.clear();
   }
 
   /**
