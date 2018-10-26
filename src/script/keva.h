@@ -7,8 +7,6 @@
 
 #include <script/script.h>
 
-typedef std::vector<unsigned char> valtype;
-
 class uint160;
 
 /**
@@ -36,7 +34,7 @@ public:
    * Default constructor.  This enables us to declare a variable
    * and initialise it later via assignment.
    */
-  inline CKevaScript ()
+  inline CKevaScript()
     : op(OP_NOP)
   {}
 
@@ -45,14 +43,13 @@ public:
    * the member variables representing the "picked apart" name script.
    * @param script The ordinary script to parse.
    */
-  explicit CKevaScript (const CScript& script);
+  explicit CKevaScript(const CScript& script);
 
   /**
    * Return whether this is a (valid) name script.
    * @return True iff this is a name operation.
    */
-  inline bool
-  isKevaOp () const
+  inline bool isKevaOp() const
   {
     switch (op) {
       case OP_KEVA_PUT:
@@ -86,10 +83,10 @@ public:
   inline opcodetype getKevaOp() const
   {
     switch (op) {
-      case OP_KEVA_PUT:      
+      case OP_KEVA_PUT:
         return op;
 
-      case OP_KEVA_NAMESPACE:      
+      case OP_KEVA_NAMESPACE:
         return op;
 
       default:
@@ -136,16 +133,15 @@ public:
   }
 
   /**
-   * Return the name operation value.  This call is only valid for
-   * OP_KEVA_PUT.
-   * @return The name operation's value.
+   * Return namespace's display name.  This call is only valid for
+   * OP_KEVA_NAMESPACE.
+   * @return The namespace's display name.
    */
-  inline const valtype& getOpNamespaceValue() const
+  inline const valtype& getOpNamespaceDisplayName() const
   {
     switch (op) {
-      case OP_KEVA_PUT:
-        // args[1] is namespace
-        return args[2];
+      case OP_KEVA_NAMESPACE:
+        return args[1];
 
       default:
         assert (false);
@@ -161,10 +157,7 @@ public:
   {
     switch (op) {
       case OP_KEVA_PUT:
-        return args[0];
-
-      case OP_KEVA_NAMESPACE:
-        return args[0];
+        return args[1];
 
       default:
         assert(false);
@@ -180,7 +173,7 @@ public:
   {
     switch (op) {
       case OP_KEVA_PUT:
-        // args[1] is namespace
+        // args[0] is namespace, args[1] is key
         return args[2];
 
       default:

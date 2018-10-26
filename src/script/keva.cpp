@@ -10,31 +10,33 @@ CKevaScript::CKevaScript (const CScript& script)
   : op(OP_NOP), address(script)
 {
   opcodetype nameOp;
-  CScript::const_iterator pc = script.begin ();
-  if (!script.GetOp (pc, nameOp))
+  CScript::const_iterator pc = script.begin();
+  if (!script.GetOp(pc, nameOp)) {
     return;
+  }
 
   opcodetype opcode;
   while (true) {
     valtype vch;
 
-    if (!script.GetOp (pc, opcode, vch)) {
+    if (!script.GetOp(pc, opcode, vch)) {
       return;
-    }      
+    }
     if (opcode == OP_DROP || opcode == OP_2DROP || opcode == OP_NOP) {
       break;
-    }      
+    }
     if (!(opcode >= 0 && opcode <= OP_PUSHDATA4)) {
       return;
-    }      
+    }
 
     args.push_back (vch);
   }
 
   // Move the pc to after any DROP or NOP.
   while (opcode == OP_DROP || opcode == OP_2DROP || opcode == OP_NOP) {
-    if (!script.GetOp (pc, opcode))
-          break;
+    if (!script.GetOp(pc, opcode)) {
+      break;
+    }
   }
   pc--;
 
@@ -43,15 +45,15 @@ CKevaScript::CKevaScript (const CScript& script)
      op and address members, if everything is valid.  */
   switch (nameOp) {
     case OP_KEVA_PUT:
-      if (args.size () != 1) {
+      if (args.size() != 3) {
         return;
-      }        
+      }
       break;
 
     case OP_KEVA_NAMESPACE:
-      if (args.size () != 1) {
+      if (args.size() != 3) {
         return;
-      }        
+      }
       break;
 
     default:
@@ -59,7 +61,7 @@ CKevaScript::CKevaScript (const CScript& script)
   }
 
   op = nameOp;
-  address = CScript (pc, script.end ());
+  address = CScript(pc, script.end());
 }
 
 CScript
