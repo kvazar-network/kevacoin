@@ -252,14 +252,12 @@ libbitcoin_wallet_a_SOURCES = \
   wallet/fees.cpp \
   wallet/init.cpp \
   wallet/rpcdump.cpp \
+  wallet/rpckeva.cpp \
   wallet/rpcwallet.cpp \
   wallet/wallet.cpp \
   wallet/walletdb.cpp \
   wallet/walletutil.cpp \
   $(BITCOIN_CORE_H)
-
-libbitcoin_wallet_a_SOURCES += \
-  wallet/rpckeva.cpp
 
 # crypto primitives library
 crypto_libbitcoin_crypto_a_CPPFLAGS = $(AM_CPPFLAGS) $(SSL_CFLAGS)
@@ -328,6 +326,8 @@ libbitcoin_consensus_a_SOURCES = \
   script/bitcoinconsensus.cpp \
   script/interpreter.cpp \
   script/interpreter.h \
+  script/keva.h \
+  script/keva.cpp \
   script/script.cpp \
   script/script.h \
   script/script_error.cpp \
@@ -338,9 +338,7 @@ libbitcoin_consensus_a_SOURCES = \
   uint256.h \
   utilstrencodings.cpp \
   utilstrencodings.h \
-  version.h \
-  script/keva.h \
-  script/keva.cpp
+  version.h
 
 # common: shared between bitcoind, and bitcoin-qt and non-server tools
 libbitcoin_common_a_CPPFLAGS = $(AM_CPPFLAGS) $(BITCOIN_INCLUDES)

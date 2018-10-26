@@ -16,6 +16,7 @@
 #include <amount.h>
 #include <coins.h>
 #include <indirectmap.h>
+#include <keva/main.h>
 #include <policy/feerate.h>
 #include <primitives/transaction.h>
 #include <sync.h>
@@ -472,6 +473,9 @@ private:
     mutable bool blockSinceLastRollingFeeBump;
     mutable double rollingMinimumFeeRate; //!< minimum fee to get into the pool, decreases exponentially
 
+    /** Keva-related mempool data.  */
+    CKevaMemPool kevaMemPool;
+
     void trackPackageRemoved(const CFeeRate& rate);
 
 public:
@@ -659,6 +663,38 @@ public:
     {
         LOCK(cs);
         return (mapTx.count(hash) != 0);
+    }
+
+    inline bool registersNamespace(const valtype& nameSpace) const
+    {
+        AssertLockHeld(cs);
+        return kevaMemPool.registersNamespace(nameSpace);
+    }
+
+    inline bool updatesKey(const valtype& nameSpace, const valtype& key) const
+    {
+        AssertLockHeld(cs);
+        return kevaMemPool.updatesKey(nameSpace, key);
+    }
+
+    inline uint256 getTxForNamespace(const valtype& name) const
+    {
+        AssertLockHeld(cs);
+        return kevaMemPool.getTxForNamespace(name);
+    }
+
+    /**
+     * Check if a tx can be added to it according to name criteria.
+     * (The non-name criteria are checked in main.cpp and not here, we
+     * leave it there for as little changes as possible.)
+     * @param tx The tx that should be added.
+     * @return True if it doesn't conflict.
+     */
+    inline bool
+    checkNameOps (const CTransaction& tx) const
+    {
+        AssertLockHeld(cs);
+        return kevaMemPool.checkTx(tx);
     }
 
     CTransactionRef get(const uint256& hash) const;

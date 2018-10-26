@@ -174,7 +174,7 @@ CCacheNameIterator::next (valtype& name, CKevaData& data)
 /* CKevaCache.  */
 
 bool
-CKevaCache::get (const valtype& nameSpace, const valtype& key, CKevaData& data) const
+CKevaCache::get(const valtype& nameSpace, const valtype& key, CKevaData& data) const
 {
   valtype name = nameSpace;
   name.insert( name.end(), key.begin(), key.end() );
@@ -186,8 +186,14 @@ CKevaCache::get (const valtype& nameSpace, const valtype& key, CKevaData& data) 
   return true;
 }
 
+bool CKevaCache::hasNamespace(const valtype& nameSpace) const
+{
+  auto ni = namespaces.find(nameSpace);
+  return (ni != namespaces.end());
+}
+
 void
-CKevaCache::set (const valtype& nameSpace, const valtype& key, const CKevaData& data)
+CKevaCache::set(const valtype& nameSpace, const valtype& key, const CKevaData& data)
 {
   valtype name = nameSpace;
   name.insert( name.end(), key.begin(), key.end() );
@@ -200,10 +206,12 @@ CKevaCache::set (const valtype& nameSpace, const valtype& key, const CKevaData& 
     ei->second = data;
   else
     entries.insert (std::make_pair (name, data));
+
+  namespaces.insert(nameSpace);
 }
 
 void
-CKevaCache::remove (const valtype& nameSpace, const valtype& key)
+CKevaCache::remove(const valtype& nameSpace, const valtype& key)
 {
   valtype name = nameSpace;
   name.insert( name.end(), key.begin(), key.end() );
@@ -215,7 +223,7 @@ CKevaCache::remove (const valtype& nameSpace, const valtype& key)
 }
 
 CNameIterator*
-CKevaCache::iterateNames (CNameIterator* base) const
+CKevaCache::iterateNames(CNameIterator* base) const
 {
   return new CCacheNameIterator (*this, base);
 }

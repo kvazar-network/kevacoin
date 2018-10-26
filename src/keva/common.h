@@ -377,6 +377,7 @@ public:
    * by the unit tests.
    */
   typedef std::map<valtype, CKevaData, NameComparator> EntryMap;
+  typedef std::set<valtype> NamespaceSet;
 
 private:
 
@@ -384,6 +385,8 @@ private:
   EntryMap entries;
   /** Deleted names.  */
   std::set<valtype> deleted;
+  /** Namespaces */
+  NamespaceSet namespaces;
 
 #if 0
   /**
@@ -448,14 +451,16 @@ public:
 
   /* Try to get a name's associated data.  This looks only
      in entries, and doesn't care about deleted data.  */
-  bool get (const valtype& nameSpace, const valtype& key, CKevaData& data) const;
+  bool get(const valtype& nameSpace, const valtype& key, CKevaData& data) const;
+
+  bool hasNamespace(const valtype& nameSpace) const;
 
   /* Insert (or update) a name.  If it is marked as "deleted", this also
      removes the "deleted" mark.  */
-  void set (const valtype& nameSpace, const valtype& key, const CKevaData& data);
+  void set(const valtype& nameSpace, const valtype& key, const CKevaData& data);
 
   /* Delete a name.  If it is in the "entries" set also, remove it there.  */
-  void remove (const valtype& nameSpace, const valtype& key);
+  void remove(const valtype& nameSpace, const valtype& key);
 
   /* Return a name iterator that combines a "base" iterator with the changes
      made to it according to the cache.  The base iterator is taken

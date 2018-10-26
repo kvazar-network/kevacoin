@@ -164,6 +164,9 @@ public:
     //! the old block hash, in that order.
     virtual std::vector<uint256> GetHeadBlocks() const;
 
+    // Check if a namespace exists.
+    virtual bool HasNamespace(const valtype& nameSpace) const;
+
     // Get a name (if it exists)
     virtual bool GetName(const valtype& nameSpace, const valtype& key, CKevaData& data) const;
 
@@ -200,6 +203,7 @@ public:
     bool HaveCoin(const COutPoint &outpoint) const override;
     uint256 GetBestBlock() const override;
     std::vector<uint256> GetHeadBlocks() const override;
+    bool HasNamespace(const valtype& nameSpace) const override;
     bool GetName(const valtype& nameSpace, const valtype& key, CKevaData& data) const override;
     bool GetNamesForHeight(unsigned nHeight, std::set<valtype>& names) const override;
     void SetBackend(CCoinsView &viewIn);
@@ -240,6 +244,7 @@ public:
     bool HaveCoin(const COutPoint &outpoint) const override;
     uint256 GetBestBlock() const override;
     void SetBestBlock(const uint256 &hashBlock);
+    bool HasNamespace(const valtype &nameSpace) const override;
     bool GetName(const valtype &nameSpace, const valtype &key, CKevaData &data) const override;
     bool GetNamesForHeight(unsigned nHeight, std::set<valtype>& names) const override;
     bool BatchWrite(CCoinsMap &mapCoins, const uint256 &hashBlock) override;
