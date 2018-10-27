@@ -13,7 +13,8 @@ std::vector<uint256> CCoinsView::GetHeadBlocks() const { return std::vector<uint
 bool CCoinsView::HasNamespace(const valtype &nameSpace) const { return false; }
 bool CCoinsView::GetName(const valtype &nameSpace, const valtype &key, CKevaData &data) const { return false; }
 bool CCoinsView::GetNamesForHeight(unsigned nHeight, std::set<valtype>& names) const { return false; }
-bool CCoinsView::BatchWrite(CCoinsMap &mapCoins, const uint256 &hashBlock) { return false; }
+CNameIterator* CCoinsView::IterateNames() const { assert (false); }
+bool CCoinsView::BatchWrite(CCoinsMap &mapCoins, const uint256 &hashBlock, const CKevaCache &names) { return false; }
 CCoinsViewCursor *CCoinsView::Cursor() const { return nullptr; }
 bool CCoinsView::ValidateNameDB() const { return false; }
 
@@ -31,8 +32,11 @@ std::vector<uint256> CCoinsViewBacked::GetHeadBlocks() const { return base->GetH
 bool CCoinsViewBacked::HasNamespace(const valtype &nameSpace) const { return false; }
 bool CCoinsViewBacked::GetName(const valtype &nameSpace, const valtype &key, CKevaData &data) const { return false; }
 bool CCoinsViewBacked::GetNamesForHeight(unsigned nHeight, std::set<valtype>& names) const { return false; }
+CNameIterator* CCoinsViewBacked::IterateNames() const { return base->IterateNames(); }
 void CCoinsViewBacked::SetBackend(CCoinsView &viewIn) { base = &viewIn; }
-bool CCoinsViewBacked::BatchWrite(CCoinsMap &mapCoins, const uint256 &hashBlock) { return base->BatchWrite(mapCoins, hashBlock); }
+bool CCoinsViewBacked::BatchWrite(CCoinsMap &mapCoins, const uint256 &hashBlock, const CKevaCache &names) {
+    return base->BatchWrite(mapCoins, hashBlock, names);
+}
 CCoinsViewCursor *CCoinsViewBacked::Cursor() const { return base->Cursor(); }
 size_t CCoinsViewBacked::EstimateSize() const { return base->EstimateSize(); }
 bool CCoinsViewBacked::ValidateNameDB() const { return base->ValidateNameDB(); }
@@ -177,14 +181,18 @@ bool CCoinsViewCache::GetNamesForHeight(unsigned nHeight, std::set<valtype>& nam
     return true;
 }
 
+CNameIterator* CCoinsViewCache::IterateNames() const {
+    return cacheNames.iterateNames(base->IterateNames());
+}
+
 /* undo is set if the change is due to disconnecting blocks / going back in
    time.  The ordinary case (!undo) means that we update the name normally,
    going forward in time.  This is important for keeping track of the
    name history.  */
-void CCoinsViewCache::SetName(const valtype &nameSpace, const valtype &key, const CKevaData& data, bool undo) {
+void CCoinsViewCache::SetName(const valtype &nameSpace, const valtype &key, const CKevaData& data, bool undo)
+{
     CKevaData oldData;
-    if (GetName(nameSpace, key, oldData))
-    {
+    if (GetName(nameSpace, key, oldData)) {
 #if 0
         cacheNames.removeExpireIndex(name, oldData.getHeight());
 
@@ -212,8 +220,9 @@ void CCoinsViewCache::SetName(const valtype &nameSpace, const valtype &key, cons
             cacheNames.setHistory(name, history);
         }
 #endif
-    } else
+    } else {
         assert (!undo);
+    }
 
     cacheNames.set(nameSpace, key, data);
 #if 0
@@ -243,7 +252,7 @@ void CCoinsViewCache::DeleteName(const valtype &nameSpace, const valtype &key) {
     cacheNames.remove(nameSpace, key);
 }
 
-bool CCoinsViewCache::BatchWrite(CCoinsMap &mapCoins, const uint256 &hashBlockIn) {
+bool CCoinsViewCache::BatchWrite(CCoinsMap &mapCoins, const uint256 &hashBlockIn, const CKevaCache &names) {
     for (CCoinsMap::iterator it = mapCoins.begin(); it != mapCoins.end(); it = mapCoins.erase(it)) {
         // Ignore non-dirty entries (optimization).
         if (!(it->second.flags & CCoinsCacheEntry::DIRTY)) {
@@ -298,13 +307,21 @@ bool CCoinsViewCache::BatchWrite(CCoinsMap &mapCoins, const uint256 &hashBlockIn
         }
     }
     hashBlock = hashBlockIn;
+    cacheNames.apply(names);
     return true;
 }
 
 bool CCoinsViewCache::Flush() {
-    bool fOk = base->BatchWrite(cacheCoins, hashBlock);
+    /* This function is called when validating the name mempool, and BatchWrite
+       actually fails if hashBlock is not set.  Thus we have to make sure here
+       that it is a valid no-op when nothing is cached.  */
+    if (hashBlock.IsNull() && cacheCoins.empty() && cacheNames.empty())
+        return true;
+
+    bool fOk = base->BatchWrite(cacheCoins, hashBlock, cacheNames);
     cacheCoins.clear();
     cachedCoinsUsage = 0;
+    cacheNames.clear();
     return fOk;
 }
 

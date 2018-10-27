@@ -51,8 +51,9 @@ UniValue keva_namespace(const JSONRPCRequest& request)
 
   const std::string displayNameStr = request.params[0].get_str();
   const valtype displayName = ValtypeFromString (displayNameStr);
-  if (displayName.size () > MAX_NAMESPACE_LENGTH)
+  if (displayName.size () > MAX_NAMESPACE_LENGTH) {
     throw JSONRPCError (RPC_INVALID_PARAMETER, "the name is too long");
+  }
 
   /* No explicit locking should be necessary.  CReserveKey takes care
      of locking the wallet, and CommitTransaction (called when sending
@@ -67,7 +68,7 @@ UniValue keva_namespace(const JSONRPCRequest& request)
 
   CKeyID keyId = pubKey.GetID();
 
-  // The namespace is: Hash160(Hash160(keyId) || displayName)
+  // The namespace name is: Hash160(Hash160(keyId) || displayName)
   valtype toHash = ToByteVector(Hash160(ToByteVector(keyId)));
   toHash.insert(toHash.end(), displayName.begin(), displayName.end());
   const uint160 namespaceHash = Hash160(toHash);
@@ -92,87 +93,6 @@ UniValue keva_namespace(const JSONRPCRequest& request)
 
   return res;
 }
-
-/* ************************************************************************** */
-#if 0
-UniValue keva_namespace(const JSONRPCRequest& request)
-{
-  CWallet* const pwallet = GetWalletForJSONRPCRequest(request);
-  if (!EnsureWalletIsAvailable(pwallet, request.fHelp))
-    return NullUniValue;
-
-  if (request.fHelp
-      || (request.params.size() != 3))
-    throw std::runtime_error (
-        "keva_namespace \"display_name\" (\"keva_namespace\")\n"
-        "\nCreate a namespace.\n"
-        + HelpRequiringPassphrase(pwallet) +
-        "\nArguments:\n"
-        "1. \"display_name\"            (string, required) the display name of the namespace\n"
-        "\nResult:\n"
-        "\"txid\"                       (string) the keva_namespace's txid\n"
-        "\"internal_id\"                (string) the internal id of the namespace\n"
-        "\nExamples:\n"
-        + HelpExampleCli("keva_namespace", "\"display_name\"")
-      );
-
-  RPCTypeCheck (request.params,
-    {UniValue::VSTR});
-
-  ObserveSafeMode ();
-
-  const valtype displayName = ValtypeFromString(request.params[0].get_str());
-  if (displayName.size() > MAX_NAMESPACE_LENGTH) {
-    throw JSONRPCError (RPC_INVALID_PARAMETER, "the display name of the namespace is too long");
-  }
-
-#if 0
-  /* Reject updates to a name for which the mempool already has
-     a pending update.  This is not a hard rule enforced by network
-     rules, but it is necessary with the current mempool implementation.  */
-  {
-    LOCK (mempool.cs);
-    if (mempool.registersNamespace(name))
-      throw JSONRPCError (RPC_TRANSACTION_ERROR,
-                          "there is already a pending update for this name");
-  }
-#endif
-
-  /* No more locking required, similarly to name_new.  */
-  EnsureWalletIsUnlocked (pwallet);
-
-  CReserveKey keyName(pwallet);
-  CPubKey pubKeyReserve;
-  const bool ok = keyName.GetReservedKey(pubKeyReserve, true);
-  assert (ok);
-  bool usedKey = false;
-
-  CScript addrName;
-  if (request.params.size () == 3) {
-    keyName.ReturnKey();
-    const CTxDestination dest = DecodeDestination (request.params[2].get_str ());
-    if (!IsValidDestination (dest)) {
-      throw JSONRPCError (RPC_INVALID_ADDRESS_OR_KEY, "invalid address");
-    }
-    addrName = GetScriptForDestination(dest);
-  } else {
-    usedKey = true;
-    addrName = GetScriptForDestination(pubKeyReserve.GetID ());
-  }
-
-  const CScript kevaScript = CKevaScript::buildKevaNamespace(addrName, name, displayName);
-
-  CCoinControl coinControl;
-  CWalletTx wtx;
-  SendMoneyToScript(pwallet, kevaScript, nullptr, KEVA_LOCKED_AMOUNT, false, wtx, coinControl);
-
-  if (usedKey) {
-    keyName.KeepKey ();
-  }
-
-  return wtx.GetHash ().GetHex ();
-}
-#endif
 
 UniValue keva_put(const JSONRPCRequest& request)
 {

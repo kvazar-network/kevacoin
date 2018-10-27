@@ -24,6 +24,8 @@ static const char DB_BLOCK_FILES = 'f';
 static const char DB_TXINDEX = 't';
 static const char DB_BLOCK_INDEX = 'b';
 
+static const char DB_NAME = 'n';
+
 static const char DB_BEST_BLOCK = 'B';
 static const char DB_HEAD_BLOCKS = 'H';
 static const char DB_FLAG = 'F';
@@ -54,7 +56,7 @@ struct CoinEntry {
 
 }
 
-CCoinsViewDB::CCoinsViewDB(size_t nCacheSize, bool fMemory, bool fWipe) : db(GetDataDir() / "chainstate", nCacheSize, fMemory, fWipe, true) 
+CCoinsViewDB::CCoinsViewDB(size_t nCacheSize, bool fMemory, bool fWipe) : db(GetDataDir() / "chainstate", nCacheSize, fMemory, fWipe, true)
 {
 }
 
@@ -81,7 +83,103 @@ std::vector<uint256> CCoinsViewDB::GetHeadBlocks() const {
     return vhashHeadBlocks;
 }
 
-bool CCoinsViewDB::BatchWrite(CCoinsMap &mapCoins, const uint256 &hashBlock) {
+class CDbNameIterator : public CNameIterator
+{
+
+private:
+
+    /* The backing LevelDB iterator.  */
+    CDBIterator* iter;
+
+public:
+
+    ~CDbNameIterator();
+
+    /**
+     * Construct a new name iterator for the database.
+     * @param db The database to create the iterator for.
+     */
+    CDbNameIterator(const CDBWrapper& db);
+
+    /* Implement iterator methods.  */
+    void seek(const valtype& start);
+    bool next(valtype& name, CKevaData& data);
+
+};
+
+CDbNameIterator::~CDbNameIterator() {
+    delete iter;
+}
+
+CDbNameIterator::CDbNameIterator(const CDBWrapper& db)
+    : iter(const_cast<CDBWrapper*>(&db)->NewIterator())
+{
+    seek(valtype());
+}
+
+void CDbNameIterator::seek(const valtype& start) {
+    iter->Seek(std::make_pair(DB_NAME, start));
+}
+
+bool CDbNameIterator::next(valtype& name, CKevaData& data) {
+    if (!iter->Valid())
+        return false;
+
+    std::pair<char, valtype> key;
+    if (!iter->GetKey(key) || key.first != DB_NAME)
+        return false;
+    name = key.second;
+
+    if (!iter->GetValue(data)) {
+        return error("%s : failed to read data from iterator", __func__);
+    }
+
+    iter->Next();
+    return true;
+}
+
+CNameIterator* CCoinsViewDB::IterateNames() const {
+    return new CDbNameIterator(db);
+}
+
+bool CCoinsViewDB::GetName(const valtype &nameSpace, const valtype &key, CKevaData &data) const {
+    return db.Read(std::make_pair(DB_NAME, std::make_pair(nameSpace, key)), data);
+}
+
+bool CCoinsViewDB::GetNamesForHeight(unsigned nHeight, std::set<valtype>& names) const {
+    names.clear();
+#if 0
+    /* It seems that there are no "const iterators" for LevelDB.  Since we
+       only need read operations on it, use a const-cast to get around
+       that restriction.  */
+    boost::scoped_ptr<CDBIterator> pcursor(const_cast<CDBWrapper*>(&db)->NewIterator());
+
+    const CKevaCache::ExpireEntry seekEntry(nHeight, valtype ());
+    pcursor->Seek(std::make_pair(DB_NAME_EXPIRY, seekEntry));
+
+    for (; pcursor->Valid(); pcursor->Next())
+    {
+        std::pair<char, CKevaCache::ExpireEntry> key;
+        if (!pcursor->GetKey(key) || key.first != DB_NAME_EXPIRY)
+            break;
+        const CKevaCache::ExpireEntry& entry = key.second;
+
+        assert (entry.nHeight >= nHeight);
+        if (entry.nHeight > nHeight)
+          break;
+
+        const valtype& name = entry.name;
+        if (names.count(name) > 0) {
+            return error("%s : duplicate name '%s' in expire index",
+                                    __func__, ValtypeToString(name).c_str());
+        }
+        names.insert(name);
+    }
+#endif
+    return true;
+}
+
+bool CCoinsViewDB::BatchWrite(CCoinsMap &mapCoins, const uint256 &hashBlock, const CKevaCache &names) {
     CDBBatch batch(db);
     size_t count = 0;
     size_t changed = 0;
@@ -131,6 +229,8 @@ bool CCoinsViewDB::BatchWrite(CCoinsMap &mapCoins, const uint256 &hashBlock) {
             }
         }
     }
+
+    names.writeBatch(batch);
 
     // In the last batch, mark the database as consistent with hashBlock again.
     batch.Erase(DB_HEAD_BLOCKS);
@@ -234,6 +334,35 @@ bool CBlockTreeDB::WriteBatchSync(const std::vector<std::pair<int, const CBlockF
         batch.Write(std::make_pair(DB_BLOCK_INDEX, (*it)->GetBlockHash()), CDiskBlockIndex(*it));
     }
     return WriteBatch(batch, true);
+}
+
+void CKevaCache::writeBatch (CDBBatch& batch) const
+{
+  for (EntryMap::const_iterator i = entries.begin(); i != entries.end(); ++i) {
+    auto name = std::make_pair(std::get<0>(i->first), std::get<1>(i->first));
+    batch.Write(std::make_pair(DB_NAME, name), i->second);
+  }
+
+#if 0
+  for (std::set<valtype>::const_iterator i = deleted.begin(); i != deleted.end(); ++i) {
+    batch.Erase(std::make_pair (DB_NAME, *i));
+  }
+
+  assert (fNameHistory || history.empty ());
+  for (std::map<valtype, CNameHistory>::const_iterator i = history.begin ();
+       i != history.end (); ++i)
+    if (i->second.empty ())
+      batch.Erase (std::make_pair (DB_NAME_HISTORY, i->first));
+    else
+      batch.Write (std::make_pair (DB_NAME_HISTORY, i->first), i->second);
+
+  for (std::map<ExpireEntry, bool>::const_iterator i = expireIndex.begin ();
+       i != expireIndex.end (); ++i)
+    if (i->second)
+      batch.Write (std::make_pair (DB_NAME_EXPIRY, i->first));
+    else
+      batch.Erase (std::make_pair (DB_NAME_EXPIRY, i->first));
+#endif
 }
 
 bool CBlockTreeDB::ReadTxIndex(const uint256 &txid, CDiskTxPos &pos) {

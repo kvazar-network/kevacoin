@@ -287,12 +287,14 @@ private:
   class NameComparator
   {
   public:
-    inline bool
-    operator() (const valtype& a, const valtype& b) const
+    inline bool operator() (const std::tuple<const valtype&, const valtype&> a,
+                            const std::tuple<const valtype&, const valtype&> b) const
     {
-      if (a.size () != b.size ())
-        return a.size () < b.size ();
-
+      unsigned int aSize = std::get<0>(a).size() + std::get<1>(a).size();
+      unsigned int bSize = std::get<0>(b).size() + std::get<1>(b).size();
+      if (aSize != bSize) {
+        return aSize < bSize;
+      }
       return a < b;
     }
   };
@@ -376,7 +378,7 @@ public:
    * Type of name entry map.  This is public because it is also used
    * by the unit tests.
    */
-  typedef std::map<valtype, CKevaData, NameComparator> EntryMap;
+  typedef std::map<std::tuple<const valtype&, const valtype&>, CKevaData, NameComparator> EntryMap;
   typedef std::set<valtype> NamespaceSet;
 
 private:
@@ -499,9 +501,7 @@ public:
 #endif
 
   /* Apply all the changes in the passed-in record on top of this one.  */
-#if 0
   void apply (const CKevaCache& cache);
-#endif
 
   /* Write all cached changes to a database batch update object.  */
   void writeBatch (CDBBatch& batch) const;

@@ -6,6 +6,8 @@
 
 #include <uint256.h>
 
+std::string CKevaScript::KEVA_DISPLAY_NAME_KEY = "_KEVA_NS_";
+
 CKevaScript::CKevaScript (const CScript& script)
   : op(OP_NOP), address(script)
 {

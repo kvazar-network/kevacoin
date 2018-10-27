@@ -76,7 +76,10 @@ public:
     bool HaveCoin(const COutPoint &outpoint) const override;
     uint256 GetBestBlock() const override;
     std::vector<uint256> GetHeadBlocks() const override;
-    bool BatchWrite(CCoinsMap &mapCoins, const uint256 &hashBlock) override;
+    bool GetName(const valtype &nameSpace, const valtype &key, CKevaData &data) const override;
+    bool GetNamesForHeight(unsigned nHeight, std::set<valtype>& names) const override;
+    CNameIterator* IterateNames() const override;
+    bool BatchWrite(CCoinsMap &mapCoins, const uint256 &hashBlock, const CKevaCache &names) override;
     CCoinsViewCursor *Cursor() const override;
 
     //! Attempt to update from an older database format. Returns whether an error occurred.

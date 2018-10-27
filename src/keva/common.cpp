@@ -21,11 +21,16 @@ void
 CKevaData::fromScript (unsigned h, const COutPoint& out,
                        const CKevaScript& script)
 {
-  assert (script.isAnyUpdate ());
-  value = script.getOpValue ();
+  if (script.isAnyUpdate()) {
+    value = script.getOpValue();
+  } else if (script.isNamespaceRegistration()) {
+    value = script.getOpNamespaceDisplayName();
+  } else {
+    assert(false);
+  }
   nHeight = h;
   prevout = out;
-  addr = script.getAddress ();
+  addr = script.getAddress();
 }
 
 /* ************************************************************************** */
@@ -109,18 +114,23 @@ CCacheNameIterator::advanceBaseIterator ()
 }
 
 void
-CCacheNameIterator::seek (const valtype& start)
+CCacheNameIterator::seek(const valtype& start)
 {
-  cacheIter = cache.entries.lower_bound (start);
-  base->seek (start);
+  // JWU TODO: fix this!
+#if 0
+  cacheIter = cache.entries.lower_bound(start);
+#endif
+  base->seek(start);
 
   baseHasMore = true;
-  advanceBaseIterator ();
+  advanceBaseIterator();
 }
 
-bool
-CCacheNameIterator::next (valtype& name, CKevaData& data)
+bool CCacheNameIterator::next (valtype& name, CKevaData& data)
 {
+#if 0
+  // JWU TODO: fix this!
+
   /* Exit early if no more data is available in either the cache
      nor the base iterator.  */
   if (!baseHasMore && cacheIter == cache.entries.end ())
@@ -166,7 +176,7 @@ CCacheNameIterator::next (valtype& name, CKevaData& data)
       data = cacheIter->second;
       ++cacheIter;
     }
-
+#endif
   return true;
 }
 
@@ -176,9 +186,7 @@ CCacheNameIterator::next (valtype& name, CKevaData& data)
 bool
 CKevaCache::get(const valtype& nameSpace, const valtype& key, CKevaData& data) const
 {
-  valtype name = nameSpace;
-  name.insert( name.end(), key.begin(), key.end() );
-  const EntryMap::const_iterator i = entries.find (name);
+  const EntryMap::const_iterator i = entries.find(std::make_tuple(nameSpace, key));
   if (i == entries.end ())
     return false;
 
@@ -195,17 +203,18 @@ bool CKevaCache::hasNamespace(const valtype& nameSpace) const
 void
 CKevaCache::set(const valtype& nameSpace, const valtype& key, const CKevaData& data)
 {
-  valtype name = nameSpace;
-  name.insert( name.end(), key.begin(), key.end() );
-  const std::set<valtype>::iterator di = deleted.find (name);
+  auto name = std::make_tuple(nameSpace, key);
+#if 0
+  const std::set<valtype>::iterator di = deleted.find(name);
   if (di != deleted.end ())
     deleted.erase (di);
+#endif
 
-  const EntryMap::iterator ei = entries.find (name);
+  const EntryMap::iterator ei = entries.find(name);
   if (ei != entries.end ())
     ei->second = data;
   else
-    entries.insert (std::make_pair (name, data));
+    entries.insert (std::make_pair(name, data));
 
   namespaces.insert(nameSpace);
 }
@@ -213,13 +222,14 @@ CKevaCache::set(const valtype& nameSpace, const valtype& key, const CKevaData& d
 void
 CKevaCache::remove(const valtype& nameSpace, const valtype& key)
 {
-  valtype name = nameSpace;
-  name.insert( name.end(), key.begin(), key.end() );
+  auto name = std::make_tuple(nameSpace, key);
   const EntryMap::iterator ei = entries.find (name);
   if (ei != entries.end ())
     entries.erase (ei);
 
-  deleted.insert (name);
+#if 0
+  deleted.insert(name);
+#endif
 }
 
 CNameIterator*
@@ -297,16 +307,14 @@ CKevaCache::removeExpireIndex (const valtype& name, unsigned height)
 }
 #endif
 
-#if 0
-void
-CKevaCache::apply(const CKevaCache& cache)
+void CKevaCache::apply(const CKevaCache& cache)
 {
-  for (EntryMap::const_iterator i = cache.entries.begin (); i != cache.entries.end (); ++i) {
-    set (i->first, i->second);
+  for (EntryMap::const_iterator i = cache.entries.begin(); i != cache.entries.end(); ++i) {
+    set(std::get<0>(i->first), std::get<1>(i->first), i->second);
   }
-
-  for (std::set<valtype>::const_iterator i = cache.deleted.begin (); i != cache.deleted.end (); ++i) {
-    remove (*i);
+#if 0
+  for (std::set<valtype>::const_iterator i = cache.deleted.begin(); i != cache.deleted.end(); ++i) {
+    remove(*i);
   }
 
   for (std::map<valtype, CNameHistory>::const_iterator i
@@ -316,5 +324,5 @@ CKevaCache::apply(const CKevaCache& cache)
   for (std::map<ExpireEntry, bool>::const_iterator i
         = cache.expireIndex.begin (); i != cache.expireIndex.end (); ++i)
     expireIndex[i->first] = i->second;
-}
 #endif
+}

@@ -173,9 +173,12 @@ public:
     // Query for names that were updated at the given height
     virtual bool GetNamesForHeight(unsigned nHeight, std::set<valtype>& names) const;
 
+    // Get a name iterator.
+    virtual CNameIterator* IterateNames() const;
+
     //! Do a bulk modification (multiple Coin changes + BestBlock change).
     //! The passed mapCoins can be modified.
-    virtual bool BatchWrite(CCoinsMap &mapCoins, const uint256 &hashBlock);
+    virtual bool BatchWrite(CCoinsMap &mapCoins, const uint256 &hashBlock, const CKevaCache &names);
 
     //! Get a cursor to iterate over the whole state
     virtual CCoinsViewCursor *Cursor() const;
@@ -206,8 +209,9 @@ public:
     bool HasNamespace(const valtype& nameSpace) const override;
     bool GetName(const valtype& nameSpace, const valtype& key, CKevaData& data) const override;
     bool GetNamesForHeight(unsigned nHeight, std::set<valtype>& names) const override;
+    CNameIterator* IterateNames() const override;
     void SetBackend(CCoinsView &viewIn);
-    bool BatchWrite(CCoinsMap &mapCoins, const uint256 &hashBlock) override;
+    bool BatchWrite(CCoinsMap &mapCoins, const uint256 &hashBlock, const CKevaCache &names) override;
     CCoinsViewCursor *Cursor() const override;
     size_t EstimateSize() const override;
     bool ValidateNameDB() const;
@@ -247,7 +251,8 @@ public:
     bool HasNamespace(const valtype &nameSpace) const override;
     bool GetName(const valtype &nameSpace, const valtype &key, CKevaData &data) const override;
     bool GetNamesForHeight(unsigned nHeight, std::set<valtype>& names) const override;
-    bool BatchWrite(CCoinsMap &mapCoins, const uint256 &hashBlock) override;
+    CNameIterator* IterateNames() const override;
+    bool BatchWrite(CCoinsMap &mapCoins, const uint256 &hashBlock, const CKevaCache &names) override;
     CCoinsViewCursor* Cursor() const override {
         throw std::logic_error("CCoinsViewCache cursor iteration not supported.");
     }

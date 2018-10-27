@@ -39,6 +39,12 @@ public:
   {}
 
   /**
+   * The key pointing to the internal display name. This is the first
+   * key created when a namespace is registered.
+   */
+  static std::string KEVA_DISPLAY_NAME_KEY;
+
+  /**
    * Parse a script and determine whether it is a valid name script.  Sets
    * the member variables representing the "picked apart" name script.
    * @param script The ordinary script to parse.
@@ -95,17 +101,28 @@ public:
   }
 
   /**
-   * Return whether this is a name update (including first updates).  I. e.,
-   * whether this creates a name index update/entry.
-   * @return True iff this is NAME_FIRSTUPDATE or NAME_UPDATE.
+   * Return whether this is a namespace registration.
+   * @return True iff this is OP_KEVA_NAMESPACE.
    */
-  inline bool isAnyUpdate () const
+  inline bool isNamespaceRegistration() const
+  {
+    switch (op) {
+      case OP_KEVA_NAMESPACE:
+        return true;
+
+      default:
+        assert(false);
+    }
+  }
+
+  /**
+   * Return whether this is a key/value update.
+   * @return True iff this is OP_KEVA_PUT.
+   */
+  inline bool isAnyUpdate() const
   {
     switch (op) {
       case OP_KEVA_PUT:
-        return true;
-
-      case OP_KEVA_NAMESPACE:
         return true;
 
       default:
