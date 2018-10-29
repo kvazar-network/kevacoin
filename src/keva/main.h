@@ -263,8 +263,8 @@ public:
 /* ************************************************************************** */
 
 /**
- * Check a transaction according to the additional Namecoin rules.  This
- * ensures that all name operations (if any) are valid and that it has
+ * Check a transaction according to the additional Kevacoin rules.  This
+ * ensures that all keva operations (if any) are valid and that it has
  * name operations iff it is marked as Namecoin tx by its version.
  * @param tx The transaction to check.
  * @param nHeight Height at which the tx will be.
@@ -273,7 +273,7 @@ public:
  * @param flags Verification flags.
  * @return True in case of success.
  */
-bool CheckNameTransaction (const CTransaction& tx, unsigned nHeight,
+bool CheckKevaTransaction (const CTransaction& tx, unsigned nHeight,
                            const CCoinsView& view,
                            CValidationState& state, unsigned flags);
 

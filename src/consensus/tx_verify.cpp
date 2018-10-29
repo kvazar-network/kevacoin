@@ -5,6 +5,7 @@
 #include <consensus/tx_verify.h>
 
 #include <consensus/consensus.h>
+#include <keva/main.h>
 #include <primitives/transaction.h>
 #include <script/interpreter.h>
 #include <consensus/validation.h>
@@ -205,8 +206,12 @@ bool CheckTransaction(const CTransaction& tx, CValidationState &state, bool fChe
     return true;
 }
 
-bool Consensus::CheckTxInputs(const CTransaction& tx, CValidationState& state, const CCoinsViewCache& inputs, int nSpendHeight, CAmount& txfee)
+bool Consensus::CheckTxInputs(const CTransaction& tx, CValidationState& state, const CCoinsViewCache& inputs, int nSpendHeight, unsigned flags, CAmount& txfee)
 {
+    if (!CheckKevaTransaction (tx, nSpendHeight, inputs, state, flags)) {
+        return state.Invalid(false, 0, "", "Tx invalid for Namecoin");
+    }
+
     // are the actual inputs available?
     if (!inputs.HaveInputs(tx)) {
         return state.DoS(100, false, REJECT_INVALID, "bad-txns-inputs-missingorspent", false,

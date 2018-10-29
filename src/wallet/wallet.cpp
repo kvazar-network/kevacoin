@@ -2670,6 +2670,7 @@ bool CWallet::CreateTransaction(const std::vector<CRecipient>& vecSend,
     CAmount nValue = 0;
     int nChangePosRequest = nChangePosInOut;
     unsigned int nSubtractFeeFromAmount = 0;
+    bool isKevacoin = false;
     for (const auto& recipient : vecSend)
     {
         if (nValue < 0 || recipient.nAmount < 0)
@@ -2681,6 +2682,9 @@ bool CWallet::CreateTransaction(const std::vector<CRecipient>& vecSend,
 
         if (recipient.fSubtractFeeFromAmount)
             nSubtractFeeFromAmount++;
+
+        if (CKevaScript::isKevaScript (recipient.scriptPubKey))
+            isKevacoin = true;
     }
     if (vecSend.empty())
     {
@@ -2702,11 +2706,9 @@ bool CWallet::CreateTransaction(const std::vector<CRecipient>& vecSend,
     wtxNew.BindWallet(this);
     CMutableTransaction txNew;
 
-#if 0
-    // JWU TODO implement this!
-    if (isNamecoin)
-        txNew.SetNamecoin();
-#endif
+    if (isKevacoin) {
+        txNew.SetKevacoin();
+    }
 
     // Discourage fee sniping.
     //

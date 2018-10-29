@@ -290,7 +290,7 @@ CNameConflictTracker::AddConflictedEntry (CTransactionRef txRemoved)
 /* ************************************************************************** */
 
 bool
-CheckNameTransaction (const CTransaction& tx, unsigned nHeight,
+CheckKevaTransaction (const CTransaction& tx, unsigned nHeight,
                       const CCoinsView& view,
                       CValidationState& state, unsigned flags)
 {

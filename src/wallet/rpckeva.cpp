@@ -33,13 +33,14 @@ UniValue keva_namespace(const JSONRPCRequest& request)
   if (request.fHelp || request.params.size () != 1)
     throw std::runtime_error (
         "keva_namespace \"display_name\"\n"
-        "\nStart creation of the given namespace.\n"
+        "\nRegister a namespace with the given display name.\n"
         + HelpRequiringPassphrase (pwallet) +
         "\nArguments:\n"
         "1. \"display_name\"          (string, required) the display name of the namespace\n"
         "\nResult:\n"
         "[\n"
         "  xxxxx,   (string) the txid, required for keva_put\n"
+        "  xxxxx,   (string) the unique namespace id, required for keva_put\n"
         "]\n"
         "\nExamples:\n"
         + HelpExampleCli ("keva_namespace", "\"display name\"")

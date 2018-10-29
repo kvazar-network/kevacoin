@@ -22,7 +22,8 @@ CTxMemPoolEntry::CTxMemPoolEntry(const CTransactionRef& _tx, const CAmount& _nFe
                                  int64_t _nTime, unsigned int _entryHeight,
                                  bool _spendsCoinbase, int64_t _sigOpsCost, LockPoints lp):
     tx(_tx), nFee(_nFee), nTime(_nTime), entryHeight(_entryHeight),
-    spendsCoinbase(_spendsCoinbase), sigOpCost(_sigOpsCost), lockPoints(lp)
+    spendsCoinbase(_spendsCoinbase), sigOpCost(_sigOpsCost), lockPoints(lp),
+    kevaOp()
 {
     nTxWeight = GetTransactionWeight(*tx);
     nUsageSize = RecursiveDynamicUsage(tx);
@@ -37,6 +38,19 @@ CTxMemPoolEntry::CTxMemPoolEntry(const CTransactionRef& _tx, const CAmount& _nFe
     nSizeWithAncestors = GetTxSize();
     nModFeesWithAncestors = nFee;
     nSigOpCostWithAncestors = sigOpCost;
+
+    if (_tx->IsKevacoin()) {
+        for (const auto& txOut : _tx->vout) {
+            const CKevaScript curNameOp(txOut.scriptPubKey);
+            if (!curNameOp.isKevaOp()) {
+                continue;
+            }
+            assert(!kevaOp.isKevaOp());
+            kevaOp = curNameOp;
+        }
+
+        assert(kevaOp.isKevaOp());
+    }
 }
 
 void CTxMemPoolEntry::UpdateFeeDelta(int64_t newFeeDelta)
@@ -409,6 +423,7 @@ bool CTxMemPool::addUnchecked(const uint256& hash, const CTxMemPoolEntry &entry,
     nTransactionsUpdated++;
     totalTxSize += entry.GetTxSize();
     if (minerPolicyEstimator) {minerPolicyEstimator->processTransaction(entry, validFeeEstimate);}
+    kevaMemPool.addUnchecked (hash, entry);
 
     vTxHashes.emplace_back(tx.GetWitnessHash(), newit);
     newit->vTxHashesIdx = vTxHashes.size() - 1;
@@ -418,6 +433,8 @@ bool CTxMemPool::addUnchecked(const uint256& hash, const CTxMemPoolEntry &entry,
 
 void CTxMemPool::removeUnchecked(txiter it, MemPoolRemovalReason reason)
 {
+    kevaMemPool.remove (*it);
+
     NotifyEntryRemoved(it->GetSharedTx(), reason);
     const uint256 hash = it->GetTx().GetHash();
     for (const CTxIn& txin : it->GetTx().vin)
@@ -554,6 +571,9 @@ void CTxMemPool::removeConflicts(const CTransaction &tx)
             }
         }
     }
+
+    /* Remove conflicting keva registrations.  */
+    kevaMemPool.removeConflicts (tx);
 }
 
 /**
@@ -593,6 +613,7 @@ void CTxMemPool::_clear()
     mapLinks.clear();
     mapTx.clear();
     mapNextTx.clear();
+    kevaMemPool.clear();
     totalTxSize = 0;
     cachedInnerUsage = 0;
     lastRollingFeeUpdate = GetTime();
@@ -611,7 +632,7 @@ static void CheckInputsAndUpdateCoins(const CTransaction& tx, CCoinsViewCache& m
 {
     CValidationState state;
     CAmount txfee = 0;
-    bool fCheckResult = tx.IsCoinBase() || Consensus::CheckTxInputs(tx, state, mempoolDuplicate, spendheight, txfee);
+    bool fCheckResult = tx.IsCoinBase() || Consensus::CheckTxInputs(tx, state, mempoolDuplicate, spendheight, SCRIPT_VERIFY_KEVA_MEMPOOL, txfee);
     assert(fCheckResult);
     UpdateCoins(tx, mempoolDuplicate, 1000000);
 }
