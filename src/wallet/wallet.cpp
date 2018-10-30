@@ -1316,7 +1316,7 @@ isminetype CWallet::IsMine(const CTxIn &txin) const
 
 // Note that this function doesn't distinguish between a 0-valued input,
 // and a not-"is mine" (according to the filter) input.
-CAmount CWallet::GetDebit(const CTxIn &txin, const isminefilter& filter) const
+CAmount CWallet::GetDebit(const CTxIn &txin, const isminefilter& filter, bool fExcludeKeva) const
 {
     {
         LOCK(cs_wallet);
@@ -1325,8 +1325,15 @@ CAmount CWallet::GetDebit(const CTxIn &txin, const isminefilter& filter) const
         {
             const CWalletTx& prev = (*mi).second;
             if (txin.prevout.n < prev.tx->vout.size())
+            {
+                const CTxOut& prevout = prev.tx->vout[txin.prevout.n];
+                if (fExcludeKeva
+                    && CKevaScript::isKevaScript(prevout.scriptPubKey))
+                    return 0;
+
                 if (IsMine(prev.tx->vout[txin.prevout.n]) & filter)
-                    return prev.tx->vout[txin.prevout.n].nValue;
+                    return prevout.nValue;
+            }
         }
     }
     return 0;
@@ -1386,12 +1393,12 @@ bool CWallet::IsFromMe(const CTransaction& tx) const
     return (GetDebit(tx, ISMINE_ALL) > 0);
 }
 
-CAmount CWallet::GetDebit(const CTransaction& tx, const isminefilter& filter) const
+CAmount CWallet::GetDebit(const CTransaction& tx, const isminefilter& filter, bool fExcludeKeva) const
 {
     CAmount nDebit = 0;
     for (const CTxIn& txin : tx.vin)
     {
-        nDebit += GetDebit(txin, filter);
+        nDebit += GetDebit(txin, filter, fExcludeKeva);
         if (!MoneyRange(nDebit))
             throw std::runtime_error(std::string(__func__) + ": value out of range");
     }
@@ -1520,7 +1527,7 @@ void CWalletTx::GetAmounts(std::list<COutputEntry>& listReceived,
     CAmount nDebit = GetDebit(filter);
     if (nDebit > 0) // debit>0 means we signed/sent this transaction
     {
-        CAmount nValueOut = tx->GetValueOut();
+        CAmount nValueOut = tx->GetValueOut(true);
         nFee = nDebit - nValueOut;
     }
 
@@ -1749,7 +1756,7 @@ std::set<uint256> CWalletTx::GetConflicts() const
     return result;
 }
 
-CAmount CWalletTx::GetDebit(const isminefilter& filter) const
+CAmount CWalletTx::GetDebit(const isminefilter& filter, bool fExcludeKeva) const
 {
     if (tx->vin.empty())
         return 0;
@@ -1757,19 +1764,21 @@ CAmount CWalletTx::GetDebit(const isminefilter& filter) const
     CAmount debit = 0;
     if(filter & ISMINE_SPENDABLE)
     {
-        if (fDebitCached)
-            debit += nDebitCached;
+        if (fDebitCached) {
+            debit += (fExcludeKeva ? nDebitCached : nDebitWithKevaCached);
+        }
         else
         {
-            nDebitCached = pwallet->GetDebit(*tx, ISMINE_SPENDABLE);
+            nDebitCached = pwallet->GetDebit(*tx, ISMINE_SPENDABLE, false);
             fDebitCached = true;
             debit += nDebitCached;
         }
     }
     if(filter & ISMINE_WATCH_ONLY)
     {
-        if(fWatchDebitCached)
-            debit += nWatchDebitCached;
+        if(fWatchDebitCached) {
+            debit += (fExcludeKeva ? nWatchDebitCached : nWatchDebitWithKevaCached, false);
+        }
         else
         {
             nWatchDebitCached = pwallet->GetDebit(*tx, ISMINE_WATCH_ONLY);
