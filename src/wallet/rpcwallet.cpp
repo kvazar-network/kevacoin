@@ -3068,7 +3068,7 @@ UniValue listunspent(const JSONRPCRequest& request)
                 entry.push_back(Pair("account", pwallet->mapAddressBook[address].name));
             }
 
-            if (scriptPubKey.IsPayToScriptHash()) {
+            if (scriptPubKey.IsPayToScriptHash(true)) {
                 const CScriptID& hash = boost::get<CScriptID>(address);
                 CScript redeemScript;
                 if (pwallet->GetCScript(hash, redeemScript)) {

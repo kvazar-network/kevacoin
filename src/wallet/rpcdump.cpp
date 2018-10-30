@@ -62,7 +62,7 @@ std::string DecodeDumpString(const std::string &str) {
     for (unsigned int pos = 0; pos < str.length(); pos++) {
         unsigned char c = str[pos];
         if (c == '%' && pos+2 < str.length()) {
-            c = (((str[pos+1]>>6)*9+((str[pos+1]-'0')&15)) << 4) | 
+            c = (((str[pos+1]>>6)*9+((str[pos+1]-'0')&15)) << 4) |
                 ((str[pos+2]>>6)*9+((str[pos+2]-'0')&15));
             pos += 2;
         }
@@ -874,7 +874,7 @@ UniValue ProcessImport(CWallet * const pwallet, const UniValue& data, const int6
             CScript redeemScript = CScript(vData.begin(), vData.end());
 
             // Invalid P2SH address
-            if (!script.IsPayToScriptHash()) {
+            if (!script.IsPayToScriptHash(true)) {
                 throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Invalid P2SH address / script");
             }
 
