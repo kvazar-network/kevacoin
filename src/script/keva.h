@@ -110,6 +110,9 @@ public:
       case OP_KEVA_NAMESPACE:
         return true;
 
+      case OP_KEVA_PUT:
+        return false;
+
       default:
         assert(false);
     }
@@ -122,6 +125,9 @@ public:
   inline bool isAnyUpdate() const
   {
     switch (op) {
+      case OP_KEVA_NAMESPACE:
+        return false;
+
       case OP_KEVA_PUT:
         return true;
 

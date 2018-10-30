@@ -637,6 +637,10 @@ static bool AcceptToMemoryPoolWorker(const CChainParams& chainparams, CTxMemPool
         }
     }
 
+    if (!pool.checkNameOps(tx)) {
+        return false;
+    }
+
     {
         CCoinsView dummy;
         CCoinsViewCache view(&dummy);
@@ -668,6 +672,34 @@ static bool AcceptToMemoryPoolWorker(const CChainParams& chainparams, CTxMemPool
 
         // Bring the best block into scope
         view.GetBestBlock();
+
+        /* If this is a name update (or firstupdate), make sure that the
+           existing name entry (if any) is in the dummy cache.  Otherwise
+           tx validation done below (in CheckInputs) will not be correct.  */
+        for (const auto& txout : tx.vout)
+        {
+            const CKevaScript kevaOp(txout.scriptPubKey);
+            if (!kevaOp.isKevaOp()) {
+                continue;
+            }
+            if (kevaOp.isAnyUpdate()) {
+                const valtype& nameSpace = kevaOp.getOpNamespace();
+                const valtype& key = kevaOp.getOpKey();
+                CKevaData data;
+                if (view.GetName(nameSpace, key, data)) {
+                    view.SetName(nameSpace, key, data, false);
+                }
+            } else if (kevaOp.isNamespaceRegistration()) {
+                const valtype& nameSpace = kevaOp.getOpNamespace();
+                const valtype& key = ValtypeFromString(CKevaScript::KEVA_DISPLAY_NAME_KEY);
+                CKevaData data;
+                if (view.GetName(nameSpace, key, data)) {
+                    view.SetName(nameSpace, key, data, false);
+                }
+            } else {
+                assert(false);
+            }
+        }
 
         // we have all inputs cached now, so switch back to dummy, so we don't need to keep lock on mempool
         view.SetBackend(dummy);
@@ -897,6 +929,8 @@ static bool AcceptToMemoryPoolWorker(const CChainParams& chainparams, CTxMemPool
             scriptVerifyFlags = gArgs.GetArg("-promiscuousmempoolflags", scriptVerifyFlags);
         }
 
+        scriptVerifyFlags |= SCRIPT_VERIFY_KEVA_MEMPOOL;
+
         // Check against previous transactions
         // This is done last to help prevent CPU exhaustion denial-of-service attacks.
         PrecomputedTransactionData txdata(tx);
@@ -929,6 +963,11 @@ static bool AcceptToMemoryPoolWorker(const CChainParams& chainparams, CTxMemPool
         // invalid blocks (using TestBlockValidity), however allowing such
         // transactions into the mempool can be exploited as a DoS attack.
         unsigned int currentBlockScriptVerifyFlags = GetBlockScriptFlags(chainActive.Tip(), Params().GetConsensus());
+
+        // Kevacoin actually allows some scripts into the mempool that would
+        // not (yet) be valid in a block, namely premature NAME_FIRSTUPDATE's.
+        // Thus add the mempool-flag here.
+        currentBlockScriptVerifyFlags |= SCRIPT_VERIFY_KEVA_MEMPOOL;
         if (!CheckInputsFromMempoolAndCache(tx, state, view, pool, currentBlockScriptVerifyFlags, true, txdata))
         {
             // If we're using promiscuousmempoolflags, we may hit this normally
@@ -1610,6 +1649,12 @@ DisconnectResult CChainState::DisconnectBlock(const CBlock& block, const CBlockI
         }
     }
 
+    // undo keva operations in reverse order
+    std::vector<CKevaTxUndo>::const_reverse_iterator nameUndoIter;
+    for (nameUndoIter = blockUndo.vkevaundo.rbegin (); nameUndoIter != blockUndo.vkevaundo.rend (); ++nameUndoIter) {
+        nameUndoIter->apply (view);
+    }
+
     // move best block pointer to prevout block
     view.SetBestBlock(pindex->pprev->GetBlockHash());
 
@@ -1968,6 +2013,7 @@ bool CChainState::ConnectBlock(const CBlock& block, CValidationState& state, CBl
             blockundo.vtxundo.push_back(CTxUndo());
         }
         UpdateCoins(tx, view, i == 0 ? undoDummy : blockundo.vtxundo.back(), pindex->nHeight);
+        ApplyNameTransaction(tx, pindex->nHeight, view, blockundo);
     }
     int64_t nTime3 = GetTimeMicros(); nTimeConnect += nTime3 - nTime2;
     LogPrint(BCLog::BENCH, "      - Connect %u transactions: %.2fms (%.3fms/tx, %.3fms/txin) [%.2fs (%.2fms/blk)]\n", (unsigned)block.vtx.size(), MILLI * (nTime3 - nTime2), MILLI * (nTime3 - nTime2) / block.vtx.size(), nInputs <= 1 ? 0 : MILLI * (nTime3 - nTime2) / (nInputs-1), nTimeConnect * MICRO, nTimeConnect * MILLI / nBlocksTotal);
@@ -2218,6 +2264,7 @@ bool CChainState::DisconnectTip(CValidationState& state, const CChainParams& cha
 {
     CBlockIndex *pindexDelete = chainActive.Tip();
     assert(pindexDelete);
+    CheckNameDB(true);
     // Read block from disk.
     std::shared_ptr<CBlock> pblock = std::make_shared<CBlock>();
     CBlock& block = *pblock;
@@ -2238,6 +2285,12 @@ bool CChainState::DisconnectTip(CValidationState& state, const CChainParams& cha
     if (!FlushStateToDisk(chainparams, state, FLUSH_STATE_IF_NEEDED))
         return false;
 
+#if 0
+    // We don't need this because names never expire.
+    AssertLockHeld(cs_main);
+    CNameConflictTracker nameConflicts(mempool);
+#endif
+
     if (disconnectpool) {
         // Save transactions to re-add to mempool at end of reorg
         for (auto it = block.vtx.rbegin(); it != block.vtx.rend(); ++it) {
@@ -2254,6 +2307,7 @@ bool CChainState::DisconnectTip(CValidationState& state, const CChainParams& cha
     chainActive.SetTip(pindexDelete->pprev);
 
     UpdateTip(pindexDelete->pprev, chainparams);
+    CheckNameDB(true);
     // Let wallets know transactions went from 1-confirmed to
     // 0-confirmed or conflicted:
     GetMainSignals().BlockDisconnected(pblock);
