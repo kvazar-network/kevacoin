@@ -6,6 +6,7 @@
 #include <script/standard.h>
 
 #include <pubkey.h>
+#include <script/keva.h>
 #include <script/script.h>
 #include <util.h>
 #include <utilstrencodings.h>
@@ -53,12 +54,16 @@ bool Solver(const CScript& scriptPubKey, txnouttype& typeRet, std::vector<std::v
 
     vSolutionsRet.clear();
 
+    // If we have a keva script, strip the prefix
+    const CKevaScript kevaOp(scriptPubKey);
+    const CScript& script1 = kevaOp.getAddress();
+
     // Shortcut for pay-to-script-hash, which are more constrained than the other types:
     // it is always OP_HASH160 20 [20 byte hash] OP_EQUAL
-    if (scriptPubKey.IsPayToScriptHash())
+    if (script1.IsPayToScriptHash())
     {
         typeRet = TX_SCRIPTHASH;
-        std::vector<unsigned char> hashBytes(scriptPubKey.begin()+2, scriptPubKey.begin()+22);
+        std::vector<unsigned char> hashBytes(script1.begin()+2, script1.begin()+22);
         vSolutionsRet.push_back(hashBytes);
         return true;
     }
