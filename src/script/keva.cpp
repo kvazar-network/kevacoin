@@ -53,7 +53,7 @@ CKevaScript::CKevaScript (const CScript& script)
       break;
 
     case OP_KEVA_NAMESPACE:
-      if (args.size() != 3) {
+      if (args.size() != 2) {
         return;
       }
       break;
