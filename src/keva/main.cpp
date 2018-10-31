@@ -397,6 +397,13 @@ CheckKevaTransaction (const CTransaction& tx, unsigned nHeight,
      name input that is being updated.  */
 #endif
 
+  if (nameOpOut.isNamespaceRegistration()) {
+    if (nameOpOut.getOpNamespaceDisplayName().size () > MAX_VALUE_LENGTH) {
+      return state.Invalid (error ("CheckNameTransaction: display name value too long"));
+    }
+    return true;
+  }
+
   assert (nameOpOut.isAnyUpdate());
   if (nameIn == -1) {
     return state.Invalid(error("CheckNameTransaction: update without"
