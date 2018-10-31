@@ -72,10 +72,11 @@ UniValue keva_namespace(const JSONRPCRequest& request)
   // The namespace name is: Hash160(Hash160(keyId) || displayName)
   valtype toHash = ToByteVector(Hash160(ToByteVector(keyId)));
   toHash.insert(toHash.end(), displayName.begin(), displayName.end());
-  const uint160 namespaceHash = Hash160(toHash);
+  const uint160 namespaceHashVal = Hash160(toHash);
+  const std::string namespaceHash = EncodeBase64(namespaceHashVal.begin(), namespaceHashVal.size());
 
   const CScript addrName = GetScriptForDestination(keyId);
-  const CScript newScript = CKevaScript::buildKevaNamespace(addrName, namespaceHash, displayName);
+  const CScript newScript = CKevaScript::buildKevaNamespace(addrName, ValtypeFromString(namespaceHash), displayName);
 
   CCoinControl coinControl;
   CWalletTx wtx;
@@ -86,11 +87,11 @@ UniValue keva_namespace(const JSONRPCRequest& request)
 
   const std::string txid = wtx.GetHash().GetHex();
   LogPrintf("keva_namespace: namespace=%s, displayName=%s, tx=%s\n",
-             namespaceHash.ToString().c_str(), displayNameStr.c_str(), txid.c_str());
+             namespaceHash.c_str(), displayNameStr.c_str(), txid.c_str());
 
   UniValue res(UniValue::VARR);
   res.push_back(txid);
-  res.push_back(namespaceHash.ToString());
+  res.push_back(namespaceHash);
 
   return res;
 }

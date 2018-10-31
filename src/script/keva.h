@@ -222,7 +222,7 @@ public:
    * @param hash The hash to use.
    * @return The full KEVA_NAMESPACE script.
    */
-  static CScript buildKevaNamespace(const CScript& addr, const uint160& nameSpace,
+  static CScript buildKevaNamespace(const CScript& addr, const valtype& nameSpace,
                                 const valtype& displayName);
 
   /**
