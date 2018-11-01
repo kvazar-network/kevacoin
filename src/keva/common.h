@@ -287,8 +287,8 @@ private:
   class NameComparator
   {
   public:
-    inline bool operator() (const std::tuple<const valtype&, const valtype&> a,
-                            const std::tuple<const valtype&, const valtype&> b) const
+    inline bool operator() (const std::tuple<valtype, valtype> a,
+                            const std::tuple<valtype, valtype> b) const
     {
       unsigned int aSize = std::get<0>(a).size() + std::get<1>(a).size();
       unsigned int bSize = std::get<0>(b).size() + std::get<1>(b).size();
@@ -378,7 +378,7 @@ public:
    * Type of name entry map.  This is public because it is also used
    * by the unit tests.
    */
-  typedef std::map<std::tuple<const valtype&, const valtype&>, CKevaData, NameComparator> EntryMap;
+  typedef std::map<std::tuple<valtype, valtype>, CKevaData, NameComparator> EntryMap;
   typedef std::set<valtype> NamespaceSet;
 
 private:

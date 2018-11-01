@@ -143,7 +143,7 @@ CKevaMemPool::check(const CCoinsView& coins) const
     nHeight = mapBlockIndex.find (blockHash)->second->nHeight;
 
   std::set<valtype> nameRegs;
-  std::set<std::tuple<const valtype&, const valtype&>> namespaceKeyUpdates;
+  std::set<std::tuple<valtype, valtype>> namespaceKeyUpdates;
   for (const auto& entry : pool.mapTx) {
     const uint256 txHash = entry.GetTx ().GetHash ();
     if (entry.isNamespaceRegistration()) {
@@ -168,7 +168,7 @@ CKevaMemPool::check(const CCoinsView& coins) const
     if (entry.isNamespaceKeyUpdate()) {
       const valtype& nameSpace = entry.getNamespace();
       const valtype& key = entry.getKey();
-      std::tuple<const valtype&, const valtype&> tuple(nameSpace, key);
+      std::tuple<valtype, valtype> tuple(nameSpace, key);
       const NamespaceKeyTxMap::const_iterator mit = mapNamespaceKeyUpdates.find(tuple);
       assert (mit != mapNamespaceKeyUpdates.end ());
       assert (mit->second == txHash);

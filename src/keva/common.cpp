@@ -227,6 +227,8 @@ CKevaCache::remove(const valtype& nameSpace, const valtype& key)
   if (ei != entries.end ())
     entries.erase (ei);
 
+  //JWU TODO: make sure to remove namespace registration when
+  // the corresponding block is disconnected!!!
 #if 0
   deleted.insert(name);
 #endif
