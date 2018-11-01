@@ -339,7 +339,7 @@ bool CBlockTreeDB::WriteBatchSync(const std::vector<std::pair<int, const CBlockF
 void CKevaCache::writeBatch (CDBBatch& batch) const
 {
   for (EntryMap::const_iterator i = entries.begin(); i != entries.end(); ++i) {
-    auto name = std::make_pair(std::get<0>(i->first), std::get<1>(i->first));
+    std::pair<valtype, valtype> name = std::make_pair(std::get<0>(i->first), std::get<1>(i->first));
     batch.Write(std::make_pair(DB_NAME, name), i->second);
   }
 
