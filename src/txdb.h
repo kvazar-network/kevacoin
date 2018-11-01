@@ -76,6 +76,7 @@ public:
     bool HaveCoin(const COutPoint &outpoint) const override;
     uint256 GetBestBlock() const override;
     std::vector<uint256> GetHeadBlocks() const override;
+    bool GetNamespace(const valtype &nameSpace, CKevaData &data) const override;
     bool GetName(const valtype &nameSpace, const valtype &key, CKevaData &data) const override;
     bool GetNamesForHeight(unsigned nHeight, std::set<valtype>& names) const override;
     CNameIterator* IterateNames() const override;

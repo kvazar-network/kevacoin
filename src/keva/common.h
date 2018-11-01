@@ -379,7 +379,6 @@ public:
    * by the unit tests.
    */
   typedef std::map<std::tuple<valtype, valtype>, CKevaData, NameComparator> EntryMap;
-  typedef std::set<valtype> NamespaceSet;
 
 private:
 
@@ -387,8 +386,6 @@ private:
   EntryMap entries;
   /** Deleted names.  */
   std::set<valtype> deleted;
-  /** Namespaces */
-  NamespaceSet namespaces;
 
 #if 0
   /**
@@ -455,7 +452,7 @@ public:
      in entries, and doesn't care about deleted data.  */
   bool get(const valtype& nameSpace, const valtype& key, CKevaData& data) const;
 
-  bool hasNamespace(const valtype& nameSpace) const;
+  bool GetNamespace(const valtype& nameSpace, CKevaData& data) const;
 
   /* Insert (or update) a name.  If it is marked as "deleted", this also
      removes the "deleted" mark.  */

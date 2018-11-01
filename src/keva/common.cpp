@@ -194,10 +194,10 @@ CKevaCache::get(const valtype& nameSpace, const valtype& key, CKevaData& data) c
   return true;
 }
 
-bool CKevaCache::hasNamespace(const valtype& nameSpace) const
+bool
+CKevaCache::GetNamespace(const valtype& nameSpace, CKevaData& data) const
 {
-  auto ni = namespaces.find(nameSpace);
-  return (ni != namespaces.end());
+  return get(nameSpace, ValtypeFromString(CKevaScript::KEVA_DISPLAY_NAME_KEY), data);
 }
 
 void
@@ -215,8 +215,6 @@ CKevaCache::set(const valtype& nameSpace, const valtype& key, const CKevaData& d
     ei->second = data;
   else
     entries.insert (std::make_pair(name, data));
-
-  namespaces.insert(nameSpace);
 }
 
 void

@@ -13,6 +13,7 @@
 #include <util.h>
 #include <ui_interface.h>
 #include <init.h>
+#include <script/keva.h>
 
 #include <stdint.h>
 
@@ -140,6 +141,10 @@ bool CDbNameIterator::next(valtype& name, CKevaData& data) {
 
 CNameIterator* CCoinsViewDB::IterateNames() const {
     return new CDbNameIterator(db);
+}
+
+bool CCoinsViewDB::GetNamespace(const valtype &nameSpace, CKevaData &data) const {
+    return db.Read(std::make_pair(DB_NAME, std::make_pair(nameSpace, CKevaScript::KEVA_DISPLAY_NAME_KEY)), data);
 }
 
 bool CCoinsViewDB::GetName(const valtype &nameSpace, const valtype &key, CKevaData &data) const {

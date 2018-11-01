@@ -10,7 +10,7 @@
 bool CCoinsView::GetCoin(const COutPoint &outpoint, Coin &coin) const { return false; }
 uint256 CCoinsView::GetBestBlock() const { return uint256(); }
 std::vector<uint256> CCoinsView::GetHeadBlocks() const { return std::vector<uint256>(); }
-bool CCoinsView::HasNamespace(const valtype &nameSpace) const { return false; }
+bool CCoinsView::GetNamespace(const valtype &nameSpace, CKevaData &data) const { return false; }
 bool CCoinsView::GetName(const valtype &nameSpace, const valtype &key, CKevaData &data) const { return false; }
 bool CCoinsView::GetNamesForHeight(unsigned nHeight, std::set<valtype>& names) const { return false; }
 CNameIterator* CCoinsView::IterateNames() const { assert (false); }
@@ -29,9 +29,15 @@ bool CCoinsViewBacked::GetCoin(const COutPoint &outpoint, Coin &coin) const { re
 bool CCoinsViewBacked::HaveCoin(const COutPoint &outpoint) const { return base->HaveCoin(outpoint); }
 uint256 CCoinsViewBacked::GetBestBlock() const { return base->GetBestBlock(); }
 std::vector<uint256> CCoinsViewBacked::GetHeadBlocks() const { return base->GetHeadBlocks(); }
-bool CCoinsViewBacked::HasNamespace(const valtype &nameSpace) const { return false; }
-bool CCoinsViewBacked::GetName(const valtype &nameSpace, const valtype &key, CKevaData &data) const { return false; }
-bool CCoinsViewBacked::GetNamesForHeight(unsigned nHeight, std::set<valtype>& names) const { return false; }
+bool CCoinsViewBacked::GetNamespace(const valtype &nameSpace, CKevaData &data) const {
+    return base->GetNamespace(nameSpace, data);
+}
+bool CCoinsViewBacked::GetName(const valtype &nameSpace, const valtype &key, CKevaData &data) const {
+    return base->GetName(nameSpace, key, data);
+}
+bool CCoinsViewBacked::GetNamesForHeight(unsigned nHeight, std::set<valtype>& names) const {
+    return base->GetNamesForHeight(nHeight, names);
+}
 CNameIterator* CCoinsViewBacked::IterateNames() const { return base->IterateNames(); }
 void CCoinsViewBacked::SetBackend(CCoinsView &viewIn) { base = &viewIn; }
 bool CCoinsViewBacked::BatchWrite(CCoinsMap &mapCoins, const uint256 &hashBlock, const CKevaCache &names) {
@@ -154,8 +160,11 @@ void CCoinsViewCache::SetBestBlock(const uint256 &hashBlockIn) {
     hashBlock = hashBlockIn;
 }
 
-bool CCoinsViewCache::HasNamespace(const valtype &nameSpace) const {
-    return cacheNames.hasNamespace(nameSpace);
+bool CCoinsViewCache::GetNamespace(const valtype &nameSpace, CKevaData &data) const {
+    if (cacheNames.GetNamespace(nameSpace, data)) {
+        return true;
+    }
+    return base->GetNamespace(nameSpace, data);
 }
 
 bool CCoinsViewCache::GetName(const valtype &nameSpace, const valtype &key, CKevaData &data) const {

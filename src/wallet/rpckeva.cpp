@@ -138,11 +138,6 @@ UniValue keva_put(const JSONRPCRequest& request)
   if (value.size () > MAX_VALUE_LENGTH)
     throw JSONRPCError (RPC_INVALID_PARAMETER, "the value is too long");
 
-  bool createNamespace = false;
-  if (!request.params[3].isNull()) {
-    createNamespace = request.params[3].get_bool();
-  }
-
   /* Reject updates to a name for which the mempool already has
      a pending update.  This is not a hard rule enforced by network
      rules, but it is necessary with the current mempool implementation.  */
@@ -157,52 +152,39 @@ UniValue keva_put(const JSONRPCRequest& request)
   CKevaData oldData;
   {
     LOCK (cs_main);
-    if (!pcoinsTip->HasNamespace(nameSpace)) {
+    if (!pcoinsTip->GetNamespace(nameSpace, oldData)) {
       throw JSONRPCError (RPC_TRANSACTION_ERROR,
                                 "this name can not be updated");
     }
   }
 
-  const COutPoint outp = oldData.getUpdateOutpoint ();
+  const COutPoint outp = oldData.getUpdateOutpoint();
   const CTxIn txIn(outp);
 
   /* No more locking required, similarly to name_new.  */
 
-  EnsureWalletIsUnlocked (pwallet);
+  EnsureWalletIsUnlocked(pwallet);
 
   CReserveKey keyName(pwallet);
   CPubKey pubKeyReserve;
-  const bool ok = keyName.GetReservedKey (pubKeyReserve, true);
-  assert (ok);
+  const bool ok = keyName.GetReservedKey(pubKeyReserve, true);
+  assert(ok);
   bool usedKey = false;
 
   CScript addrName;
-  if (request.params.size () == 3)
-    {
-      keyName.ReturnKey ();
-      const CTxDestination dest
-        = DecodeDestination (request.params[2].get_str ());
-      if (!IsValidDestination (dest))
-        throw JSONRPCError (RPC_INVALID_ADDRESS_OR_KEY, "invalid address");
+  usedKey = true;
+  addrName = GetScriptForDestination(pubKeyReserve.GetID());
 
-      addrName = GetScriptForDestination (dest);
-    }
-  else
-    {
-      usedKey = true;
-      addrName = GetScriptForDestination (pubKeyReserve.GetID ());
-    }
-
-  const CScript nameScript
-    = CKevaScript::buildKevaPut(addrName, nameSpace, key, value);
+  const CScript kevaScript = CKevaScript::buildKevaPut(addrName, nameSpace, key, value);
 
   CCoinControl coinControl;
   CWalletTx wtx;
-  SendMoneyToScript(pwallet, nameScript, &txIn,
+  SendMoneyToScript(pwallet, kevaScript, &txIn,
                      KEVA_LOCKED_AMOUNT, false, wtx, coinControl);
 
-  if (usedKey)
+  if (usedKey) {
     keyName.KeepKey ();
+  }
 
-  return wtx.GetHash ().GetHex ();
+  return wtx.GetHash().GetHex();
 }

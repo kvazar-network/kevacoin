@@ -165,7 +165,7 @@ public:
     virtual std::vector<uint256> GetHeadBlocks() const;
 
     // Check if a namespace exists.
-    virtual bool HasNamespace(const valtype& nameSpace) const;
+    virtual bool GetNamespace(const valtype& nameSpace, CKevaData& data) const;
 
     // Get a name (if it exists)
     virtual bool GetName(const valtype& nameSpace, const valtype& key, CKevaData& data) const;
@@ -206,7 +206,7 @@ public:
     bool HaveCoin(const COutPoint &outpoint) const override;
     uint256 GetBestBlock() const override;
     std::vector<uint256> GetHeadBlocks() const override;
-    bool HasNamespace(const valtype& nameSpace) const override;
+    bool GetNamespace(const valtype& nameSpace, CKevaData& data) const override;
     bool GetName(const valtype& nameSpace, const valtype& key, CKevaData& data) const override;
     bool GetNamesForHeight(unsigned nHeight, std::set<valtype>& names) const override;
     CNameIterator* IterateNames() const override;
@@ -248,8 +248,8 @@ public:
     bool HaveCoin(const COutPoint &outpoint) const override;
     uint256 GetBestBlock() const override;
     void SetBestBlock(const uint256 &hashBlock);
-    bool HasNamespace(const valtype &nameSpace) const override;
-    bool GetName(const valtype &nameSpace, const valtype &key, CKevaData &data) const override;
+    bool GetNamespace(const valtype &nameSpace, CKevaData& data) const override;
+    bool GetName(const valtype &nameSpace, const valtype &key, CKevaData& data) const override;
     bool GetNamesForHeight(unsigned nHeight, std::set<valtype>& names) const override;
     CNameIterator* IterateNames() const override;
     bool BatchWrite(CCoinsMap &mapCoins, const uint256 &hashBlock, const CKevaCache &names) override;
