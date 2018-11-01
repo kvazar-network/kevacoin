@@ -384,11 +384,11 @@ CheckKevaTransaction (const CTransaction& tx, unsigned nHeight,
   if (nameOpOut.getNameOp () == OP_NAME_NEW)
     {
       if (nameIn != -1)
-        return state.Invalid (error ("CheckNameTransaction: NAME_NEW with"
+        return state.Invalid (error ("CheckKevaTransaction: NAME_NEW with"
                                      " previous name input"));
 
       if (nameOpOut.getOpHash ().size () != 20)
-        return state.Invalid (error ("CheckNameTransaction: NAME_NEW's hash"
+        return state.Invalid (error ("CheckKevaTransaction: NAME_NEW's hash"
                                      " has wrong size"));
 
       return true;
@@ -400,31 +400,30 @@ CheckKevaTransaction (const CTransaction& tx, unsigned nHeight,
 
   if (nameOpOut.isNamespaceRegistration()) {
     if (nameOpOut.getOpNamespaceDisplayName().size () > MAX_VALUE_LENGTH) {
-      return state.Invalid (error ("CheckNameTransaction: display name value too long"));
+      return state.Invalid (error ("CheckKevaTransaction: display name value too long"));
     }
     return true;
   }
 
   assert (nameOpOut.isAnyUpdate());
   if (nameIn == -1) {
-    return state.Invalid(error("CheckNameTransaction: update without previous keva input"));
+    return state.Invalid(error("CheckKevaTransaction: update without previous keva input"));
   }
 
   const valtype& key = nameOpOut.getOpKey();
   if (key.size() > MAX_KEY_LENGTH) {
-    return state.Invalid (error ("CheckNameTransaction: key too long"));
+    return state.Invalid (error ("CheckKevaTransaction: key too long"));
   }
 
   if (nameOpOut.getOpValue().size () > MAX_VALUE_LENGTH) {
-    return state.Invalid (error ("CheckNameTransaction: value too long"));
+    return state.Invalid (error ("CheckKevaTransaction: value too long"));
   }
 
   /* Process KEVA_PUT next.  */
   const valtype& nameSpace = nameOpOut.getOpNamespace();
   if (nameOpOut.getKevaOp() == OP_KEVA_PUT) {
-    if (!nameOpIn.isAnyUpdate ()) {
-      return state.Invalid(error("CheckNameTransaction: KEVA_PUT with"
-                                          " prev input that is no update"));
+    if (!nameOpIn.isAnyUpdate() && !nameOpIn.isNamespaceRegistration()) {
+      return state.Invalid(error("CheckKevaTransaction: KEVA_PUT with prev input that is no update"));
     }
 
     if (nameSpace != nameOpIn.getOpNamespace()) {
@@ -432,6 +431,21 @@ CheckKevaTransaction (const CTransaction& tx, unsigned nHeight,
                                           " found in %s", __func__, txid));
     }
 
+    CKevaData oldName;
+    const valtype& namespaceIn = nameOpIn.getOpNamespace();
+    if (nameOpIn.isNamespaceRegistration()) {
+      if (!view.GetNamespace(namespaceIn, oldName)) {
+        return state.Invalid (error ("%s: KEVA_PUT name does not exist in namespace registration", __func__));
+      }
+    } else if (nameOpIn.isAnyUpdate()) {
+      const valtype& keyIn = nameOpIn.getOpKey();
+      if (!view.GetName(namespaceIn, keyIn, oldName)) {
+        return state.Invalid (error ("%s: KEVA_PUT name does not exist", __func__));
+      }
+    }
+    assert (tx.vin[nameIn].prevout == oldName.getUpdateOutpoint());
+
+#if 0
     /* This is actually redundant, since expired names are removed
         from the UTXO set and thus not available to be spent anyway.
         But it does not hurt to enforce this here, too.  It is also
@@ -443,17 +457,15 @@ CheckKevaTransaction (const CTransaction& tx, unsigned nHeight,
       return state.Invalid (error ("%s: KEVA_PUT name does not exist",
                                           __func__));
     }
-#if 0
     if (oldName.isExpired (nHeight))
       return state.Invalid (error ("%s: trying to update expired name",
                                     __func__));
-#endif
     /* This is an internal consistency check.  If everything is fine,
         the input coins from the UTXO database should match the
         name database.  */
     assert (static_cast<unsigned> (coinIn.nHeight) == oldName.getHeight());
     assert (tx.vin[nameIn].prevout == oldName.getUpdateOutpoint());
-
+#endif
     return true;
   }
 
@@ -462,7 +474,7 @@ CheckKevaTransaction (const CTransaction& tx, unsigned nHeight,
 
   assert(nameOpOut.getNameOp () == OP_NAME_FIRSTUPDATE);
   if (nameOpIn.getNameOp () != OP_NAME_NEW)
-    return state.Invalid (error ("CheckNameTransaction: NAME_FIRSTUPDATE"
+    return state.Invalid (error ("CheckKevaTransaction: NAME_FIRSTUPDATE"
                                  " with non-NAME_NEW prev tx"));
 
   /* Maturity of NAME_NEW is checked only if we're not adding
@@ -471,12 +483,12 @@ CheckKevaTransaction (const CTransaction& tx, unsigned nHeight,
     {
       assert (static_cast<unsigned> (coinIn.nHeight) != MEMPOOL_HEIGHT);
       if (coinIn.nHeight + MIN_FIRSTUPDATE_DEPTH > nHeight)
-        return state.Invalid (error ("CheckNameTransaction: NAME_NEW"
+        return state.Invalid (error ("CheckKevaTransaction: NAME_NEW"
                                      " is not mature for FIRST_UPDATE"));
     }
 
   if (nameOpOut.getOpRand ().size () > 20)
-    return state.Invalid (error ("CheckNameTransaction: NAME_FIRSTUPDATE"
+    return state.Invalid (error ("CheckKevaTransaction: NAME_FIRSTUPDATE"
                                  " rand too large, %d bytes",
                                  nameOpOut.getOpRand ().size ()));
 
@@ -485,13 +497,13 @@ CheckKevaTransaction (const CTransaction& tx, unsigned nHeight,
     toHash.insert (toHash.end (), name.begin (), name.end ());
     const uint160 hash = Hash160 (toHash);
     if (hash != uint160 (nameOpIn.getOpHash ()))
-      return state.Invalid (error ("CheckNameTransaction: NAME_FIRSTUPDATE"
+      return state.Invalid (error ("CheckKevaTransaction: NAME_FIRSTUPDATE"
                                    " hash mismatch"));
   }
 
   CNameData oldName;
   if (view.GetName (name, oldName) && !oldName.isExpired (nHeight))
-    return state.Invalid (error ("CheckNameTransaction: NAME_FIRSTUPDATE"
+    return state.Invalid (error ("CheckKevaTransaction: NAME_FIRSTUPDATE"
                                  " on an unexpired name"));
 
   /* We don't have to specifically check that miners don't create blocks with
