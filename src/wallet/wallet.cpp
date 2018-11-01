@@ -2857,6 +2857,10 @@ bool CWallet::CreateTransaction(const std::vector<CRecipient>& vecSend,
                     }
                 }
 
+                if (withInput) {
+                    setCoins.insert(CInputCoin(withInputTx, withInput->prevout.n));
+                }
+
                 const CAmount nChange = nValueIn - nValueToSelect;
 
                 if (nChange > 0)
@@ -3060,9 +3064,7 @@ CWallet::FindValueInNameInput (const CTxIn& nameInput,
                                CAmount& value, const CWalletTx*& walletTx,
                                std::string& strFailReason) const
 {
-#if 0
-    // JWU TODO: implement this!
-    walletTx = GetWalletTx (nameInput.prevout.hash);
+    walletTx = GetWalletTx(nameInput.prevout.hash);
     if (!walletTx) {
         strFailReason = _("Input tx not found in wallet");
         return false;
@@ -3074,16 +3076,13 @@ CWallet::FindValueInNameInput (const CTxIn& nameInput,
         return false;
     }
 
-    if (!CKevaScript::isKevaScript (output.scriptPubKey)) {
-        strFailReason = _("Input tx is not a name operation");
+    if (!CKevaScript::isKevaScript(output.scriptPubKey)) {
+        strFailReason = _("Input tx is not a keva operation");
         return false;
     }
 
     value = output.nValue;
     return true;
-#else
-    return true;
-#endif
 }
 
 /**

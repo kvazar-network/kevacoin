@@ -306,38 +306,39 @@ CheckKevaTransaction (const CTransaction& tx, unsigned nHeight,
 #endif
 
   /* As a first step, try to locate inputs and outputs of the transaction
-     that are name scripts.  At most one input and output should be
-     a name operation.  */
+     that are keva scripts.  At most one input and output should be
+     a keva operation.  */
 
   int nameIn = -1;
   CKevaScript nameOpIn;
   Coin coinIn;
-  for (unsigned i = 0; i < tx.vin.size (); ++i)
-    {
-      const COutPoint& prevout = tx.vin[i].prevout;
-      Coin coin;
-      if (!view.GetCoin (prevout, coin))
-        return error ("%s: failed to fetch input coin for %s", __func__, txid);
-
-      const CKevaScript op(coin.out.scriptPubKey);
-      if (op.isKevaOp()) {
-        if (nameIn != -1)
-          return state.Invalid (error ("%s: multiple name inputs into"
-                                        " transaction %s", __func__, txid));
-        nameIn = i;
-        nameOpIn = op;
-        coinIn = coin;
-      }
+  for (unsigned i = 0; i < tx.vin.size (); ++i) {
+    const COutPoint& prevout = tx.vin[i].prevout;
+    Coin coin;
+    if (!view.GetCoin (prevout, coin)) {
+      return error ("%s: failed to fetch input coin for %s", __func__, txid);
     }
+
+    const CKevaScript op(coin.out.scriptPubKey);
+    if (op.isKevaOp()) {
+      if (nameIn != -1) {
+        return state.Invalid (error ("%s: multiple name inputs into transaction %s", __func__, txid));
+      }
+      nameIn = i;
+      nameOpIn = op;
+      coinIn = coin;
+    }
+  }
 
   int nameOut = -1;
   CKevaScript nameOpOut;
   for (unsigned i = 0; i < tx.vout.size (); ++i) {
     const CKevaScript op(tx.vout[i].scriptPubKey);
     if (op.isKevaOp()) {
-      if (nameOut != -1)
+      if (nameOut != -1) {
         return state.Invalid (error ("%s: multiple name outputs from"
                                       " transaction %s", __func__, txid));
+      }
       nameOut = i;
       nameOpOut = op;
     }
@@ -349,11 +350,11 @@ CheckKevaTransaction (const CTransaction& tx, unsigned nHeight,
 
   if (!tx.IsKevacoin ()) {
     if (nameIn != -1)
-      return state.Invalid (error ("%s: non-Namecoin tx %s has name inputs",
+      return state.Invalid (error ("%s: non-Kevacoin tx %s has keva inputs",
                                     __func__, txid));
     if (nameOut != -1)
-      return state.Invalid (error ("%s: non-Namecoin tx %s at height %u"
-                                    " has name outputs",
+      return state.Invalid (error ("%s: non-Kevacoin tx %s at height %u"
+                                    " has keva outputs",
                                     __func__, txid, nHeight));
 
     return true;
@@ -361,7 +362,7 @@ CheckKevaTransaction (const CTransaction& tx, unsigned nHeight,
 
   assert(tx.IsKevacoin ());
   if (nameOut == -1)
-    return state.Invalid (error ("%s: Namecoin tx %s has no name outputs",
+    return state.Invalid (error ("%s: Kevacoin tx %s has no keva outputs",
                                  __func__, txid));
 
   /* Reject "greedy names".  */
@@ -406,8 +407,7 @@ CheckKevaTransaction (const CTransaction& tx, unsigned nHeight,
 
   assert (nameOpOut.isAnyUpdate());
   if (nameIn == -1) {
-    return state.Invalid(error("CheckNameTransaction: update without"
-                                 " previous name input"));
+    return state.Invalid(error("CheckNameTransaction: update without previous keva input"));
   }
 
   const valtype& key = nameOpOut.getOpKey();

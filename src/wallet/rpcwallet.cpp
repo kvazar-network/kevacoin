@@ -459,9 +459,9 @@ void SendMoneyToScript(CWallet* const pwallet, const CScript &scriptPubKey,
     std::string strError;
     if (withInput) {
         const CWalletTx* dummyWalletTx;
-        if (!pwallet->FindValueInNameInput (*withInput, lockedValue,
-                                            dummyWalletTx, strError))
+        if (!pwallet->FindValueInNameInput (*withInput, lockedValue, dummyWalletTx, strError)) {
             throw JSONRPCError(RPC_WALLET_ERROR, strError);
+        }
     }
 
     if (nValue > curBalance + lockedValue)
