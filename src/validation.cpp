@@ -686,6 +686,10 @@ static bool AcceptToMemoryPoolWorker(const CChainParams& chainparams, CTxMemPool
                 const valtype& nameSpace = kevaOp.getOpNamespace();
                 const valtype& key = kevaOp.getOpKey();
                 CKevaData data;
+                // Make sure namespace info is in cache.
+                if (view.GetNamespace(nameSpace, data)) {
+                    view.SetName(nameSpace, ValtypeFromString(CKevaScript::KEVA_DISPLAY_NAME_KEY), data, false);
+                }
                 if (view.GetName(nameSpace, key, data)) {
                     view.SetName(nameSpace, key, data, false);
                 }
