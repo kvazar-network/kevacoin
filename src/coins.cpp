@@ -200,9 +200,9 @@ CNameIterator* CCoinsViewCache::IterateNames() const {
    name history.  */
 void CCoinsViewCache::SetName(const valtype &nameSpace, const valtype &key, const CKevaData& data, bool undo)
 {
+#if 0
     CKevaData oldData;
     if (GetName(nameSpace, key, oldData)) {
-#if 0
         cacheNames.removeExpireIndex(name, oldData.getHeight());
 
         /* Update the name history.  If we are undoing, we expect that
@@ -228,11 +228,15 @@ void CCoinsViewCache::SetName(const valtype &nameSpace, const valtype &key, cons
 
             cacheNames.setHistory(name, history);
         }
-#endif
     } else {
         assert (!undo);
     }
-
+#endif
+    CKevaData namespaceData;
+    if (GetNamespace(nameSpace, namespaceData)) {
+        namespaceData.setUpdateOutpoint(data.getUpdateOutpoint());
+        cacheNames.setNamespace(nameSpace, namespaceData);
+    }
     cacheNames.set(nameSpace, key, data);
 #if 0
     cacheNames.addExpireIndex(name, data.getHeight());

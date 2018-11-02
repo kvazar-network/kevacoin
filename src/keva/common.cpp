@@ -201,6 +201,12 @@ CKevaCache::GetNamespace(const valtype& nameSpace, CKevaData& data) const
 }
 
 void
+CKevaCache::setNamespace(const valtype& nameSpace, const CKevaData& data)
+{
+  set(nameSpace, ValtypeFromString(CKevaScript::KEVA_DISPLAY_NAME_KEY), data);
+}
+
+void
 CKevaCache::set(const valtype& nameSpace, const valtype& key, const CKevaData& data)
 {
   auto name = std::make_tuple(nameSpace, key);

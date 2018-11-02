@@ -131,6 +131,15 @@ public:
   }
 
   /**
+   * Get the namespace's updated outpoint.
+   */
+  inline void
+  setUpdateOutpoint (const COutPoint& out)
+  {
+    prevout = out;
+  }
+
+  /**
    * Get the address.
    * @return The name's address.
    */
@@ -457,6 +466,8 @@ public:
   /* Insert (or update) a name.  If it is marked as "deleted", this also
      removes the "deleted" mark.  */
   void set(const valtype& nameSpace, const valtype& key, const CKevaData& data);
+
+  void setNamespace(const valtype& nameSpace, const CKevaData& data);
 
   /* Delete a name.  If it is in the "entries" set also, remove it there.  */
   void remove(const valtype& nameSpace, const valtype& key);
