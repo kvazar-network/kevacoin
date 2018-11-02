@@ -185,7 +185,7 @@ UniValue keva_put(const JSONRPCRequest& request)
     return NullUniValue;
   }
 
-  if (request.fHelp) {
+  if (request.fHelp || request.params.size() != 3) {
     throw std::runtime_error (
         "keva_put \"namespace\" \"key\" \"value\" (\"create_namespace\")\n"
         "\nUpdate a name and possibly transfer it.\n"
@@ -200,6 +200,11 @@ UniValue keva_put(const JSONRPCRequest& request)
         + HelpExampleCli ("keva_put", "\"mynamespace\", \"new-key\", \"new-value\"")
       );
   }
+
+  RPCTypeCheck(request.params, {UniValue::VSTR, UniValue::VSTR, UniValue::VSTR});
+  RPCTypeCheckArgument(request.params[0], UniValue::VSTR);
+  RPCTypeCheckArgument(request.params[1], UniValue::VSTR);
+  RPCTypeCheckArgument(request.params[2], UniValue::VSTR);
 
   ObserveSafeMode ();
 
@@ -267,4 +272,53 @@ UniValue keva_put(const JSONRPCRequest& request)
   }
 
   return wtx.GetHash().GetHex();
+}
+
+UniValue keva_get(const JSONRPCRequest& request)
+{
+  CWallet* const pwallet = GetWalletForJSONRPCRequest(request);
+  if (!EnsureWalletIsAvailable (pwallet, request.fHelp)) {
+    return NullUniValue;
+  }
+
+  if (request.fHelp || request.params.size() != 2) {
+    throw std::runtime_error (
+        "keva_get \"namespace\" \"key\"\n"
+        "\nGet value of the given key.\n"
+        + HelpRequiringPassphrase (pwallet) +
+        "\nArguments:\n"
+        "1. \"namespace\"            (string, required) the namespace to insert the key to\n"
+        "2. \"key\"                  (string, required) value for the key\n"
+        "\nResult:\n"
+        "\"value\"             (string) the value associated with the key\n"
+        "\nExamples:\n"
+        + HelpExampleCli ("keva_get", "\"namespace_id\", \"key\"")
+      );
+  }
+
+  RPCTypeCheck(request.params, {UniValue::VSTR, UniValue::VSTR});
+  RPCTypeCheckArgument(request.params[0], UniValue::VSTR);
+  RPCTypeCheckArgument(request.params[1], UniValue::VSTR);
+
+  ObserveSafeMode ();
+
+  const std::string namespaceStr = request.params[0].get_str ();
+  const valtype nameSpace = ValtypeFromString (namespaceStr);
+  if (nameSpace.size () > MAX_NAMESPACE_LENGTH)
+    throw JSONRPCError (RPC_INVALID_PARAMETER, "the namespace is too long");
+
+  const std::string keyStr = request.params[1].get_str ();
+  const valtype key = ValtypeFromString (keyStr);
+  if (key.size () > MAX_KEY_LENGTH)
+    throw JSONRPCError (RPC_INVALID_PARAMETER, "the key is too long");
+
+  CKevaData data;
+  {
+    LOCK (cs_main);
+    if (!pcoinsTip->GetName(nameSpace, key, data)) {
+      throw JSONRPCError (RPC_TRANSACTION_ERROR, "key not found");
+    }
+  }
+
+  return ValtypeToString(data.getValue());
 }
