@@ -21,6 +21,8 @@
 
 #include <univalue.h>
 
+const unsigned char NAMESPACE_PREFIX = 0x35; // N
+
 
 /* ************************************************************************** */
 
@@ -72,11 +74,12 @@ UniValue keva_namespace(const JSONRPCRequest& request)
   // The namespace name is: Hash160(Hash160(keyId) || displayName)
   valtype toHash = ToByteVector(Hash160(ToByteVector(keyId)));
   toHash.insert(toHash.end(), displayName.begin(), displayName.end());
-  const uint160 namespaceHashVal = Hash160(toHash);
-  const std::string namespaceHash = EncodeBase64(namespaceHashVal.begin(), namespaceHashVal.size());
+  valtype namespaceHashVal = ToByteVector(Hash160(toHash));
+  namespaceHashVal.insert(namespaceHashVal.begin(), NAMESPACE_PREFIX); // Append N
+  const std::string namespaceHash = EncodeBase64(ValtypeToString(namespaceHashVal));
 
   const CScript addrName = GetScriptForDestination(keyId);
-  const CScript newScript = CKevaScript::buildKevaNamespace(addrName, ValtypeFromString(namespaceHash), displayName);
+  const CScript newScript = CKevaScript::buildKevaNamespace(addrName, namespaceHashVal, displayName);
 
   CCoinControl coinControl;
   CWalletTx wtx;
@@ -121,7 +124,7 @@ UniValue keva_list_namespaces(const JSONRPCRequest& request)
 
   ObserveSafeMode ();
 
-  std::map<valtype, std::string> mapObjects;
+  std::map<std::string, std::string> mapObjects;
   {
   LOCK2 (cs_main, pwallet->cs_wallet);
   for (const auto& item : pwallet->mapWallet)
@@ -154,7 +157,8 @@ UniValue keva_list_namespaces(const JSONRPCRequest& request)
         continue;
       }
 
-      const valtype& nameSpace = kevaOp.getOpNamespace();
+      const valtype nameSpace = kevaOp.getOpNamespace();
+      const std::string nameSpaceStr = EncodeBase64(ValtypeToString(nameSpace));
       const CBlockIndex* pindex;
       const int depth = tx.GetDepthInMainChain(pindex);
       if (depth <= 0) {
@@ -165,14 +169,14 @@ UniValue keva_list_namespaces(const JSONRPCRequest& request)
       CKevaData data;
       if (mine && pcoinsTip->GetNamespace(nameSpace, data)) {
         std::string displayName = ValtypeToString(data.getValue());
-        mapObjects[nameSpace] = displayName;
+        mapObjects[nameSpaceStr] = displayName;
       }
     }
   }
 
   UniValue res(UniValue::VARR);
   for (const auto& item : mapObjects) {
-    res.push_back(ValtypeToString(item.first) + " : " + item.second);
+    res.push_back(item.first + " : " + item.second);
   }
 
   return res;
@@ -209,7 +213,7 @@ UniValue keva_put(const JSONRPCRequest& request)
   ObserveSafeMode ();
 
   const std::string namespaceStr = request.params[0].get_str ();
-  const valtype nameSpace = ValtypeFromString (namespaceStr);
+  const valtype nameSpace = ValtypeFromString(DecodeBase64(namespaceStr));
   if (nameSpace.size () > MAX_NAMESPACE_LENGTH)
     throw JSONRPCError (RPC_INVALID_PARAMETER, "the namespace is too long");
 
@@ -303,7 +307,7 @@ UniValue keva_get(const JSONRPCRequest& request)
   ObserveSafeMode ();
 
   const std::string namespaceStr = request.params[0].get_str ();
-  const valtype nameSpace = ValtypeFromString (namespaceStr);
+  const valtype nameSpace = ValtypeFromString(DecodeBase64(namespaceStr));
   if (nameSpace.size () > MAX_NAMESPACE_LENGTH)
     throw JSONRPCError (RPC_INVALID_PARAMETER, "the namespace is too long");
 
