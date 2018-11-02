@@ -3582,8 +3582,10 @@ extern UniValue removeprunedfunds(const JSONRPCRequest& request);
 extern UniValue importmulti(const JSONRPCRequest& request);
 extern UniValue rescanblockchain(const JSONRPCRequest& request);
 
-extern UniValue keva_namespace(const JSONRPCRequest& request); // in rpckeva.cpp
-extern UniValue keva_put(const JSONRPCRequest& request);       // in rpckeva.cpp
+// in rpckeva.cpp
+extern UniValue keva_namespace(const JSONRPCRequest& request);
+extern UniValue keva_put(const JSONRPCRequest& request);
+extern UniValue keva_list_namespaces(const JSONRPCRequest& request);
 
 static const CRPCCommand commands[] =
 { //  category              name                        actor (function)           argNames
@@ -3643,7 +3645,8 @@ static const CRPCCommand commands[] =
     { "generating",         "generate",                 &generate,                 {"nblocks","maxtries"} },
 
     // Kevacoin-specific wallet calls.
-    { "kevacoin",           "keva_namespace",           &keva_namespace,           {"namespace", "key", "value", "create_namespace"} },
+    { "kevacoin",           "keva_namespace",           &keva_namespace,           {"display_name"} },
+    { "kevacoin",           "keva_list_namespaces",     &keva_list_namespaces,     {} },
     { "kevacoin",           "keva_put",                 &keva_put,                 {"namespace", "key", "value", "put_value"} }
 };
 

@@ -96,14 +96,96 @@ UniValue keva_namespace(const JSONRPCRequest& request)
   return res;
 }
 
-UniValue keva_put(const JSONRPCRequest& request)
+UniValue keva_list_namespaces(const JSONRPCRequest& request)
 {
   CWallet* const pwallet = GetWalletForJSONRPCRequest(request);
   if (!EnsureWalletIsAvailable (pwallet, request.fHelp))
     return NullUniValue;
 
-  if (request.fHelp
-      || (request.params.size () != 3))
+  if (request.fHelp)
+    throw std::runtime_error (
+        "keva_list_namespace\n"
+        "\nList all namespaces.\n"
+        + HelpRequiringPassphrase(pwallet) +
+        "\nArguments:\n"
+        "\nResult:\n"
+        "[\n"
+        "  xxxxx: display_name   (string) namespace id : (string) display name\n"
+        "  ...\n"
+        "]\n"
+        "\nExamples:\n"
+        + HelpExampleCli("keva_list_namespace", "")
+      );
+
+  RPCTypeCheck (request.params, {UniValue::VSTR});
+
+  ObserveSafeMode ();
+
+  std::map<valtype, std::string> mapObjects;
+  {
+  LOCK2 (cs_main, pwallet->cs_wallet);
+  for (const auto& item : pwallet->mapWallet)
+    {
+      const CWalletTx& tx = item.second;
+      if (!tx.tx->IsKevacoin ())
+        continue;
+
+      CKevaScript kevaOp;
+      int nOut = -1;
+      for (unsigned i = 0; i < tx.tx->vout.size (); ++i)
+        {
+          const CKevaScript cur(tx.tx->vout[i].scriptPubKey);
+          if (cur.isKevaOp ())
+            {
+              if (nOut != -1) {
+                LogPrintf ("ERROR: wallet contains tx with multiple name outputs");
+              } else {
+                kevaOp = cur;
+                nOut = i;
+              }
+            }
+        }
+
+      if (nOut == -1) {
+        continue;
+      }
+
+      if (!kevaOp.isNamespaceRegistration() && !kevaOp.isAnyUpdate()) {
+        continue;
+      }
+
+      const valtype& nameSpace = kevaOp.getOpNamespace();
+      const CBlockIndex* pindex;
+      const int depth = tx.GetDepthInMainChain(pindex);
+      if (depth <= 0) {
+        continue;
+      }
+
+      const bool mine = IsMine(*pwallet, kevaOp.getAddress ());
+      CKevaData data;
+      if (mine && pcoinsTip->GetNamespace(nameSpace, data)) {
+        std::string displayName = ValtypeToString(data.getValue());
+        mapObjects[nameSpace] = displayName;
+      }
+    }
+  }
+
+  UniValue res(UniValue::VARR);
+  for (const auto& item : mapObjects) {
+    res.push_back(ValtypeToString(item.first) + " : " + item.second);
+  }
+
+  return res;
+}
+
+UniValue keva_put(const JSONRPCRequest& request)
+{
+  CWallet* const pwallet = GetWalletForJSONRPCRequest(request);
+  if (!EnsureWalletIsAvailable (pwallet, request.fHelp)) {
+    return NullUniValue;
+  }
+
+  if (request.fHelp) {
     throw std::runtime_error (
         "keva_put \"namespace\" \"key\" \"value\" (\"create_namespace\")\n"
         "\nUpdate a name and possibly transfer it.\n"
@@ -117,9 +199,7 @@ UniValue keva_put(const JSONRPCRequest& request)
         "\nExamples:\n"
         + HelpExampleCli ("keva_put", "\"mynamespace\", \"new-key\", \"new-value\"")
       );
-
-  RPCTypeCheck (request.params,
-    {UniValue::VSTR, UniValue::VSTR, UniValue::VSTR, UniValue::VSTR});
+  }
 
   ObserveSafeMode ();
 
