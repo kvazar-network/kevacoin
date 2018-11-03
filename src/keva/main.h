@@ -134,7 +134,7 @@ private:
    * Keep track of key that are updated by transactions in the pool.
    * Map key to registering transaction.
    */
-  NamespaceKeyTxMap mapNamespaceKeyUpdates;
+  NamespaceTxMap mapNamespaceUpdates;
 
 public:
 
@@ -160,15 +160,14 @@ public:
   }
 
   /**
-   * Check whether a particular name has a pending update.  Does not lock.
-   * @param name The name to check for.
-   * @return True iff there's a matching name update in the pool.
+   * Check whether a particular namespace has a pending update.  Does not lock.
+   * @param name The namespace to check for.
+   * @return True iff there's a matching namespace update in the pool.
    */
   inline bool
-  updatesKey (const valtype& nameSpace, const valtype& key) const
+  updatesNamespace(const valtype& nameSpace) const
   {
-    NamespaceKeyTuple tuple(nameSpace, key);
-    return mapNamespaceKeyUpdates.count(tuple) > 0;
+    return mapNamespaceUpdates.count(nameSpace) > 0;
   }
 
   /**
@@ -188,7 +187,7 @@ public:
   clear ()
   {
     mapNamespaceRegs.clear();
-    mapNamespaceKeyUpdates.clear();
+    mapNamespaceUpdates.clear();
   }
 
   /**

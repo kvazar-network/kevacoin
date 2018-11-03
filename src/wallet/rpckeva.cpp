@@ -232,7 +232,7 @@ UniValue keva_put(const JSONRPCRequest& request)
      rules, but it is necessary with the current mempool implementation.  */
   {
     LOCK (mempool.cs);
-    if (mempool.updatesKey(nameSpace, key)) {
+    if (mempool.updatesNamespace(nameSpace)) {
       throw JSONRPCError (RPC_TRANSACTION_ERROR,
                           "there is already a pending update for this name");
     }

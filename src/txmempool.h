@@ -671,10 +671,10 @@ public:
         return kevaMemPool.registersNamespace(nameSpace);
     }
 
-    inline bool updatesKey(const valtype& nameSpace, const valtype& key) const
+    inline bool updatesNamespace(const valtype& nameSpace) const
     {
         AssertLockHeld(cs);
-        return kevaMemPool.updatesKey(nameSpace, key);
+        return kevaMemPool.updatesNamespace(nameSpace);
     }
 
     inline uint256 getTxForNamespace(const valtype& name) const

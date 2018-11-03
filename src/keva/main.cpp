@@ -45,28 +45,6 @@ CKevaTxUndo::apply(CCoinsViewCache& view) const
 /* ************************************************************************** */
 /* CKevaMemPool.  */
 
-uint256
-CKevaMemPool::getTxForNamespace(const valtype& nameSpace) const
-{
-#if 0
-  // JWU TODO: implement this!
-  NamespaceTxMap::const_iterator mi;
-
-  mi = mapNamespaceRegs.find(nameSpace);
-  if (mi != mapNamespaceRegs.end()) {
-    assert(mapNamespaceKeyUpdates.count(name) == 0);
-    return mi->second;
-  }
-
-  mi = mapNamespaceKeyUpdates.find(name);
-  if (mi != mapNameUpdates.end ()) {
-    assert (mapNameRegs.count (name) == 0);
-    return mi->second;
-  }
-#endif
-  return uint256();
-}
-
 void
 CKevaMemPool::addUnchecked (const uint256& hash, const CTxMemPoolEntry& entry)
 {
@@ -80,10 +58,8 @@ CKevaMemPool::addUnchecked (const uint256& hash, const CTxMemPoolEntry& entry)
 
   if (entry.isNamespaceKeyUpdate ()) {
     const valtype& nameSpace = entry.getNamespace();
-    const valtype& key = entry.getKey();
-    NamespaceKeyTuple tuple(nameSpace, key);
-    assert(mapNamespaceKeyUpdates.count(tuple) == 0);
-    mapNamespaceKeyUpdates.insert (std::make_pair(tuple, hash));
+    assert(mapNamespaceUpdates.count(nameSpace) == 0);
+    mapNamespaceUpdates.insert (std::make_pair(nameSpace, hash));
   }
 }
 
@@ -92,17 +68,16 @@ CKevaMemPool::remove (const CTxMemPoolEntry& entry)
 {
   AssertLockHeld (pool.cs);
 
-  if (entry.isNamespaceRegistration ()) {
-    const NamespaceTxMap::iterator mit = mapNamespaceRegs.find (entry.getNamespace());
+  if (entry.isNamespaceRegistration()) {
+    const NamespaceTxMap::iterator mit = mapNamespaceRegs.find(entry.getNamespace());
     assert (mit != mapNamespaceRegs.end());
-    mapNamespaceRegs.erase (mit);
+    mapNamespaceRegs.erase(mit);
   }
 
-  if (entry.isNamespaceKeyUpdate ()) {
-    NamespaceKeyTuple tuple(entry.getNamespace(), entry.getKey());
-    const NamespaceKeyTxMap::iterator mit = mapNamespaceKeyUpdates.find(tuple);
-    assert (mit != mapNamespaceKeyUpdates.end());
-    mapNamespaceKeyUpdates.erase (mit);
+  if (entry.isNamespaceKeyUpdate()) {
+    const NamespaceTxMap::iterator mit = mapNamespaceUpdates.find(entry.getNamespace());
+    assert (mit != mapNamespaceUpdates.end());
+    mapNamespaceUpdates.erase(mit);
   }
 }
 
@@ -143,7 +118,7 @@ CKevaMemPool::check(const CCoinsView& coins) const
     nHeight = mapBlockIndex.find (blockHash)->second->nHeight;
 
   std::set<valtype> nameRegs;
-  std::set<std::tuple<valtype, valtype>> namespaceKeyUpdates;
+  std::set<valtype> namespaceKeyUpdates;
   for (const auto& entry : pool.mapTx) {
     const uint256 txHash = entry.GetTx ().GetHash ();
     if (entry.isNamespaceRegistration()) {
@@ -167,14 +142,12 @@ CKevaMemPool::check(const CCoinsView& coins) const
 
     if (entry.isNamespaceKeyUpdate()) {
       const valtype& nameSpace = entry.getNamespace();
-      const valtype& key = entry.getKey();
-      std::tuple<valtype, valtype> tuple(nameSpace, key);
-      const NamespaceKeyTxMap::const_iterator mit = mapNamespaceKeyUpdates.find(tuple);
-      assert (mit != mapNamespaceKeyUpdates.end ());
+      const NamespaceTxMap::const_iterator mit = mapNamespaceUpdates.find(nameSpace);
+      assert (mit != mapNamespaceUpdates.end ());
       assert (mit->second == txHash);
 
-      assert (namespaceKeyUpdates.count(tuple) == 0);
-      namespaceKeyUpdates.insert(tuple);
+      assert (namespaceKeyUpdates.count(nameSpace) == 0);
+      namespaceKeyUpdates.insert(nameSpace);
 
 #if 0
       /* As above, use nHeight+1 for the expiration check.  */
@@ -188,7 +161,7 @@ CKevaMemPool::check(const CCoinsView& coins) const
   }
 
   assert(nameRegs.size() == mapNamespaceRegs.size());
-  assert(namespaceKeyUpdates.size() == mapNamespaceKeyUpdates.size());
+  assert(namespaceKeyUpdates.size() == mapNamespaceUpdates.size());
 
   /* Check that nameRegs and nameUpdates are disjoint.  They must be since
      a name can only be in either category, depending on whether it exists
@@ -200,8 +173,8 @@ CKevaMemPool::check(const CCoinsView& coins) const
   }
 #endif
 
-  for (const auto& namespaceKey : namespaceKeyUpdates) {
-    assert(nameRegs.count(std::get<0>(namespaceKey)) == 0);
+  for (const auto& nameSpace : namespaceKeyUpdates) {
+    assert(nameRegs.count(nameSpace) == 0);
   }
 }
 
@@ -238,8 +211,9 @@ CKevaMemPool::checkTx (const CTransaction& tx) const
       {
         const valtype& nameSpace = nameOp.getOpNamespace();
         const valtype& key = nameOp.getOpKey();
-        if (updatesKey(nameSpace, key))
+        if (updatesNamespace(nameSpace)) {
           return false;
+        }
         break;
       }
 
