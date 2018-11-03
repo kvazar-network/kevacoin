@@ -433,15 +433,8 @@ CheckKevaTransaction (const CTransaction& tx, unsigned nHeight,
 
     CKevaData oldName;
     const valtype& namespaceIn = nameOpIn.getOpNamespace();
-    if (nameOpIn.isNamespaceRegistration()) {
-      if (!view.GetNamespace(namespaceIn, oldName)) {
-        return state.Invalid (error ("%s: KEVA_PUT name does not exist in namespace registration", __func__));
-      }
-    } else if (nameOpIn.isAnyUpdate()) {
-      const valtype& keyIn = nameOpIn.getOpKey();
-      if (!view.GetName(namespaceIn, keyIn, oldName)) {
-        return state.Invalid (error ("%s: KEVA_PUT name does not exist", __func__));
-      }
+    if (!view.GetNamespace(namespaceIn, oldName)) {
+        return state.Invalid (error ("%s: Namespace not found", __func__));
     }
     assert (tx.vin[nameIn].prevout == oldName.getUpdateOutpoint());
 
