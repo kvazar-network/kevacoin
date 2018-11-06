@@ -21,7 +21,7 @@
 
 #include <univalue.h>
 
-const unsigned char NAMESPACE_PREFIX = 0x35; // N
+const unsigned char NAMESPACE_PREFIX = 21; // 2 in base58
 
 
 /* ************************************************************************** */
@@ -72,13 +72,17 @@ UniValue keva_namespace(const JSONRPCRequest& request)
   CKeyID keyId = pubKey.GetID();
 
   // The namespace name is: Hash160(Hash160(keyId) || displayName)
+  // JWU TODO: double check this! How can node verify this!!!???
   valtype toHash = ToByteVector(Hash160(ToByteVector(keyId)));
   toHash.insert(toHash.end(), displayName.begin(), displayName.end());
   valtype namespaceHashVal = ToByteVector(Hash160(toHash));
-  namespaceHashVal.insert(namespaceHashVal.begin(), NAMESPACE_PREFIX); // Append N
-  const std::string namespaceHash = EncodeBase64(ValtypeToString(namespaceHashVal));
+  namespaceHashVal.insert(namespaceHashVal.begin(), NAMESPACE_PREFIX);
+  const std::string namespaceHash = EncodeBase58(namespaceHashVal);
 
-  const CScript addrName = GetScriptForDestination(keyId);
+  //const CScript addrName = GetScriptForDestination(keyId);
+  CScript redeemScript = GetScriptForDestination(WitnessV0KeyHash(keyId));
+  CScriptID scriptHash = CScriptID(redeemScript);
+  CScript addrName = GetScriptForDestination(scriptHash);
   const CScript newScript = CKevaScript::buildKevaNamespace(addrName, namespaceHashVal, displayName);
 
   CCoinControl coinControl;
@@ -158,7 +162,7 @@ UniValue keva_list_namespaces(const JSONRPCRequest& request)
       }
 
       const valtype nameSpace = kevaOp.getOpNamespace();
-      const std::string nameSpaceStr = EncodeBase64(ValtypeToString(nameSpace));
+      const std::string nameSpaceStr = EncodeBase58(nameSpace);
       const CBlockIndex* pindex;
       const int depth = tx.GetDepthInMainChain(pindex);
       if (depth <= 0) {
@@ -212,8 +216,11 @@ UniValue keva_put(const JSONRPCRequest& request)
 
   ObserveSafeMode ();
 
-  const std::string namespaceStr = request.params[0].get_str ();
-  const valtype nameSpace = ValtypeFromString(DecodeBase64(namespaceStr));
+  const std::string namespaceStr = request.params[0].get_str();
+  valtype nameSpace;
+  if (!DecodeBase58(namespaceStr, nameSpace)) {
+    throw JSONRPCError (RPC_INVALID_PARAMETER, "failed to decode namespace");
+  }
   if (nameSpace.size () > MAX_NAMESPACE_LENGTH)
     throw JSONRPCError (RPC_INVALID_PARAMETER, "the namespace is too long");
 
@@ -307,7 +314,10 @@ UniValue keva_get(const JSONRPCRequest& request)
   ObserveSafeMode ();
 
   const std::string namespaceStr = request.params[0].get_str ();
-  const valtype nameSpace = ValtypeFromString(DecodeBase64(namespaceStr));
+  valtype nameSpace;
+  if (!DecodeBase58(namespaceStr, nameSpace)) {
+    throw JSONRPCError (RPC_INVALID_PARAMETER, "failed to decode namespace");
+  }
   if (nameSpace.size () > MAX_NAMESPACE_LENGTH)
     throw JSONRPCError (RPC_INVALID_PARAMETER, "the namespace is too long");
 
