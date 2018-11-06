@@ -77,11 +77,11 @@ public:
     CMainParams() {
         strNetworkID = "main";
         consensus.nSubsidyHalvingInterval = 840000 * 4;
-        consensus.BIP16Height = 218579; // 87afb798a3ad9378fcd56123c81fb31cfd9a8df4719b9774d71730c16315a092 - October 1, 2012
-        consensus.BIP34Height = 710000;
-        consensus.BIP34Hash = uint256S("fa09d204a83a768ed5a7c8d441fa62f2043abf420cff1226c7b4329aeb9d51cf");
-        consensus.BIP65Height = 918684; // bab3041e8977e0dc3eeff63fe707b92bde1dd449d8efafb248c27c8264cc311a
-        consensus.BIP66Height = 811879; // 7aceee012833fa8952f8835d8b1b3ae233cd6ab08fdb27a771d2bd7bdc491894
+        consensus.BIP16Height = 1;
+        consensus.BIP34Height = 0;
+        consensus.BIP34Hash = uint256S("0x581cc1e4153a2a367012d3678f0f83f7d62286d84e69ab860804acf3ff2f572b"); // Genesis
+        consensus.BIP65Height = 1;
+        consensus.BIP66Height = 1;
         consensus.powLimit = uint256S("000fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff");
         consensus.nPowTargetTimespan = 2.0 * 60; // Two minutes
         consensus.nPowTargetSpacing = 2.0 * 60; // Two minutes
@@ -95,12 +95,14 @@ public:
 
         // Deployment of BIP68, BIP112, and BIP113.
         consensus.vDeployments[Consensus::DEPLOYMENT_CSV].bit = 0;
-        consensus.vDeployments[Consensus::DEPLOYMENT_CSV].nStartTime = 1485561600; // January 28, 2017
+        //consensus.vDeployments[Consensus::DEPLOYMENT_CSV].nStartTime = 1485561600; // January 28, 2017
+        consensus.vDeployments[Consensus::DEPLOYMENT_CSV].nStartTime = -1; // Consensus::BIP9Deployment::ALWAYS_ACTIVE
         consensus.vDeployments[Consensus::DEPLOYMENT_CSV].nTimeout = 1517356801; // January 31st, 2018
 
         // Deployment of SegWit (BIP141, BIP143, and BIP147)
         consensus.vDeployments[Consensus::DEPLOYMENT_SEGWIT].bit = 1;
-        consensus.vDeployments[Consensus::DEPLOYMENT_SEGWIT].nStartTime = 1485561600; // January 28, 2017
+        //consensus.vDeployments[Consensus::DEPLOYMENT_SEGWIT].nStartTime = 1485561600; // January 28, 2017
+        consensus.vDeployments[Consensus::DEPLOYMENT_SEGWIT].nStartTime = -1; // Consensus::BIP9Deployment::ALWAYS_ACTIVE
         consensus.vDeployments[Consensus::DEPLOYMENT_SEGWIT].nTimeout = 1517356801; // January 31st, 2018
 
         // The best chain should have at least this much work.
@@ -122,7 +124,7 @@ public:
         nPruneAfterHeight = 100000;
 
         // JWU change the timestamp!
-        genesis = CreateGenesisBlock(1317972665, 4657, 0x1f0ffff0, 1, 50 * COIN);   // Cryptonight
+        genesis = CreateGenesisBlock(1541534427, 7307, 0x1f0ffff0, 1, 50 * COIN);   // Cryptonight
         //genesis = CreateGenesisBlock(1317972665, 176784, 0x1e0ffff0, 1, 50 * COIN); // Scrypt
 
         //JW remove the following code!
@@ -142,7 +144,7 @@ public:
         }
 
         consensus.hashGenesisBlock = genesis.GetHash();
-        assert(consensus.hashGenesisBlock == uint256S("0xec1e7f1dbec5154f9253f60fd4d54c4569a8d07b9ae3c088a3752b76b619b36c")); //Cryptonight
+        assert(consensus.hashGenesisBlock == uint256S("0x581cc1e4153a2a367012d3678f0f83f7d62286d84e69ab860804acf3ff2f572b")); //Cryptonight
         //assert(consensus.hashGenesisBlock == uint256S("0xd7a681608b8fc3bd6d85110317357920291e1c6a4fdf6ee38e5d04c49b878c33")); // Scrypt
         assert(genesis.hashMerkleRoot == uint256S("0x677b0cc3aa49a118484f34bc1b1065e4ecdbd9a895e43d7fcd1c4b74beb492da"));
 

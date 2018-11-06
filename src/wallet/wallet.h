@@ -106,10 +106,7 @@ enum OutputType : int
     OUTPUT_TYPE_LEGACY,
     OUTPUT_TYPE_P2SH_SEGWIT,
     OUTPUT_TYPE_BECH32,
-
-    //OUTPUT_TYPE_DEFAULT = OUTPUT_TYPE_P2SH_SEGWIT
-    // JWU TODO FIXME: Update once we have segwit on Kevacoin.
-    OUTPUT_TYPE_DEFAULT = OUTPUT_TYPE_LEGACY
+    OUTPUT_TYPE_DEFAULT = OUTPUT_TYPE_P2SH_SEGWIT
 };
 
 extern OutputType g_address_type;
