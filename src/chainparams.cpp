@@ -122,30 +122,27 @@ public:
          pchMessageStart[3] = 0x9a;
         nDefaultPort = 9333;
         nPruneAfterHeight = 100000;
+        genesis = CreateGenesisBlock(1542309299, 14580, 0x1f0ffff0, 1, 50 * COIN);
 
-        // JWU change the timestamp!
-        genesis = CreateGenesisBlock(1541534427, 7307, 0x1f0ffff0, 1, 50 * COIN);   // Cryptonight
-        //genesis = CreateGenesisBlock(1317972665, 176784, 0x1e0ffff0, 1, 50 * COIN); // Scrypt
-
-        //JW remove the following code!
+#if 0
         arith_uint256 hashTarget = arith_uint256().SetCompact(genesis.nBits);
         uint256 hashGenesisBlock = uint256S("0x01");
-        if (false && genesis.GetHash() != hashGenesisBlock) {
+        if (genesis.GetHash() != hashGenesisBlock) {
             printf("recalculating params for mainnet.\n");
             printf("old mainnet genesis nonce: %d\n", genesis.nNonce);
             printf("old mainnet genesis hash:  %s\n", hashGenesisBlock.ToString().c_str());
             // deliberately empty for loop finds nonce value.
-            for(genesis.nNonce = 1000; hashTarget < UintToArith256(genesis.GetPoWHash()); genesis.nNonce++) {
-                printf("JWU nNonce: %d\n\n", genesis.nNonce);
+            for(genesis.nNonce = 500; hashTarget < UintToArith256(genesis.GetPoWHash()); genesis.nNonce++) {
+                printf("nNonce: %d\n\n", genesis.nNonce);
             }
             printf("new mainnet genesis merkle root: %s\n", genesis.hashMerkleRoot.ToString().c_str());
             printf("new mainnet genesis nonce: %d\n", genesis.nNonce);
             printf("new mainnet genesis hash: %s\n", genesis.GetHash().ToString().c_str());
         }
+#endif
 
         consensus.hashGenesisBlock = genesis.GetHash();
-        assert(consensus.hashGenesisBlock == uint256S("0x581cc1e4153a2a367012d3678f0f83f7d62286d84e69ab860804acf3ff2f572b")); //Cryptonight
-        //assert(consensus.hashGenesisBlock == uint256S("0xd7a681608b8fc3bd6d85110317357920291e1c6a4fdf6ee38e5d04c49b878c33")); // Scrypt
+        assert(consensus.hashGenesisBlock == uint256S("0xff628438a3818f53874f6b3d125a39edac0ee2557a1d41befeae712f3029b650"));
         assert(genesis.hashMerkleRoot == uint256S("0x677b0cc3aa49a118484f34bc1b1065e4ecdbd9a895e43d7fcd1c4b74beb492da"));
 
         // Note that of those with the service bits flag, most only support a subset of possible options
