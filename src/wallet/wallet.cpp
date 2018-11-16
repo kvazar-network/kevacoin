@@ -2810,7 +2810,7 @@ bool CWallet::CreateTransaction(const std::vector<CRecipient>& vecSend,
                 wtxNew.fFromMe = true;
                 bool fFirst = true;
 
-                CAmount nValueToSelect = nValue;
+                CAmount nValueToSelect = nValue - nInputValue;
                 if (nSubtractFeeFromAmount == 0)
                     nValueToSelect += nFeeRet;
                 // vouts to the payees
@@ -3118,9 +3118,11 @@ bool CWallet::CommitTransaction(CWalletTx& wtxNew, CReserveKey& reservekey, CCon
         {
             // Broadcast
             if (!wtx.AcceptToMemoryPool(maxTxFee, state)) {
+                printf("JWU Transaction cannot be broadcast immediately! \n");
                 LogPrintf("CommitTransaction(): Transaction cannot be broadcast immediately, %s\n", state.GetRejectReason());
                 // TODO: if we expect the failure to be long term or permanent, instead delete wtx from the wallet and return failure.
             } else {
+                printf("JWU Transaction CAN OK be broadcast immediately! \n");
                 wtx.RelayWalletTransaction(connman);
             }
         }
