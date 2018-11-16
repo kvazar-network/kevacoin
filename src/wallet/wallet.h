@@ -193,6 +193,7 @@ static inline void WriteOrderPos(const int64_t& nOrderPos, mapValue_t& mapValue)
 struct COutputEntry
 {
     CTxDestination destination;
+    std::string kevaOp;
     CAmount amount;
     int vout;
 };

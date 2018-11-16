@@ -1697,6 +1697,8 @@ void ListTransactions(CWallet* const pwallet, const CWalletTx& wtx, const std::s
             }
             entry.push_back(Pair("account", strSentAccount));
             MaybePushAddress(entry, s.destination);
+            if(!s.kevaOp.empty())
+                entry.push_back(Pair("keva", s.kevaOp));
             entry.push_back(Pair("category", "send"));
             entry.push_back(Pair("amount", ValueFromAmount(-s.amount)));
             if (pwallet->mapAddressBook.count(s.destination)) {
@@ -1728,6 +1730,8 @@ void ListTransactions(CWallet* const pwallet, const CWalletTx& wtx, const std::s
                 }
                 entry.push_back(Pair("account", account));
                 MaybePushAddress(entry, r.destination);
+                if(!r.kevaOp.empty())
+                    entry.push_back(Pair("keva", r.kevaOp));
                 if (wtx.IsCoinBase())
                 {
                     if (wtx.GetDepthInMainChain() < 1)

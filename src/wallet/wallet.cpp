@@ -1536,13 +1536,14 @@ void CWalletTx::GetAmounts(std::list<COutputEntry>& listReceived,
     {
         const CTxOut& txout = tx->vout[i];
         isminetype fIsMine = pwallet->IsMine(txout);
+        const CKevaScript kevaOp(txout.scriptPubKey);
         // Only need to handle txouts if AT LEAST one of these is true:
         //   1) they debit from us (sent)
         //   2) the output is to us (received)
         if (nDebit > 0)
         {
             // Don't report 'change' txouts
-            if (pwallet->IsChange(txout))
+            if (pwallet->IsChange(txout) && !kevaOp.isKevaOp())
                 continue;
         }
         else if (!(fIsMine & filter))
@@ -1558,14 +1559,26 @@ void CWalletTx::GetAmounts(std::list<COutputEntry>& listReceived,
             address = CNoDestination();
         }
 
-        COutputEntry output = {address, txout.nValue, (int)i};
+        COutputEntry output = {address, "", txout.nValue, (int)i};
+
+        // If we have a keva script, set the "keva" parameter.
+        if (kevaOp.isKevaOp())
+        {
+            if (kevaOp.isAnyUpdate())
+                output.kevaOp = "update: " + ValtypeToString(kevaOp.getOpNamespace());
+            else
+                output.kevaOp = "new: " + ValtypeToString(kevaOp.getOpNamespace());
+            output.amount = 0;
+        }
+
 
         // If we are debited by the transaction, add the output as a "sent" entry
         if (nDebit > 0)
             listSent.push_back(output);
 
         // If we are receiving the output, add it as a "received" entry
-        if (fIsMine & filter)
+        if ((fIsMine & filter)
+            && (!kevaOp.isKevaOp() || !(nDebit > 0)))
             listReceived.push_back(output);
     }
 
