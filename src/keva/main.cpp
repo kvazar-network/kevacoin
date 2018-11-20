@@ -59,7 +59,6 @@ CKevaMemPool::addUnchecked (const uint256& hash, const CTxMemPoolEntry& entry)
   if (entry.isNamespaceKeyUpdate ()) {
     const valtype& nameSpace = entry.getNamespace();
     assert(mapNamespaceUpdates.count(nameSpace) == 0);
-    std::string(nameSpace.begin(), nameSpace.end()).c_str(), std::string(entry.getKey().begin(), entry.getKey().end()).c_str());
     mapNamespaceUpdates.insert (std::make_pair(nameSpace, hash));
     listUnconfirmedKeyValues.push_back(std::make_tuple(hash, nameSpace, entry.getKey(), entry.getValue()));
   }
@@ -98,18 +97,34 @@ void CKevaMemPool::remove(const CTxMemPoolEntry& entry)
     const NamespaceTxMap::iterator mit = mapNamespaceRegs.find(entry.getNamespace());
     assert (mit != mapNamespaceRegs.end());
     mapNamespaceRegs.erase(mit);
+    auto hash = entry.GetTx().GetHash();
+    for (auto iter = listUnconfirmedNamespaces.begin(); iter != listUnconfirmedNamespaces.end(); ++iter) {
+      if (std::get<0>(*iter) == hash) {
+        listUnconfirmedNamespaces.erase(iter);
+        break;
+      }
+    }
   }
 
   if (entry.isNamespaceKeyUpdate()) {
     const NamespaceTxMap::iterator mit = mapNamespaceUpdates.find(entry.getNamespace());
     assert (mit != mapNamespaceUpdates.end());
     mapNamespaceUpdates.erase(mit);
+    auto hash = entry.GetTx().GetHash();
+    for (auto iter = listUnconfirmedKeyValues.begin(); iter != listUnconfirmedKeyValues.end(); ++iter) {
+      if (std::get<0>(*iter) == hash) {
+        listUnconfirmedKeyValues.erase(iter);
+        break;
+      }
+    }
   }
 }
 
 void
 CKevaMemPool::removeConflicts(const CTransaction& tx)
 {
+  // JWU TODO: is this required at all?
+#if 0
   AssertLockHeld (pool.cs);
 
   if (!tx.IsKevacoin ())
@@ -128,6 +143,7 @@ CKevaMemPool::removeConflicts(const CTransaction& tx)
       }
     }
   }
+#endif
 }
 
 void

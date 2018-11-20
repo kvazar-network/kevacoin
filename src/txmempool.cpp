@@ -573,7 +573,7 @@ void CTxMemPool::removeConflicts(const CTransaction &tx)
     }
 
     /* Remove conflicting keva registrations.  */
-    kevaMemPool.removeConflicts (tx);
+    kevaMemPool.removeConflicts(tx);
 }
 
 /**
