@@ -136,6 +136,11 @@ private:
    */
   NamespaceTxMap mapNamespaceUpdates;
 
+  /**
+   * Validate that the namespace is the hash of the first TxIn.
+   */
+  bool validateNamespace(const CTransaction& tx, const valtype& nameSpace) const;
+
 public:
 
   /**

@@ -72,7 +72,7 @@ UniValue keva_namespace(const JSONRPCRequest& request)
 
   CKeyID keyId = pubKey.GetID();
 
-  // The namespace name is: Hash160("first txin" || displayName)
+  // The namespace name is: Hash160("first txin")
   // For now we don't know the first txin, so use dummy name here.
   // It will be replaced later in CreateTransaction.
   valtype namespaceDummy = ToByteVector(std::string(DUMMY_NAMESPACE));

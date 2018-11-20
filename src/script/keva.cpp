@@ -98,7 +98,6 @@ CScript CKevaScript::replaceKevaNamespace(const CScript& oldScript, const uint25
   const valtype& displayName = kevaOp.getOpNamespaceDisplayName();
   kaveNamespace = ToByteVector(Hash160(ToByteVector(txId)));
   kaveNamespace.insert(kaveNamespace.begin(), NAMESPACE_PREFIX);
-  //kaveNamespace = EncodeBase58(kaveNamespaceVal);
   return CKevaScript::buildKevaNamespace(kevaOp.getAddress(), kaveNamespace, displayName);
 }
 

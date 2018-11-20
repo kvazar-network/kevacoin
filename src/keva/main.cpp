@@ -82,27 +82,26 @@ CKevaMemPool::remove (const CTxMemPoolEntry& entry)
 }
 
 void
-CKevaMemPool::removeConflicts (const CTransaction& tx)
+CKevaMemPool::removeConflicts(const CTransaction& tx)
 {
   AssertLockHeld (pool.cs);
 
   if (!tx.IsKevacoin ())
     return;
 
-  for (const auto& txout : tx.vout)
-    {
-      const CKevaScript nameOp(txout.scriptPubKey);
-      if (nameOp.isKevaOp () && nameOp.getKevaOp () == OP_KEVA_PUT) {
-        const valtype& nameSpace = nameOp.getOpNamespace();
-        const NamespaceTxMap::const_iterator mit = mapNamespaceRegs.find(nameSpace);
-        if (mit != mapNamespaceRegs.end ()) {
-          const CTxMemPool::txiter mit2 = pool.mapTx.find (mit->second);
-          assert (mit2 != pool.mapTx.end ());
-          pool.removeRecursive (mit2->GetTx (),
-                                MemPoolRemovalReason::KEVA_CONFLICT);
-        }
+  for (const auto& txout : tx.vout) {
+    const CKevaScript nameOp(txout.scriptPubKey);
+    if (nameOp.isKevaOp() && nameOp.getKevaOp() == OP_KEVA_PUT) {
+      const valtype& nameSpace = nameOp.getOpNamespace();
+      const NamespaceTxMap::const_iterator mit = mapNamespaceRegs.find(nameSpace);
+      if (mit != mapNamespaceRegs.end()) {
+        const CTxMemPool::txiter mit2 = pool.mapTx.find(mit->second);
+        assert(mit2 != pool.mapTx.end());
+        pool.removeRecursive (mit2->GetTx(),
+                              MemPoolRemovalReason::KEVA_CONFLICT);
       }
     }
+  }
 }
 
 void
@@ -178,6 +177,13 @@ CKevaMemPool::check(const CCoinsView& coins) const
   }
 }
 
+bool CKevaMemPool::validateNamespace(const CTransaction& tx, const valtype& nameSpace) const
+{
+  valtype kevaNamespace = ToByteVector(Hash160(ToByteVector(tx.vin[0].prevout.hash)));
+  kevaNamespace.insert(kevaNamespace.begin(), CKevaScript::NAMESPACE_PREFIX);
+  return kevaNamespace == nameSpace;
+}
+
 bool
 CKevaMemPool::checkTx (const CTransaction& tx) const
 {
@@ -190,20 +196,22 @@ CKevaMemPool::checkTx (const CTransaction& tx) const
      mempool at once (building upon each other).  This is disallowed, though,
      since the current mempool implementation does not like it.  (We keep
      track of only a single update tx for each name.)  */
-
   for (const auto& txout : tx.vout) {
     const CKevaScript nameOp(txout.scriptPubKey);
     if (!nameOp.isKevaOp ())
       continue;
-
     switch (nameOp.getKevaOp ()) {
       case OP_KEVA_NAMESPACE:
       {
         const valtype& nameSpace = nameOp.getOpNamespace();
         std::map<valtype, uint256>::const_iterator mi;
         mi = mapNamespaceRegs.find(nameSpace);
-        if (mi != mapNamespaceRegs.end ())
+        if (mi != mapNamespaceRegs.end ()) {
           return false;
+        }
+        if (!validateNamespace(tx, nameSpace)) {
+          return false;
+        }
         break;
       }
 
