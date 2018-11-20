@@ -182,6 +182,17 @@ UniValue keva_list_namespaces(const JSONRPCRequest& request)
     res.push_back(item.first + " : " + item.second);
   }
 
+  {
+    LOCK (mempool.cs);
+    // Also get the unconfirmed ones from mempool.
+    std::vector<std::tuple<valtype, valtype>> unconfirmedNamespaces;
+    if (mempool.getUnconfirmedNamespaces(unconfirmedNamespaces)) {
+      for (auto entry : unconfirmedNamespaces) {
+        res.push_back(EncodeBase58(std::get<0>(entry)) + " : " + ValtypeToString(std::get<1>(entry)));
+      }
+    }
+  }
+
   return res;
 }
 
@@ -330,9 +341,19 @@ UniValue keva_get(const JSONRPCRequest& request)
   {
     LOCK (cs_main);
     if (!pcoinsTip->GetName(nameSpace, key, data)) {
-      throw JSONRPCError (RPC_TRANSACTION_ERROR, "key not found");
+      //throw JSONRPCError (RPC_TRANSACTION_ERROR, "key not found");
     }
   }
 
-  return ValtypeToString(data.getValue());
+  auto value = data.getValue();
+  // Also get the unconfirmed ones.
+  {
+    LOCK (mempool.cs);
+    valtype val;
+    if (mempool.getUnconfirmedKeyValue(nameSpace, key, val)) {
+      value = val;
+    }
+  }
+
+  return ValtypeToString(value);
 }

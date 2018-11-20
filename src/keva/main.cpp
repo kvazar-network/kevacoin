@@ -49,25 +49,51 @@ void
 CKevaMemPool::addUnchecked (const uint256& hash, const CTxMemPoolEntry& entry)
 {
   AssertLockHeld (pool.cs);
-
   if (entry.isNamespaceRegistration()) {
     const valtype& nameSpace = entry.getNamespace();
     assert(mapNamespaceRegs.count(nameSpace) == 0);
     mapNamespaceRegs.insert(std::make_pair(nameSpace, hash));
+    listUnconfirmedNamespaces.push_back(std::make_tuple(hash, nameSpace, entry.getDisplayName()));
   }
 
   if (entry.isNamespaceKeyUpdate ()) {
     const valtype& nameSpace = entry.getNamespace();
     assert(mapNamespaceUpdates.count(nameSpace) == 0);
+    std::string(nameSpace.begin(), nameSpace.end()).c_str(), std::string(entry.getKey().begin(), entry.getKey().end()).c_str());
     mapNamespaceUpdates.insert (std::make_pair(nameSpace, hash));
+    listUnconfirmedKeyValues.push_back(std::make_tuple(hash, nameSpace, entry.getKey(), entry.getValue()));
   }
 }
 
-void
-CKevaMemPool::remove (const CTxMemPoolEntry& entry)
+bool
+CKevaMemPool::getUnconfirmedKeyValue(const valtype& nameSpace, const valtype& key, valtype& value) const {
+  bool found = false;
+  for (auto entry : listUnconfirmedKeyValues) {
+    auto ns = std::get<1>(entry);
+    auto k = std::get<2>(entry);
+    if (ns == nameSpace && key == k) {
+      value = std::get<3>(entry);
+      found = true;
+    }
+  }
+  return found;
+}
+
+bool
+CKevaMemPool::getUnconfirmedNamespaces(std::vector<std::tuple<valtype, valtype>>& nameSpaces) const {
+  bool found = false;
+  for (auto entry : listUnconfirmedNamespaces) {
+    auto ns = std::get<1>(entry);
+    auto displayName = std::get<2>(entry);
+    nameSpaces.push_back(std::make_tuple(ns, displayName));
+    found = true;
+  }
+  return found;
+}
+
+void CKevaMemPool::remove(const CTxMemPoolEntry& entry)
 {
   AssertLockHeld (pool.cs);
-
   if (entry.isNamespaceRegistration()) {
     const NamespaceTxMap::iterator mit = mapNamespaceRegs.find(entry.getNamespace());
     assert (mit != mapNamespaceRegs.end());

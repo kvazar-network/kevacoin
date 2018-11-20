@@ -1083,4 +1083,12 @@ bool CTxMemPool::TransactionWithinChainLimit(const uint256& txid, size_t chainLi
        it->GetCountWithDescendants() < chainLimit);
 }
 
+bool CTxMemPool::getUnconfirmedKeyValue(const valtype& nameSpace, const valtype& key, valtype& value) const {
+    return kevaMemPool.getUnconfirmedKeyValue(nameSpace, key, value);
+}
+
+bool CTxMemPool::getUnconfirmedNamespaces(std::vector<std::tuple<valtype, valtype>>& nameSpaces) const {
+    return kevaMemPool.getUnconfirmedNamespaces(nameSpaces);
+}
+
 SaltedTxidHasher::SaltedTxidHasher() : k0(GetRand(std::numeric_limits<uint64_t>::max())), k1(GetRand(std::numeric_limits<uint64_t>::max())) {}

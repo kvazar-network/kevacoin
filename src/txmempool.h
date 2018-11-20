@@ -147,9 +147,19 @@ public:
         return kevaOp.getOpNamespace();
     }
 
+    inline const valtype& getDisplayName() const
+    {
+        return kevaOp.getOpNamespaceDisplayName();
+    }
+
     inline const valtype& getKey() const
     {
         return kevaOp.getOpKey();
+    }
+
+    inline const valtype& getValue() const
+    {
+        return kevaOp.getOpValue();
     }
 
     mutable size_t vTxHashesIdx; //!< Index in mempool's vTxHashes
@@ -696,6 +706,12 @@ public:
         AssertLockHeld(cs);
         return kevaMemPool.checkTx(tx);
     }
+
+    /** Keva get unconfirmed key values. */
+    bool getUnconfirmedKeyValue(const valtype& nameSpace, const valtype& key, valtype& value) const;
+
+    /** Keva get unconfirmed namespaces. */
+    bool getUnconfirmedNamespaces(std::vector<std::tuple<valtype, valtype>>& nameSpaces) const;
 
     CTransactionRef get(const uint256& hash) const;
     TxMempoolInfo info(const uint256& hash) const;

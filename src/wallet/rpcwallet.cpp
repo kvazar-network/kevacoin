@@ -1203,7 +1203,7 @@ UniValue sendmany(const JSONRPCRequest& request)
     CAmount nFeeRequired = 0;
     int nChangePosRet = -1;
     std::string strFailReason;
-    std::vector<unsigned char> empty; empty;
+    std::vector<unsigned char> empty;
     bool fCreated = pwallet->CreateTransaction(vecSend, nullptr, empty, wtx, keyChange, nFeeRequired, nChangePosRet, strFailReason, coin_control);
     if (!fCreated)
         throw JSONRPCError(RPC_WALLET_INSUFFICIENT_FUNDS, strFailReason);

@@ -137,6 +137,18 @@ private:
   NamespaceTxMap mapNamespaceUpdates;
 
   /**
+   * Pending/unconfirmed namespaces.
+   * Tuple: txid, namespace, display name
+   */
+  std::vector<std::tuple<uint256, valtype, valtype>> listUnconfirmedNamespaces;
+
+  /**
+   * Pending/unconfirmed key-values.
+   * Tuple: txid, namespace, key, value
+   */
+  std::vector<std::tuple<uint256, valtype, valtype, valtype>> listUnconfirmedKeyValues;
+
+  /**
    * Validate that the namespace is the hash of the first TxIn.
    */
   bool validateNamespace(const CTransaction& tx, const valtype& nameSpace) const;
@@ -231,6 +243,12 @@ public:
    * @return True if it doesn't conflict.
    */
   bool checkTx (const CTransaction& tx) const;
+
+  /** Keva get unconfirmed namespaces. */
+  bool getUnconfirmedNamespaces(std::vector<std::tuple<valtype, valtype>>& nameSpaces) const;
+
+  /** Keva get unconfirmed key value. */
+  bool getUnconfirmedKeyValue(const valtype& nameSpace, const valtype& key, valtype& value) const;
 
 };
 
