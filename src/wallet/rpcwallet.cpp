@@ -428,7 +428,8 @@ static void SendMoney(CWallet * const pwallet, const CTxDestination &address, CA
     int nChangePosRet = -1;
     CRecipient recipient = {scriptPubKey, nValue, fSubtractFeeFromAmount};
     vecSend.push_back(recipient);
-    if (!pwallet->CreateTransaction(vecSend, nullptr, wtxNew, reservekey, nFeeRequired, nChangePosRet, strError, coin_control)) {
+    std::vector<unsigned char> empty;
+    if (!pwallet->CreateTransaction(vecSend, nullptr, empty, wtxNew, reservekey, nFeeRequired, nChangePosRet, strError, coin_control)) {
         if (!fSubtractFeeFromAmount && nValue + nFeeRequired > curBalance)
             strError = strprintf("Error: This transaction requires a transaction fee of at least %s", FormatMoney(nFeeRequired));
         throw JSONRPCError(RPC_WALLET_ERROR, strError);
@@ -441,7 +442,9 @@ static void SendMoney(CWallet * const pwallet, const CTxDestination &address, CA
 }
 
 void SendMoneyToScript(CWallet* const pwallet, const CScript &scriptPubKey,
-                       const CTxIn* withInput, CAmount nValue,
+                       const CTxIn* withInput,
+                       std::vector<unsigned char>& kevaNamespace,
+                       CAmount nValue,
                        bool fSubtractFeeFromAmount, CWalletTx& wtxNew,
                        const CCoinControl& coin_control)
 {
@@ -478,7 +481,7 @@ void SendMoneyToScript(CWallet* const pwallet, const CScript &scriptPubKey,
     int nChangePosRet = -1;
     CRecipient recipient = {scriptPubKey, nValue, fSubtractFeeFromAmount};
     vecSend.push_back(recipient);
-    if (!pwallet->CreateTransaction(vecSend, withInput, wtxNew, reservekey, nFeeRequired, nChangePosRet, strError, coin_control)) {
+    if (!pwallet->CreateTransaction(vecSend, withInput, kevaNamespace, wtxNew, reservekey, nFeeRequired, nChangePosRet, strError, coin_control)) {
         if (!fSubtractFeeFromAmount && nValue + nFeeRequired > curBalance)
             strError = strprintf("Error: This transaction requires a transaction fee of at least %s", FormatMoney(nFeeRequired));
         throw JSONRPCError(RPC_WALLET_ERROR, strError);
@@ -1200,7 +1203,8 @@ UniValue sendmany(const JSONRPCRequest& request)
     CAmount nFeeRequired = 0;
     int nChangePosRet = -1;
     std::string strFailReason;
-    bool fCreated = pwallet->CreateTransaction(vecSend, nullptr, wtx, keyChange, nFeeRequired, nChangePosRet, strFailReason, coin_control);
+    std::vector<unsigned char> empty; empty;
+    bool fCreated = pwallet->CreateTransaction(vecSend, nullptr, empty, wtx, keyChange, nFeeRequired, nChangePosRet, strFailReason, coin_control);
     if (!fCreated)
         throw JSONRPCError(RPC_WALLET_INSUFFICIENT_FUNDS, strFailReason);
     CValidationState state;

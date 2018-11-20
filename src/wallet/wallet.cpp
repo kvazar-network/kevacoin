@@ -2628,7 +2628,8 @@ bool CWallet::FundTransaction(CMutableTransaction& tx, CAmount& nFeeRet, int& nC
 
     CReserveKey reservekey(this);
     CWalletTx wtx;
-    if (!CreateTransaction(vecSend, nullptr, wtx, reservekey, nFeeRet, nChangePosInOut, strFailReason, coinControl, false)) {
+    std::vector<unsigned char> empty;
+    if (!CreateTransaction(vecSend, nullptr, empty, wtx, reservekey, nFeeRet, nChangePosInOut, strFailReason, coinControl, false)) {
         return false;
     }
 
@@ -2689,6 +2690,7 @@ OutputType CWallet::TransactionChangeType(OutputType change_type, const std::vec
 
 bool CWallet::CreateTransaction(const std::vector<CRecipient>& vecSend,
                                 const CTxIn* withInput,
+                                std::vector<unsigned char>& kaveNamespace,
                                 CWalletTx& wtxNew, CReserveKey& reservekey, CAmount& nFeeRet,
                                 int& nChangePosInOut, std::string& strFailReason, const CCoinControl& coin_control, bool sign)
 {
@@ -2708,8 +2710,9 @@ bool CWallet::CreateTransaction(const std::vector<CRecipient>& vecSend,
         if (recipient.fSubtractFeeFromAmount)
             nSubtractFeeFromAmount++;
 
-        if (CKevaScript::isKevaScript (recipient.scriptPubKey))
+        if (CKevaScript::isKevaScript(recipient.scriptPubKey)) {
             isKevacoin = true;
+        }
     }
     if (vecSend.empty())
     {
@@ -2919,9 +2922,21 @@ bool CWallet::CreateTransaction(const std::vector<CRecipient>& vecSend,
                 // and in the spirit of "smallest possible change from prior
                 // behavior."
                 const uint32_t nSequence = coin_control.signalRbf ? MAX_BIP125_RBF_SEQUENCE : (CTxIn::SEQUENCE_FINAL - 1);
-                for (const auto& coin : setCoins)
-                    txNew.vin.push_back(CTxIn(coin.outpoint,CScript(),
-                                              nSequence));
+                bool kevaDummyReplaced = false;
+                for (const auto& coin : setCoins) {
+                    txNew.vin.push_back(CTxIn(coin.outpoint,CScript(), nSequence));
+                    if (isKevacoin && !kevaDummyReplaced) {
+                        for (std::vector<CTxOut>::iterator iter = txNew.vout.begin(); iter != txNew.vout.end(); ++iter) {
+                            CScript dummyScript = iter->scriptPubKey;
+                            CKevaScript kevaOp(dummyScript);
+                            if (kevaOp.isKevaOp() && kevaOp.isNamespaceRegistration()) {
+                                iter->scriptPubKey = CKevaScript::replaceKevaNamespace(dummyScript, coin.outpoint.hash, kaveNamespace);
+                                kevaDummyReplaced = true;
+                                break;
+                            }
+                        }
+                    }
+                }
 
                 // Fill in dummy signatures for fee calculation.
                 if (!DummySignTx(txNew, setCoins)) {
@@ -3131,11 +3146,9 @@ bool CWallet::CommitTransaction(CWalletTx& wtxNew, CReserveKey& reservekey, CCon
         {
             // Broadcast
             if (!wtx.AcceptToMemoryPool(maxTxFee, state)) {
-                printf("JWU Transaction cannot be broadcast immediately! \n");
                 LogPrintf("CommitTransaction(): Transaction cannot be broadcast immediately, %s\n", state.GetRejectReason());
                 // TODO: if we expect the failure to be long term or permanent, instead delete wtx from the wallet and return failure.
             } else {
-                printf("JWU Transaction CAN OK be broadcast immediately! \n");
                 wtx.RelayWalletTransaction(connman);
             }
         }

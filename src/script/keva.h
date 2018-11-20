@@ -5,6 +5,7 @@
 #ifndef H_BITCOIN_SCRIPT_KEVA
 #define H_BITCOIN_SCRIPT_KEVA
 
+#include <uint256.h>
 #include <script/script.h>
 
 class uint160;
@@ -42,7 +43,9 @@ public:
    * The key pointing to the internal display name. This is the first
    * key created when a namespace is registered.
    */
-  static std::string KEVA_DISPLAY_NAME_KEY;
+  static const std::string KEVA_DISPLAY_NAME_KEY;
+
+  static const unsigned char NAMESPACE_PREFIX;
 
   /**
    * Parse a script and determine whether it is a valid name script.  Sets
@@ -233,6 +236,9 @@ public:
    */
   static CScript buildKevaPut(const CScript& addr, const valtype& nameSpace,
                                 const valtype& key, const valtype& value);
+
+
+  static CScript replaceKevaNamespace(const CScript& oldScript, const uint256& txId, valtype& kaveNamespace);
 
 };
 

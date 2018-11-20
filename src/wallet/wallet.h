@@ -993,6 +993,7 @@ public:
      */
     bool CreateTransaction(const std::vector<CRecipient>& vecSend,
                            const CTxIn* withInput,
+                           std::vector<unsigned char>& kaveNamespace,
                            CWalletTx& wtxNew, CReserveKey& reservekey, CAmount& nFeeRet, int& nChangePosInOut,
                            std::string& strFailReason, const CCoinControl& coin_control, bool sign = true);
     bool CommitTransaction(CWalletTx& wtxNew, CReserveKey& reservekey, CConnman* connman, CValidationState& state);

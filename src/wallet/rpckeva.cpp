@@ -21,7 +21,8 @@
 
 #include <univalue.h>
 
-const unsigned char NAMESPACE_PREFIX = 21; // 2 in base58
+const int NAMESPACE_LENGTH           =  21;
+const std::string DUMMY_NAMESPACE    =  "___DUMMY_NAMESPACE___";
 
 
 /* ************************************************************************** */
@@ -71,34 +72,32 @@ UniValue keva_namespace(const JSONRPCRequest& request)
 
   CKeyID keyId = pubKey.GetID();
 
-  // The namespace name is: Hash160(Hash160(keyId) || displayName)
-  // JWU TODO: double check this! How can node verify this!!!???
-  valtype toHash = ToByteVector(Hash160(ToByteVector(keyId)));
-  toHash.insert(toHash.end(), displayName.begin(), displayName.end());
-  valtype namespaceHashVal = ToByteVector(Hash160(toHash));
-  namespaceHashVal.insert(namespaceHashVal.begin(), NAMESPACE_PREFIX);
-  const std::string namespaceHash = EncodeBase58(namespaceHashVal);
+  // The namespace name is: Hash160("first txin" || displayName)
+  // For now we don't know the first txin, so use dummy name here.
+  // It will be replaced later in CreateTransaction.
+  valtype namespaceDummy = ToByteVector(std::string(DUMMY_NAMESPACE));
+  assert(namespaceDummy.size() == NAMESPACE_LENGTH);
 
-  //const CScript addrName = GetScriptForDestination(keyId);
   CScript redeemScript = GetScriptForDestination(WitnessV0KeyHash(keyId));
   CScriptID scriptHash = CScriptID(redeemScript);
   CScript addrName = GetScriptForDestination(scriptHash);
-  const CScript newScript = CKevaScript::buildKevaNamespace(addrName, namespaceHashVal, displayName);
+  const CScript newScript = CKevaScript::buildKevaNamespace(addrName, namespaceDummy, displayName);
 
   CCoinControl coinControl;
   CWalletTx wtx;
-  SendMoneyToScript(pwallet, newScript, nullptr,
+  valtype kevaNamespace;
+  SendMoneyToScript(pwallet, newScript, nullptr, kevaNamespace,
                      KEVA_LOCKED_AMOUNT, false, wtx, coinControl);
-
   keyName.KeepKey();
 
+  std::string kevaNamespaceBase58 = EncodeBase58(kevaNamespace);
   const std::string txid = wtx.GetHash().GetHex();
   LogPrintf("keva_namespace: namespace=%s, displayName=%s, tx=%s\n",
-             namespaceHash.c_str(), displayNameStr.c_str(), txid.c_str());
+             kevaNamespaceBase58.c_str(), displayNameStr.c_str(), txid.c_str());
 
   UniValue res(UniValue::VARR);
   res.push_back(txid);
-  res.push_back(namespaceHash);
+  res.push_back(kevaNamespaceBase58);
 
   return res;
 }
@@ -275,7 +274,8 @@ UniValue keva_put(const JSONRPCRequest& request)
 
   CCoinControl coinControl;
   CWalletTx wtx;
-  SendMoneyToScript(pwallet, kevaScript, &txIn,
+  valtype empty;
+  SendMoneyToScript(pwallet, kevaScript, &txIn, empty,
                      KEVA_LOCKED_AMOUNT, false, wtx, coinControl);
 
   if (usedKey) {

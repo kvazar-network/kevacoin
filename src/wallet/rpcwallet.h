@@ -27,7 +27,9 @@ std::string HelpRequiringPassphrase(CWallet *);
 void EnsureWalletIsUnlocked(CWallet *);
 bool EnsureWalletIsAvailable(CWallet *, bool avoidException);
 void SendMoneyToScript(CWallet* pwallet, const CScript& scriptPubKey,
-                       const CTxIn* withInput, CAmount nValue,
+                       const CTxIn* withInput,
+                       std::vector<unsigned char>& kevaNamespace,
+                       CAmount nValue,
                        bool fSubtractFeeFromAmount, CWalletTx& wtxNew,
                        const CCoinControl& coin_control);
 

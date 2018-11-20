@@ -636,7 +636,8 @@ public:
         int changePos = -1;
         std::string error;
         CCoinControl dummy;
-        BOOST_CHECK(wallet->CreateTransaction({recipient}, nullptr, wtx, reservekey, fee, changePos, error, dummy));
+        std::vector<unsigned char> empty;
+        BOOST_CHECK(wallet->CreateTransaction({recipient}, nullptr, empty, wtx, reservekey, fee, changePos, error, dummy));
         CValidationState state;
         BOOST_CHECK(wallet->CommitTransaction(wtx, reservekey, nullptr, state));
         CMutableTransaction blocktx;

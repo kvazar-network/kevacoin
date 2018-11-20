@@ -3,10 +3,12 @@
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
 #include <script/keva.h>
+#include <hash.h>
+#include "base58.h"
 
-#include <uint256.h>
+const std::string CKevaScript::KEVA_DISPLAY_NAME_KEY = "_KEVA_NS_";
 
-std::string CKevaScript::KEVA_DISPLAY_NAME_KEY = "_KEVA_NS_";
+const unsigned char CKevaScript::NAMESPACE_PREFIX = 21; // 2 in base58
 
 CKevaScript::CKevaScript (const CScript& script)
   : op(OP_NOP), address(script)
@@ -83,5 +85,20 @@ CScript CKevaScript::buildKevaNamespace(const CScript& addr, const valtype& name
   prefix << OP_KEVA_NAMESPACE << nameSpace << displayName << OP_2DROP;
 
   return prefix + addr;
+}
+
+CScript CKevaScript::replaceKevaNamespace(const CScript& oldScript, const uint256& txId, valtype& kaveNamespace)
+{
+  CKevaScript kevaOp(oldScript);
+  if (!kevaOp.isNamespaceRegistration()) {
+    assert (false);
+    return CScript();
+  }
+
+  const valtype& displayName = kevaOp.getOpNamespaceDisplayName();
+  kaveNamespace = ToByteVector(Hash160(ToByteVector(txId)));
+  kaveNamespace.insert(kaveNamespace.begin(), NAMESPACE_PREFIX);
+  //kaveNamespace = EncodeBase58(kaveNamespaceVal);
+  return CKevaScript::buildKevaNamespace(kevaOp.getAddress(), kaveNamespace, displayName);
 }
 
