@@ -675,24 +675,6 @@ public:
         return (mapTx.count(hash) != 0);
     }
 
-    inline bool registersNamespace(const valtype& nameSpace) const
-    {
-        AssertLockHeld(cs);
-        return kevaMemPool.registersNamespace(nameSpace);
-    }
-
-    inline bool updatesNamespace(const valtype& nameSpace) const
-    {
-        AssertLockHeld(cs);
-        return kevaMemPool.updatesNamespace(nameSpace);
-    }
-
-    inline uint256 getTxForNamespace(const valtype& name) const
-    {
-        AssertLockHeld(cs);
-        return kevaMemPool.getTxForNamespace(name);
-    }
-
     /**
      * Check if a tx can be added to it according to name criteria.
      * (The non-name criteria are checked in main.cpp and not here, we

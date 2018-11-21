@@ -111,31 +111,6 @@ private:
   /** The parent mempool object.  Used to, e. g., remove conflicting tx.  */
   CTxMemPool& pool;
 
-  /** Type used for internal indices.  */
-  typedef std::map<valtype, uint256> NamespaceTxMap;
-
-  /** Type used for indexing Tx */
-  typedef std::tuple<valtype, valtype> NamespaceKeyTuple;
-
-  /** Type used for internal indices.  */
-  typedef std::map<NamespaceKeyTuple, uint256> NamespaceKeyTxMap;
-
-
-  /**
-   * Keep track of namespaces that are registered by transactions in the pool.
-   * Map name to registering transaction.
-   */
-  NamespaceTxMap mapNamespaceRegs;
-
-  /** Map pending name updates to transaction IDs.  */
-  //NamespaceTxMap mapNamespaceUpdates;
-
-  /**
-   * Keep track of key that are updated by transactions in the pool.
-   * Map key to registering transaction.
-   */
-  NamespaceTxMap mapNamespaceUpdates;
-
   /**
    * Pending/unconfirmed namespaces.
    * Tuple: txid, namespace, display name
@@ -159,52 +134,15 @@ public:
    * Construct with reference to parent mempool.
    * @param p The parent pool.
    */
-  explicit inline CKevaMemPool (CTxMemPool& p)
-    : pool(p), mapNamespaceRegs()
-  {}
-
-  /**
-   * Check whether a particular namespace is being registered by
-   * some transaction in the mempool.  Does not lock, this is
-   * done by the parent mempool (which calls through afterwards).
-   * @param name The name to check for.
-   * @return True iff there's a matching namespace registration in the pool.
-   */
-  inline bool
-  registersNamespace (const valtype& nameSpace) const
-  {
-    return mapNamespaceRegs.count(nameSpace) > 0;
-  }
-
-  /**
-   * Check whether a particular namespace has a pending update.  Does not lock.
-   * @param name The namespace to check for.
-   * @return True iff there's a matching namespace update in the pool.
-   */
-  inline bool
-  updatesNamespace(const valtype& nameSpace) const
-  {
-    return mapNamespaceUpdates.count(nameSpace) > 0;
-  }
-
-  /**
-   * Return txid of transaction registering or updating a name.  The returned
-   * txid is null if no such tx exists.
-   * @param name The name to check for.
-   * @return The txid that registers/updates it.  Null if none.
-   */
-  uint256 getTxForNamespace(const valtype& nameSpace) const;
-
-  uint256 getTxForNamespaceKey(const valtype& nameSpace, const valtype& key) const;
+  explicit inline CKevaMemPool (CTxMemPool& p) : pool(p) {}
 
   /**
    * Clear all data.
    */
-  inline void
-  clear ()
+  inline void clear ()
   {
-    mapNamespaceRegs.clear();
-    mapNamespaceUpdates.clear();
+    listUnconfirmedNamespaces.clear();
+    listUnconfirmedKeyValues.clear();
   }
 
   /**
@@ -229,12 +167,6 @@ public:
    * @param removed Put removed tx here.
    */
   void removeConflicts (const CTransaction& tx);
-
-  /**
-   * Perform sanity checks.  Throws if it fails.
-   * @param coins The coins view this represents.
-   */
-  void check (const CCoinsView& coins) const;
 
   /**
    * Check if a tx can be added (based on name criteria) without

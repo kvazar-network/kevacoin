@@ -244,32 +244,15 @@ UniValue keva_put(const JSONRPCRequest& request)
   if (value.size () > MAX_VALUE_LENGTH)
     throw JSONRPCError (RPC_INVALID_PARAMETER, "the value is too long");
 
-  /* Reject updates to a name for which the mempool already has
-     a pending update.  This is not a hard rule enforced by network
-     rules, but it is necessary with the current mempool implementation.  */
-  {
-    LOCK (mempool.cs);
-    if (mempool.updatesNamespace(nameSpace)) {
-      throw JSONRPCError (RPC_TRANSACTION_ERROR,
-                          "there is already a pending update for this name");
-    }
-  }
-
-  CKevaData oldData;
-  {
-    LOCK (cs_main);
-    if (!pcoinsTip->GetNamespace(nameSpace, oldData)) {
-      throw JSONRPCError (RPC_TRANSACTION_ERROR,
-                                "this name can not be updated");
-    }
-  }
-
-  const COutPoint outp = oldData.getUpdateOutpoint();
-  const CTxIn txIn(outp);
-
-  /* No more locking required, similarly to name_new.  */
-
   EnsureWalletIsUnlocked(pwallet);
+
+  COutput output;
+  std::string kevaNamespce = namespaceStr;
+  if (!pwallet->FindKevaCoin(output, kevaNamespce)) {
+    throw JSONRPCError (RPC_TRANSACTION_ERROR, "this name can not be updated");
+  }
+  const COutPoint outp(output.tx->GetHash(), output.i);
+  const CTxIn txIn(outp);
 
   CReserveKey keyName(pwallet);
   CPubKey pubKeyReserve;
