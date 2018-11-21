@@ -90,7 +90,7 @@ UniValue keva_namespace(const JSONRPCRequest& request)
                      KEVA_LOCKED_AMOUNT, false, wtx, coinControl);
   keyName.KeepKey();
 
-  std::string kevaNamespaceBase58 = EncodeBase58(kevaNamespace);
+  std::string kevaNamespaceBase58 = EncodeBase58Check(kevaNamespace);
   const std::string txid = wtx.GetHash().GetHex();
   LogPrintf("keva_namespace: namespace=%s, displayName=%s, tx=%s\n",
              kevaNamespaceBase58.c_str(), displayNameStr.c_str(), txid.c_str());
@@ -98,7 +98,6 @@ UniValue keva_namespace(const JSONRPCRequest& request)
   UniValue res(UniValue::VARR);
   res.push_back(txid);
   res.push_back(kevaNamespaceBase58);
-
   return res;
 }
 
@@ -161,7 +160,7 @@ UniValue keva_list_namespaces(const JSONRPCRequest& request)
       }
 
       const valtype nameSpace = kevaOp.getOpNamespace();
-      const std::string nameSpaceStr = EncodeBase58(nameSpace);
+      const std::string nameSpaceStr = EncodeBase58Check(nameSpace);
       const CBlockIndex* pindex;
       const int depth = tx.GetDepthInMainChain(pindex);
       if (depth <= 0) {
@@ -188,7 +187,7 @@ UniValue keva_list_namespaces(const JSONRPCRequest& request)
     std::vector<std::tuple<valtype, valtype, uint256>> unconfirmedNamespaces;
     mempool.getUnconfirmedNamespaceList(unconfirmedNamespaces);
     for (auto entry : unconfirmedNamespaces) {
-      res.push_back(EncodeBase58(std::get<0>(entry)) + " : " + ValtypeToString(std::get<1>(entry)));
+      res.push_back(EncodeBase58Check(std::get<0>(entry)) + " : " + ValtypeToString(std::get<1>(entry)));
     }
   }
 
@@ -393,7 +392,7 @@ UniValue keva_pending(const JSONRPCRequest& request)
   for (auto entry: unconfirmedNamespaces) {
     UniValue obj(UniValue::VOBJ);
     obj.pushKV("op", opKevaNamepsace);
-    obj.pushKV("namespace", EncodeBase58(std::get<0>(entry)));
+    obj.pushKV("namespace", EncodeBase58Check(std::get<0>(entry)));
     obj.pushKV("display name", ValtypeToString(std::get<1>(entry)));
     obj.pushKV("txid", std::get<2>(entry).ToString());
     arr.push_back(obj);
@@ -402,7 +401,7 @@ UniValue keva_pending(const JSONRPCRequest& request)
   for (auto entry: unconfirmedKeyValueList) {
     UniValue obj(UniValue::VOBJ);
     obj.pushKV("op", opKevaPut);
-    obj.pushKV("namespace", EncodeBase58(std::get<0>(entry)));
+    obj.pushKV("namespace", EncodeBase58Check(std::get<0>(entry)));
     obj.pushKV("key", ValtypeToString(std::get<1>(entry)));
     obj.pushKV("value", ValtypeToString(std::get<2>(entry)));
     obj.pushKV("txid", std::get<3>(entry).ToString());

@@ -2277,7 +2277,7 @@ void CWallet::AvailableCoins(std::vector<COutput> &vCoins, bool fOnlySafe, const
                 CKevaScript kevaOp(pcoin->tx->vout[i].scriptPubKey);
                 if (kevaOp.isKevaOp()) {
                     if (kevaNamespace) {
-                        if (*kevaNamespace == EncodeBase58(kevaOp.getOpNamespace())) {
+                        if (*kevaNamespace == EncodeBase58Check(kevaOp.getOpNamespace())) {
                             vCoins.push_back(COutput(pcoin, i, nDepth, fSpendableIn, fSolvableIn, safeTx));
                             return;
                         }
