@@ -2183,7 +2183,7 @@ CAmount CWallet::GetAvailableBalance(const CCoinControl* coinControl) const
     return balance;
 }
 
-void CWallet::AvailableCoins(std::vector<COutput> &vCoins, bool fOnlySafe, const CCoinControl *coinControl, const CAmount &nMinimumAmount, const CAmount &nMaximumAmount, const CAmount &nMinimumSumAmount, const uint64_t nMaximumCount, const int nMinDepth, const int nMaxDepth) const
+void CWallet::AvailableCoins(std::vector<COutput> &vCoins, bool fOnlySafe, const CCoinControl *coinControl, const CAmount &nMinimumAmount, const CAmount &nMaximumAmount, const CAmount &nMinimumSumAmount, const uint64_t nMaximumCount, const int nMinDepth, const int nMaxDepth, const std::string* kevaNamespace) const
 {
     vCoins.clear();
 
@@ -2272,12 +2272,23 @@ void CWallet::AvailableCoins(std::vector<COutput> &vCoins, bool fOnlySafe, const
                 }
 
                 bool fSpendableIn = ((mine & ISMINE_SPENDABLE) != ISMINE_NO) || (coinControl && coinControl->fAllowWatchOnly && (mine & ISMINE_WATCH_SOLVABLE) != ISMINE_NO);
-                if (CKevaScript::isKevaScript(pcoin->tx->vout[i].scriptPubKey)) {
-                    fSpendableIn = false;
-                }
                 bool fSolvableIn = (mine & (ISMINE_SPENDABLE | ISMINE_WATCH_SOLVABLE)) != ISMINE_NO;
 
-                vCoins.push_back(COutput(pcoin, i, nDepth, fSpendableIn, fSolvableIn, safeTx));
+                CKevaScript kevaOp(pcoin->tx->vout[i].scriptPubKey);
+                if (kevaOp.isKevaOp()) {
+                    if (kevaNamespace) {
+                        if (*kevaNamespace == EncodeBase58(kevaOp.getOpNamespace())) {
+                            vCoins.push_back(COutput(pcoin, i, nDepth, fSpendableIn, fSolvableIn, safeTx));
+                            return;
+                        }
+                    } else {
+                        fSpendableIn = false;
+                    }
+                }
+
+                if (!kevaNamespace) {
+                    vCoins.push_back(COutput(pcoin, i, nDepth, fSpendableIn, fSolvableIn, safeTx));
+                }
 
                 // Checks the sum amount of all UTXO's.
                 if (nMinimumSumAmount != MAX_MONEY) {
@@ -2295,6 +2306,16 @@ void CWallet::AvailableCoins(std::vector<COutput> &vCoins, bool fOnlySafe, const
             }
         }
     }
+}
+
+bool CWallet::FindKevaCoin(COutput& vCoin, const std::string& kevaNamespace) {
+    std::vector<COutput> vCoins;
+    AvailableCoins(vCoins, true, nullptr, 1, MAX_MONEY, MAX_MONEY, 0, 0, 9999999, &kevaNamespace);
+    if (vCoins.size() > 0) {
+        vCoin = vCoins[0];
+        return true;
+    }
+    return false;
 }
 
 std::map<CTxDestination, std::vector<COutput>> CWallet::ListCoins() const
