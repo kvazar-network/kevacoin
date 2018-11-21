@@ -177,10 +177,13 @@ public:
   bool checkTx (const CTransaction& tx) const;
 
   /** Keva get unconfirmed namespaces. */
-  bool getUnconfirmedNamespaces(std::vector<std::tuple<valtype, valtype>>& nameSpaces) const;
+  void getUnconfirmedNamespaceList(std::vector<std::tuple<valtype, valtype, uint256>>& nameSpaces) const;
 
   /** Keva get unconfirmed key value. */
   bool getUnconfirmedKeyValue(const valtype& nameSpace, const valtype& key, valtype& value) const;
+
+  /** Keva get list of unconfirmed key value list. */
+  void getUnconfirmedKeyValueList(std::vector<std::tuple<valtype, valtype, valtype, uint256>>& keyValueList, const valtype& nameSpace);
 
 };
 

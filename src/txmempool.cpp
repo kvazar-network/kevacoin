@@ -1087,8 +1087,12 @@ bool CTxMemPool::getUnconfirmedKeyValue(const valtype& nameSpace, const valtype&
     return kevaMemPool.getUnconfirmedKeyValue(nameSpace, key, value);
 }
 
-bool CTxMemPool::getUnconfirmedNamespaces(std::vector<std::tuple<valtype, valtype>>& nameSpaces) const {
-    return kevaMemPool.getUnconfirmedNamespaces(nameSpaces);
+void CTxMemPool::getUnconfirmedNamespaceList(std::vector<std::tuple<valtype, valtype, uint256>>& nameSpaces) const {
+    return kevaMemPool.getUnconfirmedNamespaceList(nameSpaces);
+}
+
+void CTxMemPool::getUnconfirmedKeyValueList(std::vector<std::tuple<valtype, valtype, valtype, uint256>>& keyValueList, const valtype& nameSpace) {
+    kevaMemPool.getUnconfirmedKeyValueList(keyValueList, nameSpace);
 }
 
 SaltedTxidHasher::SaltedTxidHasher() : k0(GetRand(std::numeric_limits<uint64_t>::max())), k1(GetRand(std::numeric_limits<uint64_t>::max())) {}

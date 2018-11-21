@@ -637,7 +637,7 @@ static bool AcceptToMemoryPoolWorker(const CChainParams& chainparams, CTxMemPool
         }
     }
 
-    if (!pool.checkNameOps(tx)) {
+    if (!pool.checkKevaOps(tx)) {
         return false;
     }
 

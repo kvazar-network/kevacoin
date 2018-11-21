@@ -74,16 +74,30 @@ CKevaMemPool::getUnconfirmedKeyValue(const valtype& nameSpace, const valtype& ke
   return found;
 }
 
-bool
-CKevaMemPool::getUnconfirmedNamespaces(std::vector<std::tuple<valtype, valtype>>& nameSpaces) const {
-  bool found = false;
+void
+CKevaMemPool::getUnconfirmedKeyValueList(std::vector<std::tuple<valtype, valtype, valtype, uint256>>& keyValueList, const valtype& nameSpace) {
+  bool matchNamespace = nameSpace.size() > 0;
+  for (auto entry : listUnconfirmedKeyValues) {
+    auto txid = std::get<0>(entry);
+    auto n = std::get<1>(entry);
+    auto k = std::get<2>(entry);
+    auto v = std::get<3>(entry);
+    if (!matchNamespace) {
+      keyValueList.push_back(std::make_tuple(n, k, v, txid));
+    } else if (n == nameSpace) {
+      keyValueList.push_back(std::make_tuple(n, k, v, txid));
+    }
+  }
+}
+
+void
+CKevaMemPool::getUnconfirmedNamespaceList(std::vector<std::tuple<valtype, valtype, uint256>>& nameSpaces) const {
   for (auto entry : listUnconfirmedNamespaces) {
+    auto txid = std::get<0>(entry);
     auto ns = std::get<1>(entry);
     auto displayName = std::get<2>(entry);
-    nameSpaces.push_back(std::make_tuple(ns, displayName));
-    found = true;
+    nameSpaces.push_back(std::make_tuple(ns, displayName, txid));
   }
-  return found;
 }
 
 void CKevaMemPool::remove(const CTxMemPoolEntry& entry)

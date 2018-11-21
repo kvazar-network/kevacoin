@@ -682,8 +682,7 @@ public:
      * @param tx The tx that should be added.
      * @return True if it doesn't conflict.
      */
-    inline bool
-    checkNameOps (const CTransaction& tx) const
+    inline bool checkKevaOps(const CTransaction& tx) const
     {
         AssertLockHeld(cs);
         return kevaMemPool.checkTx(tx);
@@ -693,7 +692,10 @@ public:
     bool getUnconfirmedKeyValue(const valtype& nameSpace, const valtype& key, valtype& value) const;
 
     /** Keva get unconfirmed namespaces. */
-    bool getUnconfirmedNamespaces(std::vector<std::tuple<valtype, valtype>>& nameSpaces) const;
+    void getUnconfirmedNamespaceList(std::vector<std::tuple<valtype, valtype, uint256>>& nameSpaces) const;
+
+    /** Keva get list of unconfirmed key value list. */
+    void getUnconfirmedKeyValueList(std::vector<std::tuple<valtype, valtype, valtype, uint256>>& keyValueList, const valtype& nameSpace);
 
     CTransactionRef get(const uint256& hash) const;
     TxMempoolInfo info(const uint256& hash) const;

@@ -185,11 +185,10 @@ UniValue keva_list_namespaces(const JSONRPCRequest& request)
   {
     LOCK (mempool.cs);
     // Also get the unconfirmed ones from mempool.
-    std::vector<std::tuple<valtype, valtype>> unconfirmedNamespaces;
-    if (mempool.getUnconfirmedNamespaces(unconfirmedNamespaces)) {
-      for (auto entry : unconfirmedNamespaces) {
-        res.push_back(EncodeBase58(std::get<0>(entry)) + " : " + ValtypeToString(std::get<1>(entry)));
-      }
+    std::vector<std::tuple<valtype, valtype, uint256>> unconfirmedNamespaces;
+    mempool.getUnconfirmedNamespaceList(unconfirmedNamespaces);
+    for (auto entry : unconfirmedNamespaces) {
+      res.push_back(EncodeBase58(std::get<0>(entry)) + " : " + ValtypeToString(std::get<1>(entry)));
     }
   }
 
@@ -339,4 +338,72 @@ UniValue keva_get(const JSONRPCRequest& request)
   }
 
   return ValtypeToString(value);
+}
+
+UniValue keva_pending(const JSONRPCRequest& request)
+{
+  if (request.fHelp || request.params.size () > 1)
+    throw std::runtime_error (
+        "keva_pending (\"namespace\")\n"
+        "\nList unconfirmed keva operations in the mempool.\n"
+        "\nIf a namespace is given, only check for operations on this namespace.\n"
+        "\nArguments:\n"
+        "1. \"namespace\"        (string, optional) only look for this namespace\n"
+        "\nResult:\n"
+        "[\n"
+        "  {\n"
+        "    \"op\": xxxx       (string) the operation being performed\n"
+        "    \"name\": xxxx     (string) the namespace operated on\n"
+        "    \"value\": xxxx    (string) the namespace's new value\n"
+        "    \"txid\": xxxx     (string) the txid corresponding to the operation\n"
+        "    \"ismine\": xxxx   (boolean) whether the name is owned by the wallet\n"
+        "  },\n"
+        "  ...\n"
+        "]\n"
+        + HelpExampleCli ("keva_pending", "")
+        + HelpExampleCli ("keva_pending", "\"NJdZVkeerpgxqFM2oAzitVU8xsdj7\"")
+        + HelpExampleRpc ("keva_pending", "")
+      );
+
+  ObserveSafeMode ();
+
+  std::string namespaceStr;
+  valtype nameSpace;
+
+  if (request.params.size() == 1) {
+    RPCTypeCheckArgument(request.params[0], UniValue::VSTR);
+    namespaceStr = request.params[0].get_str();
+    if (!DecodeBase58(namespaceStr, nameSpace)) {
+      throw JSONRPCError (RPC_INVALID_PARAMETER, "failed to decode namespace");
+    }
+  }
+
+  LOCK (mempool.cs);
+
+  std::vector<std::tuple<valtype, valtype, uint256>> unconfirmedNamespaces;
+  mempool.getUnconfirmedNamespaceList(unconfirmedNamespaces);
+
+  std::vector<std::tuple<valtype, valtype, valtype, uint256>> unconfirmedKeyValueList;
+  mempool.getUnconfirmedKeyValueList(unconfirmedKeyValueList, nameSpace);
+
+  UniValue arr(UniValue::VARR);
+
+  for (auto entry: unconfirmedNamespaces) {
+    UniValue obj(UniValue::VOBJ);
+    obj.pushKV("namespace", EncodeBase58(std::get<0>(entry)));
+    obj.pushKV("display name", ValtypeToString(std::get<1>(entry)));
+    obj.pushKV("txid", std::get<2>(entry).ToString());
+    arr.push_back(obj);
+  }
+
+  for (auto entry: unconfirmedKeyValueList) {
+    UniValue obj(UniValue::VOBJ);
+    obj.pushKV("namespace", EncodeBase58(std::get<0>(entry)));
+    obj.pushKV("key", ValtypeToString(std::get<1>(entry)));
+    obj.pushKV("value", ValtypeToString(std::get<2>(entry)));
+    obj.pushKV("txid", std::get<3>(entry).ToString());
+    arr.push_back(obj);
+  }
+
+  return arr;
 }
