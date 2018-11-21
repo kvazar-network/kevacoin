@@ -8,7 +8,7 @@
 
 const std::string CKevaScript::KEVA_DISPLAY_NAME_KEY = "_KEVA_NS_";
 
-const unsigned char CKevaScript::NAMESPACE_PREFIX = 52; // M in Base58Check
+const unsigned char CKevaScript::NAMESPACE_PREFIX = 53; // N in Base58Check
 
 CKevaScript::CKevaScript (const CScript& script)
   : op(OP_NOP), address(script)
