@@ -10,6 +10,7 @@
 #define H_BITCOIN_KEVA_MAIN
 
 #include <amount.h>
+#include <script/script.h>
 #include <keva/common.h>
 #include <primitives/transaction.h>
 #include <serialize.h>
@@ -33,7 +34,7 @@ typedef std::vector<unsigned char> valtype;
 /* Some constants defining namespace, key and value limits.  */
 static const unsigned MAX_NAMESPACE_LENGTH = 255;
 static const unsigned MAX_KEY_LENGTH       = 255;
-static const unsigned MAX_VALUE_LENGTH     = 1023;
+static const unsigned MAX_VALUE_LENGTH     = MAX_SCRIPT_ELEMENT_SIZE; // As defined in script.h
 
 /** The amount of coins to lock in created transactions.  */
 static const CAmount KEVA_LOCKED_AMOUNT = COIN / 100;

@@ -226,7 +226,7 @@ UniValue keva_put(const JSONRPCRequest& request)
 
   const std::string namespaceStr = request.params[0].get_str();
   valtype nameSpace;
-  if (!DecodeBase58(namespaceStr, nameSpace)) {
+  if (!DecodeBase58Check(namespaceStr, nameSpace)) {
     throw JSONRPCError (RPC_INVALID_PARAMETER, "failed to decode namespace");
   }
   if (nameSpace.size () > MAX_NAMESPACE_LENGTH)
@@ -307,7 +307,7 @@ UniValue keva_get(const JSONRPCRequest& request)
 
   const std::string namespaceStr = request.params[0].get_str ();
   valtype nameSpace;
-  if (!DecodeBase58(namespaceStr, nameSpace)) {
+  if (!DecodeBase58Check(namespaceStr, nameSpace)) {
     throw JSONRPCError (RPC_INVALID_PARAMETER, "failed to decode namespace");
   }
   if (nameSpace.size () > MAX_NAMESPACE_LENGTH)
@@ -372,7 +372,7 @@ UniValue keva_pending(const JSONRPCRequest& request)
   if (request.params.size() == 1) {
     RPCTypeCheckArgument(request.params[0], UniValue::VSTR);
     namespaceStr = request.params[0].get_str();
-    if (!DecodeBase58(namespaceStr, nameSpace)) {
+    if (!DecodeBase58Check(namespaceStr, nameSpace)) {
       throw JSONRPCError (RPC_INVALID_PARAMETER, "failed to decode namespace");
     }
   }
