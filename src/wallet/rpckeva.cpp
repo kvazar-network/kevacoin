@@ -178,7 +178,9 @@ UniValue keva_list_namespaces(const JSONRPCRequest& request)
 
   UniValue res(UniValue::VARR);
   for (const auto& item : mapObjects) {
-    res.push_back(item.first + " : " + item.second);
+    UniValue obj(UniValue::VOBJ);
+    obj.pushKV(item.first, item.second);
+    res.push_back(obj);
   }
 
   {
@@ -187,7 +189,9 @@ UniValue keva_list_namespaces(const JSONRPCRequest& request)
     std::vector<std::tuple<valtype, valtype, uint256>> unconfirmedNamespaces;
     mempool.getUnconfirmedNamespaceList(unconfirmedNamespaces);
     for (auto entry : unconfirmedNamespaces) {
-      res.push_back(EncodeBase58Check(std::get<0>(entry)) + " : " + ValtypeToString(std::get<1>(entry)));
+      UniValue obj(UniValue::VOBJ);
+      obj.pushKV(EncodeBase58Check(std::get<0>(entry)), ValtypeToString(std::get<1>(entry)));
+      res.push_back(obj);
     }
   }
 
