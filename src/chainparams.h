@@ -48,6 +48,7 @@ public:
         SECRET_KEY,
         EXT_PUBLIC_KEY,
         EXT_SECRET_KEY,
+        KEVA_NAMESPACE,
 
         MAX_BASE58_TYPES
     };

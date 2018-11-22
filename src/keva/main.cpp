@@ -153,7 +153,8 @@ CKevaMemPool::removeConflicts(const CTransaction& tx)
 bool CKevaMemPool::validateNamespace(const CTransaction& tx, const valtype& nameSpace) const
 {
   valtype kevaNamespace = ToByteVector(Hash160(ToByteVector(tx.vin[0].prevout.hash)));
-  kevaNamespace.insert(kevaNamespace.begin(), CKevaScript::NAMESPACE_PREFIX);
+  const std::vector<unsigned char>& ns_prefix = Params().Base58Prefix(CChainParams::KEVA_NAMESPACE);
+  kevaNamespace.insert(kevaNamespace.begin(), ns_prefix.begin(), ns_prefix.end());
   return kevaNamespace == nameSpace;
 }
 

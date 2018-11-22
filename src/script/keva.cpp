@@ -8,8 +8,6 @@
 
 const std::string CKevaScript::KEVA_DISPLAY_NAME_KEY = "_KEVA_NS_";
 
-const unsigned char CKevaScript::NAMESPACE_PREFIX = 53; // N in Base58Check
-
 CKevaScript::CKevaScript (const CScript& script)
   : op(OP_NOP), address(script)
 {
@@ -87,7 +85,7 @@ CScript CKevaScript::buildKevaNamespace(const CScript& addr, const valtype& name
   return prefix + addr;
 }
 
-CScript CKevaScript::replaceKevaNamespace(const CScript& oldScript, const uint256& txId, valtype& kaveNamespace)
+CScript CKevaScript::replaceKevaNamespace(const CScript& oldScript, const uint256& txId, valtype& kaveNamespace, const CChainParams& params)
 {
   CKevaScript kevaOp(oldScript);
   if (!kevaOp.isNamespaceRegistration()) {
@@ -97,7 +95,9 @@ CScript CKevaScript::replaceKevaNamespace(const CScript& oldScript, const uint25
 
   const valtype& displayName = kevaOp.getOpNamespaceDisplayName();
   kaveNamespace = ToByteVector(Hash160(ToByteVector(txId)));
-  kaveNamespace.insert(kaveNamespace.begin(), NAMESPACE_PREFIX);
+
+  const std::vector<unsigned char>& ns_prefix = params.Base58Prefix(CChainParams::KEVA_NAMESPACE);
+  kaveNamespace.insert(kaveNamespace.begin(), ns_prefix.begin(), ns_prefix.end());
   return CKevaScript::buildKevaNamespace(kevaOp.getAddress(), kaveNamespace, displayName);
 }
 

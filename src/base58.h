@@ -146,5 +146,6 @@ std::string EncodeDestination(const CTxDestination& dest);
 CTxDestination DecodeDestination(const std::string& str);
 bool IsValidDestinationString(const std::string& str);
 bool IsValidDestinationString(const std::string& str, const CChainParams& params);
+bool DecodeKevaNamespace(const std::string ns, const CChainParams& params, std::vector<unsigned char>& result);
 
 #endif // BITCOIN_BASE58_H

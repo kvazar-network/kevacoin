@@ -6,6 +6,7 @@
 #define H_BITCOIN_SCRIPT_KEVA
 
 #include <uint256.h>
+#include <chainparams.h>
 #include <script/script.h>
 
 class uint160;
@@ -44,8 +45,6 @@ public:
    * key created when a namespace is registered.
    */
   static const std::string KEVA_DISPLAY_NAME_KEY;
-
-  static const unsigned char NAMESPACE_PREFIX;
 
   /**
    * Parse a script and determine whether it is a valid name script.  Sets
@@ -220,10 +219,10 @@ public:
   }
 
  /**
-   * Build a KEVA_NAMESPACE transaction.
+   * Build a keva namespace transaction.
    * @param addr The address script to append.
    * @param hash The hash to use.
-   * @return The full KEVA_NAMESPACE script.
+   * @return The full keva namespace script.
    */
   static CScript buildKevaNamespace(const CScript& addr, const valtype& nameSpace,
                                 const valtype& displayName);
@@ -238,7 +237,7 @@ public:
                                 const valtype& key, const valtype& value);
 
 
-  static CScript replaceKevaNamespace(const CScript& oldScript, const uint256& txId, valtype& kaveNamespace);
+  static CScript replaceKevaNamespace(const CScript& oldScript, const uint256& txId, valtype& kaveNamespace, const CChainParams& params);
 
 };
 

@@ -383,3 +383,16 @@ bool IsValidDestinationString(const std::string& str)
 {
     return IsValidDestinationString(str, Params());
 }
+
+bool DecodeKevaNamespace(const std::string ns, const CChainParams& params, std::vector<unsigned char>& result)
+{
+    if (!DecodeBase58Check(ns, result)) {
+        return false;
+    }
+    uint160 hash;
+    const std::vector<unsigned char>& ns_prefix = params.Base58Prefix(CChainParams::KEVA_NAMESPACE);
+    if (result.size() == hash.size() + ns_prefix.size() && std::equal(ns_prefix.begin(), ns_prefix.end(), result.begin())) {
+        return true;
+    }
+    return false;
+}
