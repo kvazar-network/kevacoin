@@ -4352,7 +4352,7 @@ std::vector<CTxDestination> GetAllDestinationsForKey(const CPubKey& key)
 
 CTxDestination CWallet::AddAndGetDestinationForScript(const CScript& script, OutputType type)
 {
-    // Note that scripts over 520 bytes are not yet supported.
+    // Note that scripts over MAX_SCRIPT_ELEMENT_SIZE bytes are not yet supported.
     switch (type) {
     case OUTPUT_TYPE_LEGACY:
         return CScriptID(script);
