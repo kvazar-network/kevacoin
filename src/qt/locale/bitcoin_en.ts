@@ -80,12 +80,12 @@
     </message>
     <message>
         <location line="+7"/>
-        <source>These are your Litecoin addresses for sending payments. Always check the amount and the receiving address before sending coins.</source>
+        <source>These are your Kevacoin addresses for sending payments. Always check the amount and the receiving address before sending coins.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location line="+4"/>
-        <source>These are your Litecoin addresses for receiving payments. It is recommended to use a new receiving address for each transaction.</source>
+        <source>These are your Kevacoin addresses for receiving payments. It is recommended to use a new receiving address for each transaction.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -435,8 +435,8 @@
     </message>
     <message>
         <location line="-511"/>
-        <source>Send coins to a Litecoin address</source>
-        <translation>Send coins to a Litecoin address</translation>
+        <source>Send coins to a Kevacoin address</source>
+        <translation>Send coins to a Kevacoin address</translation>
     </message>
     <message>
         <location line="+67"/>
@@ -465,8 +465,8 @@
     </message>
     <message>
         <location line="+517"/>
-        <source>Litecoin</source>
-        <translation>Litecoin</translation>
+        <source>Kevacoin</source>
+        <translation>Kevacoin</translation>
     </message>
     <message>
         <location line="-743"/>
@@ -500,13 +500,13 @@
     </message>
     <message>
         <location line="+7"/>
-        <source>Sign messages with your Litecoin addresses to prove you own them</source>
-        <translation>Sign messages with your Litecoin addresses to prove you own them</translation>
+        <source>Sign messages with your Kevacoin addresses to prove you own them</source>
+        <translation>Sign messages with your Kevacoin addresses to prove you own them</translation>
     </message>
     <message>
         <location line="+2"/>
-        <source>Verify messages to ensure they were signed with specified Litecoin addresses</source>
-        <translation>Verify messages to ensure they were signed with specified Litecoin addresses</translation>
+        <source>Verify messages to ensure they were signed with specified Kevacoin addresses</source>
+        <translation>Verify messages to ensure they were signed with specified Kevacoin addresses</translation>
     </message>
     <message>
         <location line="+58"/>
@@ -530,7 +530,7 @@
     </message>
     <message>
         <location line="-158"/>
-        <source>Request payments (generates QR codes and litecoin: URIs)</source>
+        <source>Request payments (generates QR codes and kevacoin: URIs)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -545,7 +545,7 @@
     </message>
     <message>
         <location line="+3"/>
-        <source>Open a litecoin: URI or payment request</source>
+        <source>Open a kevacoin: URI or payment request</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -555,10 +555,10 @@
     </message>
     <message numerus="yes">
         <location line="+357"/>
-        <source>%n active connection(s) to Litecoin network</source>
+        <source>%n active connection(s) to Kevacoin network</source>
         <translation>
-            <numerusform>%n active connection to Litecoin network</numerusform>
-            <numerusform>%n active connections to Litecoin network</numerusform>
+            <numerusform>%n active connection to Kevacoin network</numerusform>
+            <numerusform>%n active connections to Kevacoin network</numerusform>
         </translation>
     </message>
     <message>
@@ -616,7 +616,7 @@
     </message>
     <message>
         <location line="-441"/>
-        <source>Show the %1 help message to get a list with possible Litecoin command-line options</source>
+        <source>Show the %1 help message to get a list with possible Kevacoin command-line options</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -696,7 +696,7 @@
     </message>
     <message>
         <location filename="../bitcoin.cpp" line="+531"/>
-        <source>A fatal error occurred. Litecoin can no longer continue safely and will quit.</source>
+        <source>A fatal error occurred. Kevacoin can no longer continue safely and will quit.</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -939,7 +939,7 @@
     </message>
     <message>
         <location line="+72"/>
-        <source>The entered address &quot;%1&quot; is not a valid Litecoin address.</source>
+        <source>The entered address &quot;%1&quot; is not a valid Kevacoin address.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -1099,8 +1099,8 @@
     </message>
     <message>
         <location filename="../intro.cpp" line="+20"/>
-        <source>Litecoin</source>
-        <translation type="unfinished">Litecoin</translation>
+        <source>Kevacoin</source>
+        <translation type="unfinished">Kevacoin</translation>
     </message>
     <message>
         <location line="+6"/>
@@ -1114,7 +1114,7 @@
     </message>
     <message>
         <location line="+8"/>
-        <source>%1 will download and store a copy of the Litecoin block chain.</source>
+        <source>%1 will download and store a copy of the Kevacoin block chain.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -1158,7 +1158,7 @@
     </message>
     <message>
         <location line="+119"/>
-        <source>Recent transactions may not yet be visible, and therefore your wallet&apos;s balance might be incorrect. This information will be correct once your wallet has finished synchronizing with the litecoin network, as detailed below.</source>
+        <source>Recent transactions may not yet be visible, and therefore your wallet&apos;s balance might be incorrect. This information will be correct once your wallet has finished synchronizing with the kevacoin network, as detailed below.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -1381,8 +1381,8 @@
     </message>
     <message>
         <location line="+30"/>
-        <source>Automatically open the Litecoin client port on the router. This only works when your router supports UPnP and it is enabled.</source>
-        <translation>Automatically open the Litecoin client port on the router. This only works when your router supports UPnP and it is enabled.</translation>
+        <source>Automatically open the Kevacoin client port on the router. This only works when your router supports UPnP and it is enabled.</source>
+        <translation>Automatically open the Kevacoin client port on the router. This only works when your router supports UPnP and it is enabled.</translation>
     </message>
     <message>
         <location line="+3"/>
@@ -1401,7 +1401,7 @@
     </message>
     <message>
         <location line="+7"/>
-        <source>Connect to the Litecoin network through a SOCKS5 proxy.</source>
+        <source>Connect to the Kevacoin network through a SOCKS5 proxy.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -1449,7 +1449,7 @@
     </message>
     <message>
         <location line="+25"/>
-        <source>Connect to the Litecoin network through a separate SOCKS5 proxy for Tor hidden services.</source>
+        <source>Connect to the Kevacoin network through a separate SOCKS5 proxy for Tor hidden services.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -1584,8 +1584,8 @@
     <message>
         <location line="+62"/>
         <location line="+386"/>
-        <source>The displayed information may be out of date. Your wallet automatically synchronizes with the Litecoin network after a connection is established, but this process has not completed yet.</source>
-        <translation>The displayed information may be out of date. Your wallet automatically synchronizes with the Litecoin network after a connection is established, but this process has not completed yet.</translation>
+        <source>The displayed information may be out of date. Your wallet automatically synchronizes with the Kevacoin network after a connection is established, but this process has not completed yet.</source>
+        <translation>The displayed information may be out of date. Your wallet automatically synchronizes with the Kevacoin network after a connection is established, but this process has not completed yet.</translation>
     </message>
     <message>
         <location line="-139"/>
@@ -1682,7 +1682,7 @@
     </message>
     <message>
         <location line="-398"/>
-        <source>Cannot start litecoin: click-to-pay handler</source>
+        <source>Cannot start kevacoin: click-to-pay handler</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -1704,7 +1704,7 @@
     </message>
     <message>
         <location line="+8"/>
-        <source>URI cannot be parsed! This can be caused by an invalid Litecoin address or malformed URI parameters.</source>
+        <source>URI cannot be parsed! This can be caused by an invalid Kevacoin address or malformed URI parameters.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -1836,7 +1836,7 @@
     </message>
     <message>
         <location filename="../guiutil.cpp" line="+130"/>
-        <source>Enter a Litecoin address (e.g. %1)</source>
+        <source>Enter a Kevacoin address (e.g. %1)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -2422,7 +2422,7 @@
     <message>
         <location line="-3"/>
         <location line="+46"/>
-        <source>An optional message to attach to the payment request, which will be displayed when the request is opened. Note: The message will not be sent with the payment over the Litecoin network.</source>
+        <source>An optional message to attach to the payment request, which will be displayed when the request is opened. Note: The message will not be sent with the payment over the Kevacoin network.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -2730,7 +2730,7 @@
     <message>
         <location line="+78"/>
         <location line="+13"/>
-        <source>Paying only the minimum fee is just fine as long as there is less transaction volume than space in the blocks. But be aware that this can end up in a never confirming transaction once there is more demand for litecoin transactions than the network can process.</source>
+        <source>Paying only the minimum fee is just fine as long as there is less transaction volume than space in the blocks. But be aware that this can end up in a never confirming transaction once there is more demand for kevacoin transactions than the network can process.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -2951,7 +2951,7 @@
     </message>
     <message>
         <location line="+101"/>
-        <source>Warning: Invalid Litecoin address</source>
+        <source>Warning: Invalid Kevacoin address</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -3006,7 +3006,7 @@
     </message>
     <message>
         <location line="+39"/>
-        <source>The Litecoin address to send the payment to</source>
+        <source>The Kevacoin address to send the payment to</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -3068,7 +3068,7 @@
     </message>
     <message>
         <location line="+54"/>
-        <source>A message that was attached to the litecoin: URI which will be stored with the transaction for your reference. Note: This message will not be sent over the Litecoin network.</source>
+        <source>A message that was attached to the kevacoin: URI which will be stored with the transaction for your reference. Note: This message will not be sent over the Kevacoin network.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -3130,7 +3130,7 @@
     </message>
     <message>
         <location line="+18"/>
-        <source>The Litecoin address to sign the message with</source>
+        <source>The Kevacoin address to sign the message with</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -3172,8 +3172,8 @@
     </message>
     <message>
         <location line="+21"/>
-        <source>Sign the message to prove you own this Litecoin address</source>
-        <translation>Sign the message to prove you own this Litecoin address</translation>
+        <source>Sign the message to prove you own this Kevacoin address</source>
+        <translation>Sign the message to prove you own this Kevacoin address</translation>
     </message>
     <message>
         <location line="+3"/>
@@ -3203,13 +3203,13 @@
     </message>
     <message>
         <location line="+21"/>
-        <source>The Litecoin address the message was signed with</source>
+        <source>The Kevacoin address the message was signed with</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location line="+37"/>
-        <source>Verify the message to ensure it was signed with the specified Litecoin address</source>
-        <translation>Verify the message to ensure it was signed with the specified Litecoin address</translation>
+        <source>Verify the message to ensure it was signed with the specified Kevacoin address</source>
+        <translation>Verify the message to ensure it was signed with the specified Kevacoin address</translation>
     </message>
     <message>
         <location line="+3"/>
@@ -4101,8 +4101,8 @@
     </message>
     <message>
         <location line="-395"/>
-        <source>Litecoin Core</source>
-        <translation type="unfinished">Litecoin Core</translation>
+        <source>Kevacoin Core</source>
+        <translation type="unfinished">Kevacoin Core</translation>
     </message>
     <message>
         <location line="+1"/>

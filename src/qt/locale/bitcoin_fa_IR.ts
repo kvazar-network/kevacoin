@@ -62,11 +62,11 @@
         <translation>آدرس‌های گیرنده</translation>
     </message>
     <message>
-        <source>These are your Litecoin addresses for sending payments. Always check the amount and the receiving address before sending coins.</source>
+        <source>These are your Kevacoin addresses for sending payments. Always check the amount and the receiving address before sending coins.</source>
         <translation>اینها آدرس‌های شما برای ارسال وجوه هستند. همیشه قبل از ارسال، مقدار و آدرس گیرنده را بررسی کنید.</translation>
     </message>
     <message>
-        <source>These are your Litecoin addresses for receiving payments. It is recommended to use a new receiving address for each transaction.</source>
+        <source>These are your Kevacoin addresses for receiving payments. It is recommended to use a new receiving address for each transaction.</source>
         <translation>اینها آدرس‌های بیتکوین شما برای دریافت وجوه هستند. توصیه می‌شود برای هر دریافت از یک آدرس جدید استفاده کنید.</translation>
     </message>
     <message>
@@ -326,8 +326,8 @@
         <translation>فهرست‌بندی نمایه بلاک‌ها…</translation>
     </message>
     <message>
-        <source>Send coins to a Litecoin address</source>
-        <translation>ارسال کوین به آدرس litecoin</translation>
+        <source>Send coins to a Kevacoin address</source>
+        <translation>ارسال کوین به آدرس kevacoin</translation>
     </message>
     <message>
         <source>Backup wallet to another location</source>
@@ -346,8 +346,8 @@
         <translation>تایید پیام</translation>
     </message>
     <message>
-        <source>Litecoin</source>
-        <translation>litecoin</translation>
+        <source>Kevacoin</source>
+        <translation>kevacoin</translation>
     </message>
     <message>
         <source>Wallet</source>
@@ -370,12 +370,12 @@
         <translation>رمزنگاری کلیدهای شخصی متعلق به کیف‌پول</translation>
     </message>
     <message>
-        <source>Sign messages with your Litecoin addresses to prove you own them</source>
-        <translation>پیام‌ها را با آدرس Litecoin خود امضا کنید تا مالکیت آن‌ها را اثبات کنید</translation>
+        <source>Sign messages with your Kevacoin addresses to prove you own them</source>
+        <translation>پیام‌ها را با آدرس Kevacoin خود امضا کنید تا مالکیت آن‌ها را اثبات کنید</translation>
     </message>
     <message>
-        <source>Verify messages to ensure they were signed with specified Litecoin addresses</source>
-        <translation>پیام‌ها را تائید کنید تا از امضاشدن آن‌ها با آدرس Litecoin مطمئن شوید</translation>
+        <source>Verify messages to ensure they were signed with specified Kevacoin addresses</source>
+        <translation>پیام‌ها را تائید کنید تا از امضاشدن آن‌ها با آدرس Kevacoin مطمئن شوید</translation>
     </message>
     <message>
         <source>&amp;File</source>
@@ -394,8 +394,8 @@
         <translation>نوار ابزار</translation>
     </message>
     <message>
-        <source>Request payments (generates QR codes and litecoin: URIs)</source>
-        <translation>درخواست پرداخت (ساخت کد QR و Litecoin: URIs)</translation>
+        <source>Request payments (generates QR codes and kevacoin: URIs)</source>
+        <translation>درخواست پرداخت (ساخت کد QR و Kevacoin: URIs)</translation>
     </message>
     <message>
         <source>Show the list of used sending addresses and labels</source>
@@ -406,12 +406,12 @@
         <translation>نمایش لیست آدرس‌ها و لیبل‌های دریافتی استفاده شده</translation>
     </message>
     <message>
-        <source>Open a litecoin: URI or payment request</source>
-        <translation>بازکردن Litecoin: آدرس یا درخواست پرداخت</translation>
+        <source>Open a kevacoin: URI or payment request</source>
+        <translation>بازکردن Kevacoin: آدرس یا درخواست پرداخت</translation>
     </message>
     <message numerus="yes">
-        <source>%n active connection(s) to Litecoin network</source>
-        <translation><numerusform>%n ارتباط فعال به شبکه Litecoin</numerusform><numerusform>%n ارتباط فعال به شبکه Litecoin</numerusform></translation>
+        <source>%n active connection(s) to Kevacoin network</source>
+        <translation><numerusform>%n ارتباط فعال به شبکه Kevacoin</numerusform><numerusform>%n ارتباط فعال به شبکه Kevacoin</numerusform></translation>
     </message>
     <message>
         <source>Indexing blocks on disk...</source>
@@ -597,8 +597,8 @@
         <translation>خوش آمدید</translation>
     </message>
     <message>
-        <source>Litecoin</source>
-        <translation>litecoin</translation>
+        <source>Kevacoin</source>
+        <translation>kevacoin</translation>
     </message>
     <message>
         <source>Error</source>
@@ -685,8 +685,8 @@
         <translation>فرم</translation>
     </message>
     <message>
-        <source>The displayed information may be out of date. Your wallet automatically synchronizes with the Litecoin network after a connection is established, but this process has not completed yet.</source>
-        <translation>اطلاعات نمایش داده شده ممکن است روزآمد نباشد. wallet شما به صورت خودکار بعد از برقراری اتصال با شبکه litecoin به روز می شود اما این فرایند هنوز تکمیل نشده است.</translation>
+        <source>The displayed information may be out of date. Your wallet automatically synchronizes with the Kevacoin network after a connection is established, but this process has not completed yet.</source>
+        <translation>اطلاعات نمایش داده شده ممکن است روزآمد نباشد. wallet شما به صورت خودکار بعد از برقراری اتصال با شبکه kevacoin به روز می شود اما این فرایند هنوز تکمیل نشده است.</translation>
     </message>
     <message>
         <source>Available:</source>

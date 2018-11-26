@@ -62,12 +62,12 @@
         <translation>收款地址</translation>
     </message>
     <message>
-        <source>These are your Litecoin addresses for sending payments. Always check the amount and the receiving address before sending coins.</source>
-        <translation>這些是你要付款過去的 Litecoin 位址。在付款之前，務必要檢查金額和收款位址是否正確。</translation>
+        <source>These are your Kevacoin addresses for sending payments. Always check the amount and the receiving address before sending coins.</source>
+        <translation>這些是你要付款過去的 Kevacoin 位址。在付款之前，務必要檢查金額和收款位址是否正確。</translation>
     </message>
     <message>
-        <source>These are your Litecoin addresses for receiving payments. It is recommended to use a new receiving address for each transaction.</source>
-        <translation>這些是你用來收款的 Litecoin 位址。建議在每次交易時，都使用一個新的收款位址。</translation>
+        <source>These are your Kevacoin addresses for receiving payments. It is recommended to use a new receiving address for each transaction.</source>
+        <translation>這些是你用來收款的 Kevacoin 位址。建議在每次交易時，都使用一個新的收款位址。</translation>
     </message>
     <message>
         <source>&amp;Copy Address</source>
@@ -169,7 +169,7 @@
     </message>
     <message>
         <source>Warning: If you encrypt your wallet and lose your passphrase, you will &lt;b&gt;LOSE ALL OF YOUR LITECOINS&lt;/b&gt;!</source>
-        <translation>警告: 如果你將錢包加密後又忘記密碼，你就會&lt;b&gt;失去所有 Litecoin 了&lt;/b&gt;！</translation>
+        <translation>警告: 如果你將錢包加密後又忘記密碼，你就會&lt;b&gt;失去所有 Kevacoin 了&lt;/b&gt;！</translation>
     </message>
     <message>
         <source>Are you sure you wish to encrypt your wallet?</source>
@@ -322,8 +322,8 @@
         <translation>正在為磁碟區塊重建索引...</translation>
     </message>
     <message>
-        <source>Send coins to a Litecoin address</source>
-        <translation>付款至一個 Litecoin 位址</translation>
+        <source>Send coins to a Kevacoin address</source>
+        <translation>付款至一個 Kevacoin 位址</translation>
     </message>
     <message>
         <source>Backup wallet to another location</source>
@@ -346,8 +346,8 @@
         <translation>驗證訊息... &amp;V</translation>
     </message>
     <message>
-        <source>Litecoin</source>
-        <translation>Litecoin</translation>
+        <source>Kevacoin</source>
+        <translation>Kevacoin</translation>
     </message>
     <message>
         <source>Wallet</source>
@@ -382,8 +382,8 @@
         <translation>說明 &amp;H</translation>
     </message>
     <message>
-        <source>Request payments (generates QR codes and litecoin: URIs)</source>
-        <translation>要求付款 (產生QR碼 litecoin: URIs)</translation>
+        <source>Request payments (generates QR codes and kevacoin: URIs)</source>
+        <translation>要求付款 (產生QR碼 kevacoin: URIs)</translation>
     </message>
     <message>
         <source>Indexing blocks on disk...</source>
@@ -427,8 +427,8 @@
 <context>
     <name>Intro</name>
     <message>
-        <source>Litecoin</source>
-        <translation>Litecoin</translation>
+        <source>Kevacoin</source>
+        <translation>Kevacoin</translation>
     </message>
     <message>
         <source>Error</source>
@@ -468,8 +468,8 @@
 <context>
     <name>QObject</name>
     <message>
-        <source>Enter a Litecoin address (e.g. %1)</source>
-        <translation>輸入一個 Litecoin 位址 (例如 %1)</translation>
+        <source>Enter a Kevacoin address (e.g. %1)</source>
+        <translation>輸入一個 Kevacoin 位址 (例如 %1)</translation>
     </message>
     <message>
         <source>%1 d</source>

@@ -62,12 +62,12 @@
         <translation>Adresy do odbierania</translation>
     </message>
     <message>
-        <source>These are your Litecoin addresses for sending payments. Always check the amount and the receiving address before sending coins.</source>
-        <translation>To są Twoje adresy Litecoin do wysyłania płatności. Zawsze sprawdzaj kwotę oraz adres odbioru zanim prześlesz monety.</translation>
+        <source>These are your Kevacoin addresses for sending payments. Always check the amount and the receiving address before sending coins.</source>
+        <translation>To są Twoje adresy Kevacoin do wysyłania płatności. Zawsze sprawdzaj kwotę oraz adres odbioru zanim prześlesz monety.</translation>
     </message>
     <message>
-        <source>These are your Litecoin addresses for receiving payments. It is recommended to use a new receiving address for each transaction.</source>
-        <translation>To są Twoje adresy Litecoin do otrzymywania płatności. Zalecane jest używać nowego adresu do każdej transakcji. </translation>
+        <source>These are your Kevacoin addresses for receiving payments. It is recommended to use a new receiving address for each transaction.</source>
+        <translation>To są Twoje adresy Kevacoin do otrzymywania płatności. Zalecane jest używać nowego adresu do każdej transakcji. </translation>
     </message>
     <message>
         <source>&amp;Copy Address</source>
@@ -338,8 +338,8 @@
         <translation>Reindeksowanie bloków na dysku...</translation>
     </message>
     <message>
-        <source>Send coins to a Litecoin address</source>
-        <translation>Wyślij monety na adres Litecoin</translation>
+        <source>Send coins to a Kevacoin address</source>
+        <translation>Wyślij monety na adres Kevacoin</translation>
     </message>
     <message>
         <source>Backup wallet to another location</source>
@@ -362,8 +362,8 @@
         <translation>&amp;Zweryfikuj wiadomość...</translation>
     </message>
     <message>
-        <source>Litecoin</source>
-        <translation>Litecoin</translation>
+        <source>Kevacoin</source>
+        <translation>Kevacoin</translation>
     </message>
     <message>
         <source>Wallet</source>
@@ -390,12 +390,12 @@
         <translation>Zaszyfruj prywatne klucze które należą do Twojego portfela</translation>
     </message>
     <message>
-        <source>Sign messages with your Litecoin addresses to prove you own them</source>
-        <translation>Podpisz wiadomość z Twoimi adresami Litecoin żeby udowodnić że je posiadasz</translation>
+        <source>Sign messages with your Kevacoin addresses to prove you own them</source>
+        <translation>Podpisz wiadomość z Twoimi adresami Kevacoin żeby udowodnić że je posiadasz</translation>
     </message>
     <message>
-        <source>Verify messages to ensure they were signed with specified Litecoin addresses</source>
-        <translation>Zweryfikuj wiadomość żeby się upewnić że zostały podpisane ze specyficznym adresem Litecoin</translation>
+        <source>Verify messages to ensure they were signed with specified Kevacoin addresses</source>
+        <translation>Zweryfikuj wiadomość żeby się upewnić że zostały podpisane ze specyficznym adresem Kevacoin</translation>
     </message>
     <message>
         <source>&amp;File</source>
@@ -414,8 +414,8 @@
         <translation>Pasek zakładek</translation>
     </message>
     <message>
-        <source>Request payments (generates QR codes and litecoin: URIs)</source>
-        <translation>Zażądaj płatności (generuje kod QR oraz litecoin: URls)</translation>
+        <source>Request payments (generates QR codes and kevacoin: URIs)</source>
+        <translation>Zażądaj płatności (generuje kod QR oraz kevacoin: URls)</translation>
     </message>
     <message>
         <source>Show the list of used sending addresses and labels</source>
@@ -426,8 +426,8 @@
         <translation>Pokaż liste użytych adresów do odbioru oraz ich etykiety</translation>
     </message>
     <message>
-        <source>Open a litecoin: URI or payment request</source>
-        <translation>Otwórz litecoin: URl lub żądanie płatności</translation>
+        <source>Open a kevacoin: URI or payment request</source>
+        <translation>Otwórz kevacoin: URl lub żądanie płatności</translation>
     </message>
     <message>
         <source>&amp;Command-line options</source>
@@ -653,8 +653,8 @@
         <translation>Użyj wybranego katalogu danych:</translation>
     </message>
     <message>
-        <source>Litecoin</source>
-        <translation>Litecoin</translation>
+        <source>Kevacoin</source>
+        <translation>Kevacoin</translation>
     </message>
     <message>
         <source>At least %1 GB of data will be stored in this directory, and it will grow over time.</source>
@@ -665,8 +665,8 @@
         <translation>W przybliżeniu %1 GB danych będzie przechowywanych w tym katalogu. </translation>
     </message>
     <message>
-        <source>%1 will download and store a copy of the Litecoin block chain.</source>
-        <translation>%1 ściągnie i przechowa kopie łańcucha bloków Litecoin.</translation>
+        <source>%1 will download and store a copy of the Kevacoin block chain.</source>
+        <translation>%1 ściągnie i przechowa kopie łańcucha bloków Kevacoin.</translation>
     </message>
     <message>
         <source>The wallet will also be stored in this directory.</source>
@@ -688,8 +688,8 @@
         <translation>Formularz</translation>
     </message>
     <message>
-        <source>Recent transactions may not yet be visible, and therefore your wallet's balance might be incorrect. This information will be correct once your wallet has finished synchronizing with the litecoin network, as detailed below.</source>
-        <translation>Niedawne transakcje mogą być jeszcze nie widoczne i z tego powodu saldo Twojego portfela może być nieprawidłowe. Te informacje zostaną poprawione kiedy Twój portfel skończy się synchronizować z siecią Litecoin, w sposób opisany poniżej. </translation>
+        <source>Recent transactions may not yet be visible, and therefore your wallet's balance might be incorrect. This information will be correct once your wallet has finished synchronizing with the kevacoin network, as detailed below.</source>
+        <translation>Niedawne transakcje mogą być jeszcze nie widoczne i z tego powodu saldo Twojego portfela może być nieprawidłowe. Te informacje zostaną poprawione kiedy Twój portfel skończy się synchronizować z siecią Kevacoin, w sposób opisany poniżej. </translation>
     </message>
     <message>
         <source>Attempting to spend litecoins that are affected by not-yet-displayed transactions will not be accepted by the network.</source>

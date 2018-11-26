@@ -992,8 +992,8 @@ UniValue gettxout(const JSONRPCRequest& request)
             "     \"hex\" : \"hex\",        (string) \n"
             "     \"reqSigs\" : n,          (numeric) Number of required signatures\n"
             "     \"type\" : \"pubkeyhash\", (string) The type, eg pubkeyhash\n"
-            "     \"addresses\" : [          (array of string) array of litecoin addresses\n"
-            "        \"address\"     (string) litecoin address\n"
+            "     \"addresses\" : [          (array of string) array of kevacoin addresses\n"
+            "        \"address\"     (string) kevacoin address\n"
             "        ,...\n"
             "     ]\n"
             "  },\n"
@@ -1567,7 +1567,7 @@ UniValue getchaintxstats(const JSONRPCRequest& request)
             pindex = chainActive.Tip();
         }
     }
-    
+
     assert(pindex != nullptr);
 
     if (request.params[0].isNull()) {

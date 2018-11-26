@@ -149,7 +149,7 @@ public:
         assert(genesis.hashMerkleRoot == uint256S("0x677b0cc3aa49a118484f34bc1b1065e4ecdbd9a895e43d7fcd1c4b74beb492da"));
 
         // Note that of those with the service bits flag, most only support a subset of possible options
-        vSeeds.emplace_back("seed-a.litecoin.loshan.co.uk");
+        vSeeds.emplace_back("seed-a.kevacoin.loshan.co.uk");
         vSeeds.emplace_back("dnsseed.thrasher.io");
         vSeeds.emplace_back("dnsseed.litecointools.com");
         vSeeds.emplace_back("dnsseed.litecoinpool.org");
@@ -282,7 +282,7 @@ public:
         vSeeds.clear();
         // nodes with support for servicebits filtering should be at the top
         vSeeds.emplace_back("testnet-seed.litecointools.com");
-        vSeeds.emplace_back("seed-b.litecoin.loshan.co.uk");
+        vSeeds.emplace_back("seed-b.kevacoin.loshan.co.uk");
         vSeeds.emplace_back("dnsseed-testnet.thrasher.io");
         vSeeds.clear(); // JWU remove this!
 
@@ -441,7 +441,6 @@ std::unique_ptr<CChainParams> CreateChainParams(const std::string& chain)
 
 void SelectParams(const std::string& network)
 {
-    printf("JWU inside SelectParams, network: %s\n", network.c_str());
     SelectBaseParams(network);
     globalChainParams = CreateChainParams(network);
 }
