@@ -2711,7 +2711,7 @@ OutputType CWallet::TransactionChangeType(OutputType change_type, const std::vec
 
 bool CWallet::CreateTransaction(const std::vector<CRecipient>& vecSend,
                                 const CTxIn* withInput,
-                                std::vector<unsigned char>& kaveNamespace,
+                                std::vector<unsigned char>& kevaNamespace,
                                 CWalletTx& wtxNew, CReserveKey& reservekey, CAmount& nFeeRet,
                                 int& nChangePosInOut, std::string& strFailReason, const CCoinControl& coin_control, bool sign)
 {
@@ -2951,7 +2951,7 @@ bool CWallet::CreateTransaction(const std::vector<CRecipient>& vecSend,
                             CScript dummyScript = iter->scriptPubKey;
                             CKevaScript kevaOp(dummyScript);
                             if (kevaOp.isKevaOp() && kevaOp.isNamespaceRegistration()) {
-                                iter->scriptPubKey = CKevaScript::replaceKevaNamespace(dummyScript, coin.outpoint.hash, kaveNamespace, Params());
+                                iter->scriptPubKey = CKevaScript::replaceKevaNamespace(dummyScript, coin.outpoint.hash, kevaNamespace, Params());
                                 kevaDummyReplaced = true;
                                 break;
                             }

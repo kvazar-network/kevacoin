@@ -2,9 +2,12 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
+// Copyright (c) 2018 The Kevacoin Core Developers
+// Distributed under the MIT software license, see the accompanying
+// file COPYING or http://www.opensource.org/licenses/mit-license.php.
+
 #include <script/keva.h>
 #include <hash.h>
-#include "base58.h"
 
 const std::string CKevaScript::KEVA_DISPLAY_NAME_KEY = "_KEVA_NS_";
 
