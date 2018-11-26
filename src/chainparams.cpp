@@ -219,12 +219,12 @@ public:
         consensus.nSubsidyHalvingInterval = 840000;
         consensus.BIP16Height = 0; // always enforce P2SH BIP16 on regtest
         consensus.BIP34Height = 76;
-        consensus.BIP34Hash = uint256S("8075c771ed8b495ffd943980a95f702ab34fce3c8c54e379548bda33cc8c0573");
+        consensus.BIP34Hash = uint256S("0x581cc1e4153a2a367012d3678f0f83f7d62286d84e69ab860804acf3ff2f572b"); // Genesis
         consensus.BIP65Height = 76; // 8075c771ed8b495ffd943980a95f702ab34fce3c8c54e379548bda33cc8c0573
         consensus.BIP66Height = 76; // 8075c771ed8b495ffd943980a95f702ab34fce3c8c54e379548bda33cc8c0573
         consensus.powLimit = uint256S("0007ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff");
-        consensus.nPowTargetTimespan = 3.5 * 24 * 60 * 60; // 3.5 days
-        consensus.nPowTargetSpacing = 2.5 * 60;
+        consensus.nPowTargetTimespan = 2.0 * 60; // Two minutes
+        consensus.nPowTargetSpacing = 2.0 * 60; // Two minutes
         consensus.fPowAllowMinDifficultyBlocks = true;
         consensus.fPowNoRetargeting = false;
         consensus.nRuleChangeActivationThreshold = 1512; // 75% for testchains
@@ -255,25 +255,28 @@ public:
         pchMessageStart[3] = 0xe4;
         nDefaultPort = 19335;
         nPruneAfterHeight = 1000;
+        genesis = CreateGenesisBlock(1542309299, 14580, 0x1f0ffff0, 1, 50 * COIN);
 
-        genesis = CreateGenesisBlock(1486949366, 293345, 0x1e0ffff0, 1, 50 * COIN);
-        //JW remove the following code!
+#if 0
         arith_uint256 hashTarget = arith_uint256().SetCompact(genesis.nBits);
         uint256 hashGenesisBlock = uint256S("0x01");
-        if (false && genesis.GetHash() != hashGenesisBlock) {
+        if (genesis.GetHash() != hashGenesisBlock) {
             printf("recalculating params for mainnet.\n");
-            printf("old mainnet genesis nonce: %d\n", genesis.nNonce);
-            printf("old mainnet genesis hash:  %s\n", hashGenesisBlock.ToString().c_str());
+            printf("old testnet genesis nonce: %d\n", genesis.nNonce);
+            printf("old testnet genesis hash:  %s\n", hashGenesisBlock.ToString().c_str());
             // deliberately empty for loop finds nonce value.
-            for(genesis.nNonce = 0; hashTarget < UintToArith256(genesis.GetPoWHash()); genesis.nNonce++){}
-            printf("new mainnet genesis merkle root: %s\n", genesis.hashMerkleRoot.ToString().c_str());
-            printf("new mainnet genesis nonce: %d\n", genesis.nNonce);
-            printf("new mainnet genesis hash: %s\n", genesis.GetHash().ToString().c_str());
+            for(genesis.nNonce = 500; hashTarget < UintToArith256(genesis.GetPoWHash()); genesis.nNonce++) {
+                printf("nNonce: %d\n\n", genesis.nNonce);
+            }
+            printf("new testnet genesis merkle root: %s\n", genesis.hashMerkleRoot.ToString().c_str());
+            printf("new testnet genesis nonce: %d\n", genesis.nNonce);
+            printf("new testnet genesis hash: %s\n", genesis.GetHash().ToString().c_str());
         }
+#endif
 
         consensus.hashGenesisBlock = genesis.GetHash();
-        assert(consensus.hashGenesisBlock == uint256S("0x4966625a4b2851d9fdee139e56211a0d88575f59ed816ff5e6a63deb4e3e29a0"));
-        assert(genesis.hashMerkleRoot == uint256S("0x97ddfbbae6be97fd6cdf3e7ca13232a3afff2353e29badfab7f73011edd4ced9"));
+        assert(consensus.hashGenesisBlock == uint256S("ff628438a3818f53874f6b3d125a39edac0ee2557a1d41befeae712f3029b650"));
+        assert(genesis.hashMerkleRoot == uint256S("677b0cc3aa49a118484f34bc1b1065e4ecdbd9a895e43d7fcd1c4b74beb492da"));
 
         vFixedSeeds.clear();
         vSeeds.clear();
@@ -438,6 +441,7 @@ std::unique_ptr<CChainParams> CreateChainParams(const std::string& chain)
 
 void SelectParams(const std::string& network)
 {
+    printf("JWU inside SelectParams, network: %s\n", network.c_str());
     SelectBaseParams(network);
     globalChainParams = CreateChainParams(network);
 }

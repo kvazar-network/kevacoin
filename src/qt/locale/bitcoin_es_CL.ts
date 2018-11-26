@@ -2938,8 +2938,8 @@
         <translation>No se ha podido iniciar el servidor HTTP. Ver debug log para detalles.</translation>
     </message>
     <message>
-        <source>Litecoin Core</source>
-        <translation>litecoin core</translation>
+        <source>Kevacoin Core</source>
+        <translation>kevacoin core</translation>
     </message>
     <message>
         <source>The %s developers</source>
