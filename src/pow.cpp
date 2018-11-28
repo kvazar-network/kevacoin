@@ -65,7 +65,6 @@ unsigned int GetNextWorkRequired(const CBlockIndex* pindexLast, const CBlockHead
 
     assert(pindexFirst);
 
-    //return CalculateNextWorkRequired(pindexLast, pindexFirst->GetBlockTime(), params);
     return CalculateDigishieldNextWorkRequired(pindexLast, pindexFirst->GetBlockTime(), params);
 }
 
