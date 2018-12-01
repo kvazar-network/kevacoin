@@ -441,19 +441,11 @@ UniValue getblocktemplate(const JSONRPCRequest& request)
     if(!g_connman)
         throw JSONRPCError(RPC_CLIENT_P2P_DISABLED, "Error: Peer-to-peer functionality missing or disabled");
 
-/*
-    // JWU disable for now!!!
-    // JWU To make this work:
-    // 1. On connecting clint, use option: -connect=192.168.x.x
-    // 2. Make sure both have correct next work required in pow.cpp.
-    // 3. Use -maxtipage=24*60*60*n, where n is the number of days the tip has not
-    // been updated. Otherwise IsInitialBlockDownload will be true.
     if (g_connman->GetNodeCount(CConnman::CONNECTIONS_ALL) == 0)
         throw JSONRPCError(RPC_CLIENT_NOT_CONNECTED, "Kevacoin is not connected!");
 
     if (IsInitialBlockDownload())
         throw JSONRPCError(RPC_CLIENT_IN_INITIAL_DOWNLOAD, "Kevacoin is downloading blocks...");
-*/
 
     static unsigned int nTransactionsUpdatedLast;
 
