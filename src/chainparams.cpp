@@ -37,24 +37,11 @@ static CBlock CreateGenesisBlock(const char* pszTimestamp, const CScript& genesi
     return genesis;
 }
 
-/**
- * Build the genesis block. Note that the output of its generation
- * transaction cannot be spent since it did not originally exist in the
- * database.
- *
- * CBlock(hash=000000000019d6, ver=1, hashPrevBlock=00000000000000, hashMerkleRoot=4a5e1e, nTime=1231006505, nBits=1d00ffff, nNonce=2083236893, vtx=1)
- *   CTransaction(hash=4a5e1e, ver=1, vin.size=1, vout.size=1, nLockTime=0)
- *     CTxIn(COutPoint(000000, -1), coinbase 04ffff001d0104455468652054696d65732030332f4a616e2f32303039204368616e63656c6c6f72206f6e206272696e6b206f66207365636f6e64206261696c6f757420666f722062616e6b73)
- *     CTxOut(nValue=50.00000000, scriptPubKey=0x5F1DF16B2B704C8A578D0B)
- *   vMerkleTree: 4a5e1e
- */
 static CBlock CreateGenesisBlock(uint32_t nTime, uint32_t nNonce, uint32_t nBits, int32_t nVersion, const CAmount& genesisReward)
 {
-    // JWU TODO:
-    // 1. Change timestamp
-    // 2. Fix coinbase script using segwit.
-    const char* pszTimestamp = "NY Times 05/Oct/2011 Steve Jobs, Apple’s Visionary, Dies at 56";
-    const CScript genesisOutputScript = CScript() << ParseHex("049451c9ac3be691a4fa375ea69537a46ef374c1f454dbc7c2c6fe27b280f2b979991aadb29358591a1f72c326b537d7fd03e14d4978a1b57486d9e6d2c3645717") << OP_CHECKSIG;
+    // JWU TODO: change timestamp
+    const char* pszTimestamp = "The Economist 05/Dec/2018 The US-China trade war is on hold";
+    const CScript genesisOutputScript = CScript() << ParseHex("a914676a24ba4bfadd458e5245b26fa57f9a62ca185087");
     return CreateGenesisBlock(pszTimestamp, genesisOutputScript, nTime, nNonce, nBits, nVersion, genesisReward);
 }
 
@@ -125,7 +112,7 @@ public:
          pchMessageStart[3] = 0x9a;
         nDefaultPort = 9333;
         nPruneAfterHeight = 100000;
-        genesis = CreateGenesisBlock(1542309299, 14580, 0x1f0ffff0, 1, 50 * COIN);
+        genesis = CreateGenesisBlock(1543789622, 3316, 0x1f0ffff0, 1, 50 * COIN);
 
 #if 0
         arith_uint256 hashTarget = arith_uint256().SetCompact(genesis.nBits);
@@ -145,8 +132,8 @@ public:
 #endif
 
         consensus.hashGenesisBlock = genesis.GetHash();
-        assert(consensus.hashGenesisBlock == uint256S("0xff628438a3818f53874f6b3d125a39edac0ee2557a1d41befeae712f3029b650"));
-        assert(genesis.hashMerkleRoot == uint256S("0x677b0cc3aa49a118484f34bc1b1065e4ecdbd9a895e43d7fcd1c4b74beb492da"));
+        assert(consensus.hashGenesisBlock == uint256S("0x223df7d593214c56f16244fdbdecba8a2d1d5a7500fade6542f00812c7a70a5d"));
+        assert(genesis.hashMerkleRoot == uint256S("0x13ec98c3307b8e6b67b91c605c7347916a99f9dfde7b5d88365aaef322192314"));
 
         // Note that of those with the service bits flag, most only support a subset of possible options
         vSeeds.emplace_back("dnsseed.kevacoin.org");
@@ -163,7 +150,6 @@ public:
         bech32_hrp = "kva";
 
         vFixedSeeds = std::vector<SeedSpec6>(pnSeed6_main, pnSeed6_main + ARRAYLEN(pnSeed6_main));
-        vFixedSeeds.clear(); //JW remove this!
 
         fDefaultConsistencyChecks = false;
         fRequireStandard = true;
