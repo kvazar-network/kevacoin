@@ -348,26 +348,10 @@ void CKevaCache::writeBatch (CDBBatch& batch) const
     batch.Write(std::make_pair(DB_NAME, name), i->second);
   }
 
-#if 0
-  for (std::set<valtype>::const_iterator i = deleted.begin(); i != deleted.end(); ++i) {
-    batch.Erase(std::make_pair (DB_NAME, *i));
+  for (std::set<NamespaceKeyType>::const_iterator i = deleted.begin(); i != deleted.end(); ++i) {
+    std::pair<valtype, valtype> name = std::make_pair(std::get<0>(*i), std::get<1>(*i));
+    batch.Erase(std::make_pair(DB_NAME, name));
   }
-
-  assert (fNameHistory || history.empty ());
-  for (std::map<valtype, CNameHistory>::const_iterator i = history.begin ();
-       i != history.end (); ++i)
-    if (i->second.empty ())
-      batch.Erase (std::make_pair (DB_NAME_HISTORY, i->first));
-    else
-      batch.Write (std::make_pair (DB_NAME_HISTORY, i->first), i->second);
-
-  for (std::map<ExpireEntry, bool>::const_iterator i = expireIndex.begin ();
-       i != expireIndex.end (); ++i)
-    if (i->second)
-      batch.Write (std::make_pair (DB_NAME_EXPIRY, i->first));
-    else
-      batch.Erase (std::make_pair (DB_NAME_EXPIRY, i->first));
-#endif
 }
 
 bool CBlockTreeDB::ReadTxIndex(const uint256 &txid, CDiskTxPos &pos) {

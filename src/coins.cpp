@@ -200,68 +200,19 @@ CNameIterator* CCoinsViewCache::IterateNames() const {
    name history.  */
 void CCoinsViewCache::SetName(const valtype &nameSpace, const valtype &key, const CKevaData& data, bool undo)
 {
-#if 0
-    CKevaData oldData;
-    if (GetName(nameSpace, key, oldData)) {
-        cacheNames.removeExpireIndex(name, oldData.getHeight());
-
-        /* Update the name history.  If we are undoing, we expect that
-           the top history item matches the data being set now.  If we
-           are not undoing, push the overwritten data onto the history stack.
-           Note that we only have to do this if the name already existed
-           in the database.  Otherwise, no special action is required
-           for the name history.  */
-        if (fNameHistory)
-        {
-            CNameHistory history;
-            if (!GetNameHistory(name, history))
-            {
-                /* Ensure that the history stack is indeed (still) empty
-                   and was not modified by the failing GetNameHistory call.  */
-                assert(history.empty());
-            }
-
-            if (undo)
-                history.pop(data);
-            else
-                history.push(oldData);
-
-            cacheNames.setHistory(name, history);
-        }
-    } else {
-        assert (!undo);
-    }
-#endif
     CKevaData namespaceData;
     if (GetNamespace(nameSpace, namespaceData)) {
         namespaceData.setUpdateOutpoint(data.getUpdateOutpoint());
         cacheNames.setNamespace(nameSpace, namespaceData);
     }
     cacheNames.set(nameSpace, key, data);
-#if 0
-    cacheNames.addExpireIndex(name, data.getHeight());
-#endif
 }
 
 void CCoinsViewCache::DeleteName(const valtype &nameSpace, const valtype &key) {
     CKevaData oldData;
-    if (GetName(nameSpace, key, oldData)) {
-#if 0
-        cacheNames.removeExpireIndex(name, oldData.getHeight());
-#endif
-    }
-    else
+    if (!GetName(nameSpace, key, oldData)) {
         assert(false);
-
-#if 0
-    if (fNameHistory)
-    {
-        /* When deleting a name, the history should already be clean.  */
-        CNameHistory history;
-        assert (!GetNameHistory(name, history) || history.empty());
     }
-#endif
-
     cacheNames.remove(nameSpace, key);
 }
 

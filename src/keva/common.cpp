@@ -210,11 +210,10 @@ void
 CKevaCache::set(const valtype& nameSpace, const valtype& key, const CKevaData& data)
 {
   auto name = std::make_tuple(nameSpace, key);
-#if 0
-  const std::set<valtype>::iterator di = deleted.find(name);
-  if (di != deleted.end ())
+  const std::set<NamespaceKeyType>::iterator di = deleted.find(name);
+  if (di != deleted.end()) {
     deleted.erase (di);
-#endif
+  }
 
   const EntryMap::iterator ei = entries.find(name);
   if (ei != entries.end ())
@@ -227,15 +226,11 @@ void
 CKevaCache::remove(const valtype& nameSpace, const valtype& key)
 {
   auto name = std::make_tuple(nameSpace, key);
-  const EntryMap::iterator ei = entries.find (name);
-  if (ei != entries.end ())
-    entries.erase (ei);
+  const EntryMap::iterator ei = entries.find(name);
+  if (ei != entries.end())
+    entries.erase(ei);
 
-  //JWU TODO: make sure to remove namespace registration when
-  // the corresponding block is disconnected!!!
-#if 0
   deleted.insert(name);
-#endif
 }
 
 CNameIterator*
@@ -244,91 +239,21 @@ CKevaCache::iterateNames(CNameIterator* base) const
   return new CCacheNameIterator (*this, base);
 }
 
-#if 0
-bool
-CKevaCache::getHistory (const valtype& name, CNameHistory& res) const
-{
-  assert (fNameHistory);
-
-  const std::map<valtype, CNameHistory>::const_iterator i = history.find (name);
-  if (i == history.end ())
-    return false;
-
-  res = i->second;
-  return true;
-}
-
-void
-CKevaCache::setHistory (const valtype& name, const CNameHistory& data)
-{
-  assert (fNameHistory);
-
-  const std::map<valtype, CNameHistory>::iterator ei = history.find (name);
-  if (ei != history.end ())
-    ei->second = data;
-  else
-    history.insert (std::make_pair (name, data));
-}
-#endif
-
 void
 CKevaCache::updateNamesForHeight (unsigned nHeight,
                                   std::set<valtype>& names) const
 {
   /* Seek in the map of cached entries to the first one corresponding
      to our height.  */
-
-#if 0
-  const ExpireEntry seekEntry(nHeight, valtype ());
-  std::map<ExpireEntry, bool>::const_iterator it;
-
-  for (it = expireIndex.lower_bound (seekEntry); it != expireIndex.end (); ++it)
-    {
-      const ExpireEntry& cur = it->first;
-      assert (cur.nHeight >= nHeight);
-      if (cur.nHeight > nHeight)
-        break;
-
-      if (it->second)
-        names.insert (cur.name);
-      else
-        names.erase (cur.name);
-    }
-#endif
 }
-
-#if 0
-void
-CKevaCache::addExpireIndex (const valtype& name, unsigned height)
-{
-  const ExpireEntry entry(height, name);
-  expireIndex[entry] = true;
-}
-
-void
-CKevaCache::removeExpireIndex (const valtype& name, unsigned height)
-{
-  const ExpireEntry entry(height, name);
-  expireIndex[entry] = false;
-}
-#endif
 
 void CKevaCache::apply(const CKevaCache& cache)
 {
   for (EntryMap::const_iterator i = cache.entries.begin(); i != cache.entries.end(); ++i) {
     set(std::get<0>(i->first), std::get<1>(i->first), i->second);
   }
-#if 0
-  for (std::set<valtype>::const_iterator i = cache.deleted.begin(); i != cache.deleted.end(); ++i) {
-    remove(*i);
+
+  for (std::set<NamespaceKeyType>::const_iterator i = cache.deleted.begin(); i != cache.deleted.end(); ++i) {
+    remove(std::get<0>(*i), std::get<1>(*i));
   }
-
-  for (std::map<valtype, CNameHistory>::const_iterator i
-        = cache.history.begin (); i != cache.history.end (); ++i)
-    setHistory (i->first, i->second);
-
-  for (std::map<ExpireEntry, bool>::const_iterator i
-        = cache.expireIndex.begin (); i != cache.expireIndex.end (); ++i)
-    expireIndex[i->first] = i->second;
-#endif
 }

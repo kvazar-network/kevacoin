@@ -1654,9 +1654,9 @@ DisconnectResult CChainState::DisconnectBlock(const CBlock& block, const CBlockI
     }
 
     // undo keva operations in reverse order
-    std::vector<CKevaTxUndo>::const_reverse_iterator nameUndoIter;
-    for (nameUndoIter = blockUndo.vkevaundo.rbegin (); nameUndoIter != blockUndo.vkevaundo.rend (); ++nameUndoIter) {
-        nameUndoIter->apply (view);
+    std::vector<CKevaTxUndo>::const_reverse_iterator kevaUndoIter;
+    for (kevaUndoIter = blockUndo.vkevaundo.rbegin(); kevaUndoIter != blockUndo.vkevaundo.rend(); ++kevaUndoIter) {
+        kevaUndoIter->apply(view);
     }
 
     // move best block pointer to prevout block

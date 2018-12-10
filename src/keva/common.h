@@ -311,106 +311,20 @@ private:
 public:
 
   /**
-   * Type for expire-index entries.  We have to make sure that
-   * it is serialised in such a way that ordering is done correctly
-   * by height.  This is not true if we use a std::pair, since then
-   * the height is serialised as byte-array with little-endian order,
-   * which does not correspond to the ordering by actual value.
-   */
-#if 0
-  class ExpireEntry
-  {
-  public:
-
-    unsigned nHeight;
-    valtype name;
-
-    inline ExpireEntry ()
-      : nHeight(0), name()
-    {}
-
-    inline ExpireEntry (unsigned h, const valtype& n)
-      : nHeight(h), name(n)
-    {}
-
-    /* Default copy and assignment.  */
-
-    template<typename Stream>
-      inline void
-      Serialize (Stream& s) const
-    {
-      /* Flip the byte order of nHeight to big endian.  */
-      const uint32_t nHeightFlipped = htobe32 (nHeight);
-
-      ::Serialize (s, nHeightFlipped);
-      ::Serialize (s, name);
-    }
-
-    template<typename Stream>
-      inline void
-      Unserialize (Stream& s)
-    {
-      uint32_t nHeightFlipped;
-
-      ::Unserialize (s, nHeightFlipped);
-      ::Unserialize (s, name);
-
-      /* Unflip the byte order.  */
-      nHeight = be32toh (nHeightFlipped);
-    }
-
-    friend inline bool
-    operator== (const ExpireEntry& a, const ExpireEntry& b)
-    {
-      return a.nHeight == b.nHeight && a.name == b.name;
-    }
-
-    friend inline bool
-    operator!= (const ExpireEntry& a, const ExpireEntry& b)
-    {
-      return !(a == b);
-    }
-
-    friend inline bool
-    operator< (const ExpireEntry& a, const ExpireEntry& b)
-    {
-      if (a.nHeight != b.nHeight)
-        return a.nHeight < b.nHeight;
-
-      return a.name < b.name;
-    }
-
-  };
-#endif
-
-  /**
    * Type of name entry map.  This is public because it is also used
    * by the unit tests.
    */
   typedef std::map<std::tuple<valtype, valtype>, CKevaData, NameComparator> EntryMap;
 
+  typedef std::tuple<valtype, valtype> NamespaceKeyType;
+
 private:
 
   /** New or updated names.  */
   EntryMap entries;
+
   /** Deleted names.  */
-  std::set<valtype> deleted;
-
-#if 0
-  /**
-   * New or updated history stacks.  If they are empty, the corresponding
-   * database entry is deleted instead.
-   */
-  std::map<valtype, CNameHistory> history;
-#endif
-
-#if 0
-  /**
-   * Changes to be performed to the expire index.  The entry is mapped
-   * to either "true" (meaning to add it) or "false" (delete).
-   */
-  std::map<ExpireEntry, bool> expireIndex;
-#endif
+  std::set<NamespaceKeyType> deleted;
 
   friend class CCacheNameIterator;
 
@@ -421,10 +335,6 @@ public:
   {
     entries.clear ();
     deleted.clear ();
-#if 0
-    history.clear ();
-    expireIndex.clear ();
-#endif
   }
 
   /**
@@ -436,10 +346,7 @@ public:
   inline bool
   empty () const
   {
-    if (entries.empty () && deleted.empty ()) {
-#if 0
-      assert (history.empty () && expireIndex.empty ());
-#endif
+    if (entries.empty() && deleted.empty()) {
       return true;
     }
 
@@ -450,11 +357,8 @@ public:
   inline bool
   isDeleted (const valtype& nameSpace, const valtype& key) const
   {
-#if 0
+    auto name = std::make_tuple(nameSpace, key);
     return (deleted.count(name) > 0);
-#else
-    return false;
-#endif
   }
 
   /* Try to get a name's associated data.  This looks only
@@ -477,36 +381,11 @@ public:
      ownership of.  */
   CNameIterator* iterateNames (CNameIterator* base) const;
 
-#if 0
-  /**
-   * Query for an history entry.
-   * @param name The name to look up.
-   * @param res Put the resulting history entry here.
-   * @return True iff the name was found in the cache.
-   */
-  bool getHistory (const valtype& name, CNameHistory& res) const;
-
-  /**
-   * Set a name history entry.
-   * @param name The name to modify.
-   * @param data The new history entry.
-   */
-  void setHistory (const valtype& name, const CNameHistory& data);
-#endif
-
   /* Query the cached changes to the expire index.  In particular,
      for a given height and a given set of names that were indexed to
      this update height, apply possible changes to the set that
      are represented by the cached expire index changes.  */
   void updateNamesForHeight (unsigned nHeight, std::set<valtype>& names) const;
-
-#if 0
-  /* Add an expire-index entry.  */
-  void addExpireIndex (const valtype& name, unsigned height);
-
-  /* Remove an expire-index entry.  */
-  void removeExpireIndex (const valtype& name, unsigned height);
-#endif
 
   /* Apply all the changes in the passed-in record on top of this one.  */
   void apply (const CKevaCache& cache);
