@@ -344,7 +344,7 @@ CheckKevaTransaction (const CTransaction& tx, unsigned nHeight,
   return true;
 }
 
-void ApplyNameTransaction(const CTransaction& tx, unsigned nHeight,
+void ApplyKevaTransaction(const CTransaction& tx, unsigned nHeight,
                         CCoinsViewCache& view, CBlockUndo& undo)
 {
   assert (nHeight != MEMPOOL_HEIGHT);

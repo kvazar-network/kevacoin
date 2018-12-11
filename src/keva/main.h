@@ -242,7 +242,7 @@ bool CheckKevaTransaction (const CTransaction& tx, unsigned nHeight,
  * @param view The chain state to update.
  * @param undo Record undo information here.
  */
-void ApplyNameTransaction (const CTransaction& tx, unsigned nHeight,
+void ApplyKevaTransaction (const CTransaction& tx, unsigned nHeight,
                            CCoinsViewCache& view, CBlockUndo& undo);
 
 /**

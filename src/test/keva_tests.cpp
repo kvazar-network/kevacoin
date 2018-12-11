@@ -33,11 +33,9 @@ BOOST_FIXTURE_TEST_SUITE (keva_tests, TestingSetup)
  * Utility function that returns a sample address script to use in the tests.
  * @return A script that represents a simple address.
  */
-static CScript
-getTestAddress ()
+static CScript getTestAddress()
 {
-  const CTxDestination dest
-    = DecodeDestination ("VMpwrs7oqLbASU3tbKehhGyvDZ4u3mwR4y");
+  const CTxDestination dest = DecodeDestination ("VMpwrs7oqLbASU3tbKehhGyvDZ4u3mwR4y");
   BOOST_CHECK (IsValidDestination (dest));
 
   return GetScriptForDestination (dest);
@@ -47,10 +45,10 @@ getTestAddress ()
 
 BOOST_AUTO_TEST_CASE(keva_scripts)
 {
-  const CScript addr = getTestAddress ();
+  const CScript addr = getTestAddress();
   const CKevaScript opNone(addr);
-  BOOST_CHECK (!opNone.isKevaOp ());
-  BOOST_CHECK (opNone.getAddress () == addr);
+  BOOST_CHECK (!opNone.isKevaOp());
+  BOOST_CHECK (opNone.getAddress() == addr);
 
   const valtype nameSpace = ValtypeFromString ("namespace-string");
   const valtype displayName = ValtypeFromString ("display name");
@@ -699,171 +697,88 @@ BOOST_AUTO_TEST_CASE (name_tx_verification)
   BOOST_CHECK (!CheckNameTransaction (mtx, 100012, viewClean, state, 0));
 }
 
+#endif
+
 /* ************************************************************************** */
 
-BOOST_AUTO_TEST_CASE (name_updates_undo)
+BOOST_AUTO_TEST_CASE(name_updates_undo)
 {
   /* Enable name history to test this on the go.  */
   fNameHistory = true;
 
-  const valtype name = ValtypeFromString ("database-test-name");
-  const valtype value1 = ValtypeFromString ("old-value");
-  const valtype value2 = ValtypeFromString ("new-value");
-  const CScript addr = getTestAddress ();
+  const valtype nameSpace = ValtypeFromString ("database-test-namespace");
+  const valtype displayName = ValtypeFromString ("display name");
+  const valtype key1 = ValtypeFromString ("key1");
+  const valtype key2 = ValtypeFromString ("key2");
+  const valtype value1_old = ValtypeFromString ("old-value_1");
+  const valtype value1_new = ValtypeFromString ("new-value_1");
+  const valtype value2_old = ValtypeFromString ("old-value_2");
+  const valtype value2_new = ValtypeFromString ("new-value_2");
+  const CScript addr = getTestAddress();
 
   CCoinsView dummyView;
   CCoinsViewCache view(&dummyView);
   CBlockUndo undo;
-  CNameData data;
-  CNameHistory history;
+  CKevaData data;
 
-  const valtype rand(20, 'x');
-  valtype toHash(rand);
-  toHash.insert (toHash.end (), name.begin (), name.end ());
-  const uint160 hash = Hash160 (toHash);
+  const CScript scrNew = CKevaScript::buildKevaNamespace(addr, nameSpace, displayName);
+  const CScript scr1_1 = CKevaScript::buildKevaPut(addr, nameSpace, key1, value1_old);
+  const CScript scr1_2 = CKevaScript::buildKevaPut(addr, nameSpace, key1, value1_new);
+  const CScript scr2_1 = CKevaScript::buildKevaPut(addr, nameSpace, key2, value2_old);
+  const CScript scr2_2 = CKevaScript::buildKevaPut(addr, nameSpace, key2, value2_new);
 
-  const CScript scrNew = CNameScript::buildNameNew (addr, hash);
-  const CScript scrFirst = CNameScript::buildNameFirstupdate (addr, name,
-                                                              value1, rand);
-  const CScript scrUpdate = CNameScript::buildNameUpdate (addr, name, value2);
 
   /* The constructed tx needs not be valid.  We only test
-     ApplyNameTransaction and not validation.  */
+     ApplyKevaTransaction and not validation.  */
 
   CMutableTransaction mtx;
-  mtx.SetNamecoin ();
-  mtx.vout.push_back (CTxOut (COIN, scrNew));
-  ApplyNameTransaction (mtx, 100, view, undo);
-  BOOST_CHECK (!view.GetName (name, data));
-  BOOST_CHECK (undo.vnameundo.empty ());
-  BOOST_CHECK (!view.GetNameHistory (name, history));
+  mtx.SetKevacoin();
+  mtx.vout.push_back(CTxOut(COIN, scrNew));
+  ApplyKevaTransaction(mtx, 100, view, undo);
+  BOOST_CHECK(!view.GetName(nameSpace, key1, data));
+  BOOST_CHECK(view.GetNamespace(nameSpace, data));
+  BOOST_CHECK(undo.vkevaundo.size() == 1);
 
-  mtx.vout.clear ();
-  mtx.vout.push_back (CTxOut (COIN, scrFirst));
-  ApplyNameTransaction (mtx, 200, view, undo);
-  BOOST_CHECK (view.GetName (name, data));
-  BOOST_CHECK (data.getHeight () == 200);
-  BOOST_CHECK (data.getValue () == value1);
-  BOOST_CHECK (data.getAddress () == addr);
-  BOOST_CHECK (!view.GetNameHistory (name, history));
-  BOOST_CHECK (undo.vnameundo.size () == 1);
-  const CNameData firstData = data;
+  mtx.vout.clear();
+  mtx.vout.push_back(CTxOut(COIN, scr1_1));
+  ApplyKevaTransaction(mtx, 200, view, undo);
+  BOOST_CHECK(view.GetName(nameSpace, key1, data));
+  BOOST_CHECK(data.getHeight() == 200);
+  BOOST_CHECK(data.getValue() == value1_old);
+  BOOST_CHECK(data.getAddress() == addr);
+  BOOST_CHECK(undo.vkevaundo.size() == 2);
+  const CKevaData firstData = data;
 
-  mtx.vout.clear ();
-  mtx.vout.push_back (CTxOut (COIN, scrUpdate));
-  ApplyNameTransaction (mtx, 300, view, undo);
-  BOOST_CHECK (view.GetName (name, data));
-  BOOST_CHECK (data.getHeight () == 300);
-  BOOST_CHECK (data.getValue () == value2);
-  BOOST_CHECK (data.getAddress () == addr);
-  BOOST_CHECK (view.GetNameHistory (name, history));
-  BOOST_CHECK (history.getData ().size () == 1);
-  BOOST_CHECK (history.getData ().back () == firstData);
-  BOOST_CHECK (undo.vnameundo.size () == 2);
+  mtx.vout.clear();
+  mtx.vout.push_back(CTxOut(COIN, scr1_2));
+  ApplyKevaTransaction(mtx, 300, view, undo);
+  BOOST_CHECK(view.GetName(nameSpace, key1, data));
+  BOOST_CHECK(data.getHeight() == 300);
+  BOOST_CHECK(data.getValue() == value1_new);
+  BOOST_CHECK(data.getAddress() == addr);
+  BOOST_CHECK(undo.vkevaundo.size() == 3);
 
-  undo.vnameundo.back ().apply (view);
-  BOOST_CHECK (view.GetName (name, data));
-  BOOST_CHECK (data.getHeight () == 200);
-  BOOST_CHECK (data.getValue () == value1);
-  BOOST_CHECK (data.getAddress () == addr);
-  BOOST_CHECK (!view.GetNameHistory (name, history) || history.empty ());
-  undo.vnameundo.pop_back ();
+  undo.vkevaundo.back().apply(view);
+  BOOST_CHECK(view.GetName(nameSpace, key1, data));
+  BOOST_CHECK(data.getHeight() == 200);
+  BOOST_CHECK(data.getValue() == value1_old);
+  BOOST_CHECK(data.getAddress() == addr);
+  undo.vkevaundo.pop_back();
 
-  undo.vnameundo.back ().apply (view);
-  BOOST_CHECK (!view.GetName (name, data));
-  BOOST_CHECK (!view.GetNameHistory (name, history) || history.empty ());
-  undo.vnameundo.pop_back ();
-  BOOST_CHECK (undo.vnameundo.empty ());
+  undo.vkevaundo.back().apply(view);
+  BOOST_CHECK(!view.GetName(nameSpace, key1, data));
+  BOOST_CHECK(view.GetNamespace(nameSpace, data));
+  undo.vkevaundo.pop_back();
+
+  undo.vkevaundo.back().apply(view);
+  BOOST_CHECK(!view.GetNamespace(nameSpace, data));
+
+  undo.vkevaundo.pop_back();
+  BOOST_CHECK(undo.vkevaundo.empty());
 }
 
 /* ************************************************************************** */
-
-BOOST_AUTO_TEST_CASE (name_expire_utxo)
-{
-  const valtype name1 = ValtypeFromString ("test-name-1");
-  const valtype name2 = ValtypeFromString ("test-name-2");
-  const valtype value = ValtypeFromString ("value");
-  const CScript addr = getTestAddress ();
-
-  const CScript upd1 = CNameScript::buildNameUpdate (addr, name1, value);
-  const CScript upd2 = CNameScript::buildNameUpdate (addr, name2, value);
-
-  const CNameScript op1(upd1);
-  const CNameScript op2(upd2);
-
-  /* Use a "real" backing view, since GetNamesForHeight calls through
-     to the base in any case.  */
-  CCoinsViewCache view(pcoinsTip.get());
-
-  const COutPoint coinId1 = addTestCoin (upd1, 100000, view);
-  const COutPoint coinId2 = addTestCoin (upd2, 100010, view);
-
-  CNameData data;
-  data.fromScript (100000, coinId1, op1);
-  view.SetName (name1, data, false);
-  BOOST_CHECK (!data.isExpired (135999) && data.isExpired (136000));
-  data.fromScript (100010, coinId2, op2);
-  view.SetName (name2, data, false);
-  BOOST_CHECK (!data.isExpired (136009) && data.isExpired (136010));
-
-  std::set<valtype> setExpired;
-  BOOST_CHECK (view.GetNamesForHeight (100000, setExpired));
-  BOOST_CHECK (setExpired.size () == 1 && *setExpired.begin () == name1);
-  BOOST_CHECK (view.GetNamesForHeight (100010, setExpired));
-  BOOST_CHECK (setExpired.size () == 1 && *setExpired.begin () == name2);
-
-  Coin coin1, coin2;
-  BOOST_CHECK (view.GetCoin (coinId1, coin1));
-  BOOST_CHECK (view.GetCoin (coinId2, coin2));
-
-  CBlockUndo undo1, undo2;
-  Coin coin;
-
-  /* None of the two names should be expired.  */
-  BOOST_CHECK (ExpireNames (135999, view, undo1, setExpired));
-  BOOST_CHECK (undo1.vexpired.empty ());
-  BOOST_CHECK (setExpired.empty ());
-  BOOST_CHECK (view.GetCoin (coinId1, coin));
-  BOOST_CHECK (coin == coin1);
-  BOOST_CHECK (view.GetCoin (coinId2, coin));
-  BOOST_CHECK (coin == coin2);
-
-  /* The first name expires.  */
-  BOOST_CHECK (ExpireNames (136000, view, undo1, setExpired));
-  BOOST_CHECK (undo1.vexpired.size () == 1);
-  BOOST_CHECK (undo1.vexpired[0] == coin1);
-  BOOST_CHECK (setExpired.size () == 1 && *setExpired.begin () == name1);
-  BOOST_CHECK (!view.GetCoin (coinId1, coin));
-  BOOST_CHECK (view.GetCoin (coinId2, coin));
-  BOOST_CHECK (coin == coin2);
-
-  /* Also the second name expires.  */
-  BOOST_CHECK (ExpireNames (136010, view, undo2, setExpired));
-  BOOST_CHECK (undo2.vexpired.size () == 1);
-  BOOST_CHECK (undo2.vexpired[0] == coin2);
-  BOOST_CHECK (setExpired.size () == 1 && *setExpired.begin () == name2);
-  BOOST_CHECK (!view.GetCoin (coinId1, coin));
-  BOOST_CHECK (!view.GetCoin (coinId2, coin));
-
-  /* Undo the second expiration.  */
-  BOOST_CHECK (UnexpireNames (136010, undo2, view, setExpired));
-  BOOST_CHECK (setExpired.size () == 1 && *setExpired.begin () == name2);
-  BOOST_CHECK (!view.GetCoin (coinId1, coin));
-  BOOST_CHECK (view.GetCoin (coinId2, coin));
-  BOOST_CHECK (coin == coin2);
-
-  /* Undoing at the wrong height should fail.  */
-  BOOST_CHECK (!UnexpireNames (136001, undo1, view, setExpired));
-  BOOST_CHECK (!UnexpireNames (135999, undo1, view, setExpired));
-
-  /* Undo the first expiration.  */
-  BOOST_CHECK (UnexpireNames (136000, undo1, view, setExpired));
-  BOOST_CHECK (setExpired.size () == 1 && *setExpired.begin () == name1);
-  BOOST_CHECK (view.GetCoin (coinId1, coin));
-  BOOST_CHECK (coin == coin1);
-  BOOST_CHECK (view.GetCoin (coinId2, coin));
-  BOOST_CHECK (coin == coin2);
-}
+#if 0
 
 /* ************************************************************************** */
 
