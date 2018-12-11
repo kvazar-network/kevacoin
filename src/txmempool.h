@@ -137,7 +137,7 @@ public:
         return kevaOp.isKevaOp() && kevaOp.getKevaOp() == OP_KEVA_NAMESPACE;
     }
 
-    inline bool isNamespaceKeyUpdate() const
+    inline bool isKeyUpdate() const
     {
         return kevaOp.isKevaOp() && kevaOp.getKevaOp() == OP_KEVA_PUT;
     }

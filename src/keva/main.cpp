@@ -54,7 +54,7 @@ CKevaMemPool::addUnchecked (const uint256& hash, const CTxMemPoolEntry& entry)
     listUnconfirmedNamespaces.push_back(std::make_tuple(hash, nameSpace, entry.getDisplayName()));
   }
 
-  if (entry.isNamespaceKeyUpdate ()) {
+  if (entry.isKeyUpdate()) {
     const valtype& nameSpace = entry.getNamespace();
     listUnconfirmedKeyValues.push_back(std::make_tuple(hash, nameSpace, entry.getKey(), entry.getValue()));
   }
@@ -113,7 +113,7 @@ void CKevaMemPool::remove(const CTxMemPoolEntry& entry)
     }
   }
 
-  if (entry.isNamespaceKeyUpdate()) {
+  if (entry.isKeyUpdate()) {
     auto hash = entry.GetTx().GetHash();
     for (auto iter = listUnconfirmedKeyValues.begin(); iter != listUnconfirmedKeyValues.end(); ++iter) {
       if (std::get<0>(*iter) == hash) {
@@ -152,6 +152,9 @@ CKevaMemPool::removeConflicts(const CTransaction& tx)
 
 bool CKevaMemPool::validateNamespace(const CTransaction& tx, const valtype& nameSpace) const
 {
+  if (tx.vin.size() == 0) {
+    return false;
+  }
   valtype kevaNamespace = ToByteVector(Hash160(ToByteVector(tx.vin[0].prevout.hash)));
   const std::vector<unsigned char>& ns_prefix = Params().Base58Prefix(CChainParams::KEVA_NAMESPACE);
   kevaNamespace.insert(kevaNamespace.begin(), ns_prefix.begin(), ns_prefix.end());
@@ -161,17 +164,17 @@ bool CKevaMemPool::validateNamespace(const CTransaction& tx, const valtype& name
 bool
 CKevaMemPool::checkTx(const CTransaction& tx) const
 {
-  AssertLockHeld (pool.cs);
+  AssertLockHeld(pool.cs);
 
-  if (!tx.IsKevacoin ()) {
+  if (!tx.IsKevacoin()) {
     return true;
   }
 
   for (const auto& txout : tx.vout) {
     const CKevaScript nameOp(txout.scriptPubKey);
-    if (!nameOp.isKevaOp ())
+    if (!nameOp.isKevaOp())
       continue;
-    switch (nameOp.getKevaOp ()) {
+    switch (nameOp.getKevaOp()) {
       case OP_KEVA_NAMESPACE:
       {
         const valtype& nameSpace = nameOp.getOpNamespace();
