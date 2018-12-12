@@ -142,6 +142,11 @@ public:
         return kevaOp.isKevaOp() && kevaOp.getKevaOp() == OP_KEVA_PUT;
     }
 
+    inline bool isKeyDelete() const
+    {
+        return kevaOp.isKevaOp() && kevaOp.getKevaOp() == OP_KEVA_DELETE;
+    }
+
     inline const valtype& getNamespace() const
     {
         return kevaOp.getOpNamespace();

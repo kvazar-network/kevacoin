@@ -42,8 +42,8 @@ UniValue keva_namespace(const JSONRPCRequest& request)
         "1. \"display_name\"          (string, required) the display name of the namespace\n"
         "\nResult:\n"
         "[\n"
-        "  xxxxx,   (string) the txid, required for keva_put\n"
-        "  xxxxx,   (string) the unique namespace id, required for keva_put\n"
+        "  xxxxx,   (string) the txid\n"
+        "  xxxxx,   (string) the unique namespace id\n"
         "]\n"
         "\nExamples:\n"
         + HelpExampleCli ("keva_namespace", "\"display name\"")
@@ -96,8 +96,11 @@ UniValue keva_namespace(const JSONRPCRequest& request)
              kevaNamespaceBase58.c_str(), displayNameStr.c_str(), txid.c_str());
 
   UniValue res(UniValue::VARR);
-  res.push_back(txid);
-  res.push_back(kevaNamespaceBase58);
+  UniValue obj(UniValue::VOBJ);
+  obj.pushKV("txid", txid);
+  obj.pushKV("namespaceId", kevaNamespaceBase58);
+  res.push_back(obj);
+
   return res;
 }
 
@@ -207,8 +210,8 @@ UniValue keva_put(const JSONRPCRequest& request)
 
   if (request.fHelp || request.params.size() != 3) {
     throw std::runtime_error (
-        "keva_put \"namespace\" \"key\" \"value\" (\"create_namespace\")\n"
-        "\nUpdate a name and possibly transfer it.\n"
+        "keva_put \"namespace\" \"key\" \"value\"\n"
+        "\nInsert or update a key value pair in the given namespace.\n"
         + HelpRequiringPassphrase (pwallet) +
         "\nArguments:\n"
         "1. \"namespace\"            (string, required) the namespace to insert the key to\n"
@@ -251,7 +254,7 @@ UniValue keva_put(const JSONRPCRequest& request)
   COutput output;
   std::string kevaNamespce = namespaceStr;
   if (!pwallet->FindKevaCoin(output, kevaNamespce)) {
-    throw JSONRPCError (RPC_TRANSACTION_ERROR, "this name can not be updated");
+    throw JSONRPCError (RPC_TRANSACTION_ERROR, "this namespace can not be updated");
   }
   const COutPoint outp(output.tx->GetHash(), output.i);
   const CTxIn txIn(outp);
@@ -276,6 +279,96 @@ UniValue keva_put(const JSONRPCRequest& request)
 
   if (usedKey) {
     keyName.KeepKey ();
+  }
+
+  return wtx.GetHash().GetHex();
+}
+
+UniValue keva_delete(const JSONRPCRequest& request)
+{
+  CWallet* const pwallet = GetWalletForJSONRPCRequest(request);
+  if (!EnsureWalletIsAvailable (pwallet, request.fHelp)) {
+    return NullUniValue;
+  }
+
+  if (request.fHelp || request.params.size() != 2) {
+    throw std::runtime_error (
+        "keva_delete \"namespace\" \"key\"\n"
+        "\nRemove the specified key from the given namespace.\n"
+        + HelpRequiringPassphrase (pwallet) +
+        "\nArguments:\n"
+        "1. \"namespace\"            (string, required) the namespace to insert the key to\n"
+        "2. \"key\"                  (string, required) value for the key\n"
+        "\nResult:\n"
+        "\"txid\"             (string) the keva_delete's txid\n"
+        "\nExamples:\n"
+        + HelpExampleCli ("keva_delete", "\"mynamespace\", \"key\"")
+      );
+  }
+
+  RPCTypeCheck(request.params, {UniValue::VSTR, UniValue::VSTR});
+  RPCTypeCheckArgument(request.params[0], UniValue::VSTR);
+  RPCTypeCheckArgument(request.params[1], UniValue::VSTR);
+
+  ObserveSafeMode ();
+
+  const std::string namespaceStr = request.params[0].get_str();
+  valtype nameSpace;
+  if (!DecodeKevaNamespace(namespaceStr, Params(), nameSpace)) {
+    throw JSONRPCError (RPC_INVALID_PARAMETER, "invalid namespace id");
+  }
+  if (nameSpace.size () > MAX_NAMESPACE_LENGTH) {
+    throw JSONRPCError (RPC_INVALID_PARAMETER, "the namespace is too long");
+  }
+
+  const std::string keyStr = request.params[1].get_str ();
+  const valtype key = ValtypeFromString (keyStr);
+  if (key.size () > MAX_KEY_LENGTH) {
+    throw JSONRPCError (RPC_INVALID_PARAMETER, "the key is too long");
+  }
+
+  CKevaData data;
+  {
+    LOCK2(cs_main, mempool.cs);
+    if (!pcoinsTip->GetName(nameSpace, key, data)) {
+      std::vector<std::tuple<valtype, valtype, valtype, uint256>> unconfirmedKeyValueList;
+      valtype val;
+      if (!mempool.getUnconfirmedKeyValue(nameSpace, key, val) || val.size() == 0) {
+        throw JSONRPCError (RPC_TRANSACTION_ERROR, "key not found");
+      }
+    }
+  }
+
+  EnsureWalletIsUnlocked(pwallet);
+
+  COutput output;
+  std::string kevaNamespce = namespaceStr;
+  if (!pwallet->FindKevaCoin(output, kevaNamespce)) {
+    throw JSONRPCError (RPC_TRANSACTION_ERROR, "this namespace can not be updated");
+  }
+  const COutPoint outp(output.tx->GetHash(), output.i);
+  const CTxIn txIn(outp);
+
+  CReserveKey keyName(pwallet);
+  CPubKey pubKeyReserve;
+  const bool ok = keyName.GetReservedKey(pubKeyReserve, true);
+  assert(ok);
+  bool usedKey = false;
+
+  CScript addrName;
+  usedKey = true;
+  addrName = GetScriptForDestination(pubKeyReserve.GetID());
+
+  const CScript kevaScript = CKevaScript::buildKevaDelete(addrName, nameSpace, key);
+
+  CCoinControl coinControl;
+  CWalletTx wtx;
+  valtype empty;
+  SendMoneyToScript(pwallet, kevaScript, &txIn, empty,
+                     KEVA_LOCKED_AMOUNT, false, wtx, coinControl);
+
+  if (usedKey) {
+    keyName.KeepKey();
   }
 
   return wtx.GetHash().GetHex();
@@ -392,6 +485,7 @@ UniValue keva_pending(const JSONRPCRequest& request)
   UniValue arr(UniValue::VARR);
   const std::string opKevaNamepsace = "keva_namespace";
   const std::string opKevaPut       = "keva_put";
+  const std::string opKevaDelete    = "keva_delete";
 
   for (auto entry: unconfirmedNamespaces) {
     UniValue obj(UniValue::VOBJ);
@@ -404,11 +498,19 @@ UniValue keva_pending(const JSONRPCRequest& request)
 
   for (auto entry: unconfirmedKeyValueList) {
     UniValue obj(UniValue::VOBJ);
-    obj.pushKV("op", opKevaPut);
-    obj.pushKV("namespace", EncodeBase58Check(std::get<0>(entry)));
-    obj.pushKV("key", ValtypeToString(std::get<1>(entry)));
-    obj.pushKV("value", ValtypeToString(std::get<2>(entry)));
-    obj.pushKV("txid", std::get<3>(entry).ToString());
+    const valtype val = std::get<2>(entry);
+    if (val.size() > 0) {
+      obj.pushKV("op", opKevaPut);
+      obj.pushKV("namespace", EncodeBase58Check(std::get<0>(entry)));
+      obj.pushKV("key", ValtypeToString(std::get<1>(entry)));
+      obj.pushKV("value", ValtypeToString(std::get<2>(entry)));
+      obj.pushKV("txid", std::get<3>(entry).ToString());
+    } else {
+      obj.pushKV("op", opKevaDelete);
+      obj.pushKV("namespace", EncodeBase58Check(std::get<0>(entry)));
+      obj.pushKV("key", ValtypeToString(std::get<1>(entry)));
+      obj.pushKV("txid", std::get<3>(entry).ToString());
+    }
     arr.push_back(obj);
   }
 

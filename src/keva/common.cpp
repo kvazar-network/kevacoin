@@ -22,7 +22,9 @@ CKevaData::fromScript (unsigned h, const COutPoint& out,
                        const CKevaScript& script)
 {
   if (script.isAnyUpdate()) {
-    value = script.getOpValue();
+    if (!script.isDelete()) {
+      value = script.getOpValue();
+    }
   } else if (script.isNamespaceRegistration()) {
     value = script.getOpNamespaceDisplayName();
   } else {
@@ -212,14 +214,14 @@ CKevaCache::set(const valtype& nameSpace, const valtype& key, const CKevaData& d
   auto name = std::make_tuple(nameSpace, key);
   const std::set<NamespaceKeyType>::iterator di = deleted.find(name);
   if (di != deleted.end()) {
-    deleted.erase (di);
+    deleted.erase(di);
   }
 
   const EntryMap::iterator ei = entries.find(name);
-  if (ei != entries.end ())
+  if (ei != entries.end())
     ei->second = data;
   else
-    entries.insert (std::make_pair(name, data));
+    entries.insert(std::make_pair(name, data));
 }
 
 void

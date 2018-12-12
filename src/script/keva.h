@@ -66,6 +66,9 @@ public:
       case OP_KEVA_NAMESPACE:
         return true;
 
+      case OP_KEVA_DELETE:
+        return true;
+
       case OP_NOP:
         return false;
 
@@ -94,6 +97,9 @@ public:
       case OP_KEVA_PUT:
         return op;
 
+      case OP_KEVA_DELETE:
+        return op;
+
       case OP_KEVA_NAMESPACE:
         return op;
 
@@ -115,6 +121,9 @@ public:
       case OP_KEVA_PUT:
         return false;
 
+      case OP_KEVA_DELETE:
+        return false;
+
       default:
         assert(false);
     }
@@ -133,6 +142,9 @@ public:
       case OP_KEVA_PUT:
         return true;
 
+      case OP_KEVA_DELETE:
+        return true;
+
       default:
         assert(false);
     }
@@ -147,6 +159,9 @@ public:
   {
     switch (op) {
       case OP_KEVA_PUT:
+        return args[0];
+
+      case OP_KEVA_DELETE:
         return args[0];
 
       case OP_KEVA_NAMESPACE:
@@ -184,6 +199,9 @@ public:
       case OP_KEVA_PUT:
         return args[1];
 
+      case OP_KEVA_DELETE:
+        return args[1];
+
       default:
         assert(false);
     }
@@ -207,6 +225,16 @@ public:
   }
 
   /**
+   * Return the keva operation value.  This call is only valid for
+   * OP_KEVA_PUT.
+   * @return The keva operation's value.
+   */
+  inline bool isDelete() const
+  {
+    return (op == OP_KEVA_DELETE);
+  }
+
+  /**
    * Check if the given script is a keva script.  This is a utility method.
    * @param script The script to parse.
    * @return True iff it is a name script.
@@ -215,7 +243,7 @@ public:
   isKevaScript (const CScript& script)
   {
     const CKevaScript op(script);
-    return op.isKevaOp ();
+    return op.isKevaOp();
   }
 
  /**
@@ -235,6 +263,15 @@ public:
    */
   static CScript buildKevaPut(const CScript& addr, const valtype& nameSpace,
                                 const valtype& key, const valtype& value);
+
+
+  /**
+   * Build a KEVA_DELETE transaction.
+   * @param addr The address script to append.
+   * @param hash The hash to use.
+   * @return The full KEVA_DELETE script.
+   */
+  static CScript buildKevaDelete(const CScript& addr, const valtype& nameSpace, const valtype& key);
 
 
   static CScript replaceKevaNamespace(const CScript& oldScript, const uint256& txId, valtype& kaveNamespace, const CChainParams& params);

@@ -3593,6 +3593,7 @@ extern UniValue rescanblockchain(const JSONRPCRequest& request);
 // in rpckeva.cpp
 extern UniValue keva_namespace(const JSONRPCRequest& request);
 extern UniValue keva_put(const JSONRPCRequest& request);
+extern UniValue keva_delete(const JSONRPCRequest& request);
 extern UniValue keva_get(const JSONRPCRequest& request);
 extern UniValue keva_list_namespaces(const JSONRPCRequest& request);
 extern UniValue keva_pending(const JSONRPCRequest& request);
@@ -3658,6 +3659,7 @@ static const CRPCCommand commands[] =
     { "kevacoin",           "keva_namespace",           &keva_namespace,           {"display_name"} },
     { "kevacoin",           "keva_list_namespaces",     &keva_list_namespaces,     {} },
     { "kevacoin",           "keva_put",                 &keva_put,                 {"namespace", "key", "value"} },
+    { "kevacoin",           "keva_delete",              &keva_delete,              {"namespace", "key"} },
     { "kevacoin",           "keva_get",                 &keva_get,                 {"namespace", "key"} },
     { "kevacoin",           "keva_pending",             &keva_pending,             {"namespace"} }
 };

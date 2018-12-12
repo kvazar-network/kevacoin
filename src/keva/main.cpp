@@ -58,6 +58,12 @@ CKevaMemPool::addUnchecked (const uint256& hash, const CTxMemPoolEntry& entry)
     const valtype& nameSpace = entry.getNamespace();
     listUnconfirmedKeyValues.push_back(std::make_tuple(hash, nameSpace, entry.getKey(), entry.getValue()));
   }
+
+  if (entry.isKeyDelete()) {
+    const valtype& nameSpace = entry.getNamespace();
+    const valtype& empty = ValtypeFromString("");
+    listUnconfirmedKeyValues.push_back(std::make_tuple(hash, nameSpace, entry.getKey(), empty));
+  }
 }
 
 bool
@@ -113,7 +119,7 @@ void CKevaMemPool::remove(const CTxMemPoolEntry& entry)
     }
   }
 
-  if (entry.isKeyUpdate()) {
+  if (entry.isKeyUpdate() || entry.isKeyDelete()) {
     auto hash = entry.GetTx().GetHash();
     for (auto iter = listUnconfirmedKeyValues.begin(); iter != listUnconfirmedKeyValues.end(); ++iter) {
       if (std::get<0>(*iter) == hash) {
@@ -186,6 +192,11 @@ CKevaMemPool::checkTx(const CTransaction& tx) const
       }
 
       case OP_KEVA_PUT:
+      {
+        break;
+      }
+
+      case OP_KEVA_DELETE:
       {
         break;
       }
@@ -329,19 +340,29 @@ CheckKevaTransaction (const CTransaction& tx, unsigned nHeight,
     return state.Invalid (error ("CheckKevaTransaction: key too long"));
   }
 
-  if (nameOpOut.getOpValue().size () > MAX_VALUE_LENGTH) {
-    return state.Invalid (error ("CheckKevaTransaction: value too long"));
+  const valtype& nameSpace = nameOpOut.getOpNamespace();
+  if (nameSpace != nameOpIn.getOpNamespace()) {
+    return state.Invalid(error("%s: KEVA_PUT namespace mismatch to prev tx found in %s", __func__, txid));
   }
 
-  /* Process KEVA_PUT next.  */
-  const valtype& nameSpace = nameOpOut.getOpNamespace();
   if (nameOpOut.getKevaOp() == OP_KEVA_PUT) {
+    if (nameOpOut.getOpValue().size () > MAX_VALUE_LENGTH) {
+      return state.Invalid (error ("CheckKevaTransaction: value too long"));
+    }
+
     if (!nameOpIn.isAnyUpdate() && !nameOpIn.isNamespaceRegistration()) {
       return state.Invalid(error("CheckKevaTransaction: KEVA_PUT with prev input that is no update"));
     }
+  }
 
-    if (nameSpace != nameOpIn.getOpNamespace()) {
-      return state.Invalid(error("%s: KEVA_PUT namespace mismatch to prev tx found in %s", __func__, txid));
+  if (nameOpOut.getKevaOp() == OP_KEVA_DELETE) {
+    if (!nameOpIn.isAnyUpdate() && !nameOpIn.isNamespaceRegistration()) {
+      return state.Invalid(error("CheckKevaTransaction: KEVA_DELETE with prev input that is no update"));
+    }
+    CKevaData data;
+    const bool hasKey = view.GetName(nameSpace, nameOpOut.getOpKey(), data);
+    if (!hasKey) {
+      return state.Invalid(error("CheckKevaTransaction: no key to delete"));
     }
   }
   return true;
@@ -351,7 +372,7 @@ void ApplyKevaTransaction(const CTransaction& tx, unsigned nHeight,
                         CCoinsViewCache& view, CBlockUndo& undo)
 {
   assert (nHeight != MEMPOOL_HEIGHT);
-  if (!tx.IsKevacoin ())
+  if (!tx.IsKevacoin())
     return;
 
   /* Changes are encoded in the outputs.  We don't have to do any checks,
@@ -362,7 +383,6 @@ void ApplyKevaTransaction(const CTransaction& tx, unsigned nHeight,
     if (!op.isKevaOp()) {
       continue;
     }
-
     if (op.isNamespaceRegistration()) {
       const valtype& nameSpace = op.getOpNamespace();
       const valtype& displayName = op.getOpNamespaceDisplayName();
@@ -389,8 +409,12 @@ void ApplyKevaTransaction(const CTransaction& tx, unsigned nHeight,
       undo.vkevaundo.push_back(opUndo);
 
       CKevaData data;
-      data.fromScript(nHeight, COutPoint(tx.GetHash(), i), op);
-      view.SetName(nameSpace, key, data, false);
+      if (op.isDelete()) {
+        view.DeleteName(nameSpace, key);
+      } else {
+        data.fromScript(nHeight, COutPoint(tx.GetHash(), i), op);
+        view.SetName(nameSpace, key, data, false);
+      }
     }
   }
 }

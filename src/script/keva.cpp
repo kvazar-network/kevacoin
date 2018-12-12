@@ -55,6 +55,12 @@ CKevaScript::CKevaScript (const CScript& script)
       }
       break;
 
+    case OP_KEVA_DELETE:
+      if (args.size() != 2) {
+        return;
+      }
+      break;
+
     case OP_KEVA_NAMESPACE:
       if (args.size() != 2) {
         return;
@@ -75,6 +81,15 @@ CKevaScript::buildKevaPut(const CScript& addr, const valtype& nameSpace,
 {
   CScript prefix;
   prefix << OP_KEVA_PUT << nameSpace << key << value << OP_2DROP << OP_DROP;
+
+  return prefix + addr;
+}
+
+CScript
+CKevaScript::buildKevaDelete(const CScript& addr, const valtype& nameSpace, const valtype& key)
+{
+  CScript prefix;
+  prefix << OP_KEVA_DELETE << nameSpace << key << OP_2DROP;
 
   return prefix + addr;
 }
