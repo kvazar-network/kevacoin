@@ -359,11 +359,6 @@ CheckKevaTransaction (const CTransaction& tx, unsigned nHeight,
     if (!nameOpIn.isAnyUpdate() && !nameOpIn.isNamespaceRegistration()) {
       return state.Invalid(error("CheckKevaTransaction: KEVA_DELETE with prev input that is no update"));
     }
-    CKevaData data;
-    const bool hasKey = view.GetName(nameSpace, nameOpOut.getOpKey(), data);
-    if (!hasKey) {
-      return state.Invalid(error("CheckKevaTransaction: no key to delete"));
-    }
   }
   return true;
 }
@@ -410,7 +405,10 @@ void ApplyKevaTransaction(const CTransaction& tx, unsigned nHeight,
 
       CKevaData data;
       if (op.isDelete()) {
-        view.DeleteName(nameSpace, key);
+        CKevaData oldData;
+        if (view.GetName(nameSpace, key, oldData)) {
+          view.DeleteName(nameSpace, key);
+        }
       } else {
         data.fromScript(nHeight, COutPoint(tx.GetHash(), i), op);
         view.SetName(nameSpace, key, data, false);

@@ -327,16 +327,23 @@ UniValue keva_delete(const JSONRPCRequest& request)
     throw JSONRPCError (RPC_INVALID_PARAMETER, "the key is too long");
   }
 
+  bool hasKey = false;
   CKevaData data;
   {
     LOCK2(cs_main, mempool.cs);
-    if (!pcoinsTip->GetName(nameSpace, key, data)) {
-      std::vector<std::tuple<valtype, valtype, valtype, uint256>> unconfirmedKeyValueList;
-      valtype val;
-      if (!mempool.getUnconfirmedKeyValue(nameSpace, key, val) || val.size() == 0) {
-        throw JSONRPCError (RPC_TRANSACTION_ERROR, "key not found");
+    std::vector<std::tuple<valtype, valtype, valtype, uint256>> unconfirmedKeyValueList;
+    valtype val;
+    if (mempool.getUnconfirmedKeyValue(nameSpace, key, val)) {
+      if (val.size() > 0) {
+        hasKey = true;
       }
+    } else if (pcoinsTip->GetName(nameSpace, key, data)) {
+      hasKey = true;
     }
+  }
+
+  if (!hasKey) {
+    throw JSONRPCError (RPC_TRANSACTION_ERROR, "key not found");
   }
 
   EnsureWalletIsUnlocked(pwallet);
