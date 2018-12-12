@@ -184,8 +184,8 @@ enum opcodetype
     OP_NOP10 = 0xb9,
 
     // Keva
-    OP_KEVA_PUT=0xd0,
-    OP_KEVA_NAMESPACE=0xd1,
+    OP_KEVA_NAMESPACE=0xd0,
+    OP_KEVA_PUT=0xd1,
     OP_KEVA_DELETE=0xd2,
 
     // template matching params

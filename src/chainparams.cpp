@@ -106,13 +106,15 @@ public:
          * The characters are rarely used upper ASCII, not valid as UTF-8, and produce
          * a large 32-bit integer with any alignment.
          */
-         pchMessageStart[0] = 0x6a;
-         pchMessageStart[1] = 0xc6;
-         pchMessageStart[2] = 0x07;
-         pchMessageStart[3] = 0x9a;
+        pchMessageStart[0] = 0x6a;
+        pchMessageStart[1] = 0xc6;
+        pchMessageStart[2] = 0x07;
+        pchMessageStart[3] = 0x9a;
         nDefaultPort = 9333;
         nPruneAfterHeight = 100000;
-        genesis = CreateGenesisBlock(1543789622, 3316, 0x1f0ffff0, 1, 50 * COIN);
+
+        const uint32_t genesisBlockReward = 0.00001 * COIN; // A small reward for the core developers :-)
+        genesis = CreateGenesisBlock(1543789622, 3302, 0x1f0ffff0, 1, genesisBlockReward);
 
 #if 0
         arith_uint256 hashTarget = arith_uint256().SetCompact(genesis.nBits);
@@ -123,7 +125,9 @@ public:
             printf("old mainnet genesis hash:  %s\n", hashGenesisBlock.ToString().c_str());
             // deliberately empty for loop finds nonce value.
             for(genesis.nNonce = 500; hashTarget < UintToArith256(genesis.GetPoWHash()); genesis.nNonce++) {
-                printf("nNonce: %d\n\n", genesis.nNonce);
+                if ((genesis.nNonce % 500) == 1) {
+                    printf("nNonce: %d\n\n", genesis.nNonce);
+                }
             }
             printf("new mainnet genesis merkle root: %s\n", genesis.hashMerkleRoot.ToString().c_str());
             printf("new mainnet genesis nonce: %d\n", genesis.nNonce);
@@ -132,8 +136,8 @@ public:
 #endif
 
         consensus.hashGenesisBlock = genesis.GetHash();
-        assert(consensus.hashGenesisBlock == uint256S("0x223df7d593214c56f16244fdbdecba8a2d1d5a7500fade6542f00812c7a70a5d"));
-        assert(genesis.hashMerkleRoot == uint256S("0x13ec98c3307b8e6b67b91c605c7347916a99f9dfde7b5d88365aaef322192314"));
+        assert(consensus.hashGenesisBlock == uint256S("0x77c037d74bc51b535629537c8e9530340ea12272f43d261a0ee59e8f2ad0e6f6"));
+        assert(genesis.hashMerkleRoot == uint256S("0xb21d4680875c0e472b7dbf3dbab2aaeb2dbbb5fa8b154f978b5ea0706d1fd5b9"));
 
         // Note that of those with the service bits flag, most only support a subset of possible options
         vSeeds.emplace_back("dnsseed.kevacoin.org");
