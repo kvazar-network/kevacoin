@@ -13,7 +13,7 @@ std::vector<uint256> CCoinsView::GetHeadBlocks() const { return std::vector<uint
 bool CCoinsView::GetNamespace(const valtype &nameSpace, CKevaData &data) const { return false; }
 bool CCoinsView::GetName(const valtype &nameSpace, const valtype &key, CKevaData &data) const { return false; }
 bool CCoinsView::GetNamesForHeight(unsigned nHeight, std::set<valtype>& names) const { return false; }
-CNameIterator* CCoinsView::IterateNames() const { assert (false); }
+CKevaIterator* CCoinsView::IterateKeys(const valtype& nameSpace) const { assert (false); }
 bool CCoinsView::BatchWrite(CCoinsMap &mapCoins, const uint256 &hashBlock, const CKevaCache &names) { return false; }
 CCoinsViewCursor *CCoinsView::Cursor() const { return nullptr; }
 bool CCoinsView::ValidateNameDB() const { return false; }
@@ -38,7 +38,7 @@ bool CCoinsViewBacked::GetName(const valtype &nameSpace, const valtype &key, CKe
 bool CCoinsViewBacked::GetNamesForHeight(unsigned nHeight, std::set<valtype>& names) const {
     return base->GetNamesForHeight(nHeight, names);
 }
-CNameIterator* CCoinsViewBacked::IterateNames() const { return base->IterateNames(); }
+CKevaIterator* CCoinsViewBacked::IterateKeys(const valtype& nameSpace) const { return base->IterateKeys(nameSpace); }
 void CCoinsViewBacked::SetBackend(CCoinsView &viewIn) { base = &viewIn; }
 bool CCoinsViewBacked::BatchWrite(CCoinsMap &mapCoins, const uint256 &hashBlock, const CKevaCache &names) {
     return base->BatchWrite(mapCoins, hashBlock, names);
@@ -190,8 +190,8 @@ bool CCoinsViewCache::GetNamesForHeight(unsigned nHeight, std::set<valtype>& nam
     return true;
 }
 
-CNameIterator* CCoinsViewCache::IterateNames() const {
-    return cacheNames.iterateNames(base->IterateNames());
+CKevaIterator* CCoinsViewCache::IterateKeys(const valtype& nameSpace) const {
+    return cacheNames.iterateKeys(base->IterateKeys(nameSpace));
 }
 
 /* undo is set if the change is due to disconnecting blocks / going back in

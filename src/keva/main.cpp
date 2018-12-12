@@ -2,7 +2,7 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-// Copyright (c) 2018 Jianping Wu
+// Copyright (c) 2018 the Kevacoin Core Developers
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -133,27 +133,6 @@ void CKevaMemPool::remove(const CTxMemPoolEntry& entry)
 void
 CKevaMemPool::removeConflicts(const CTransaction& tx)
 {
-  // JWU TODO: is this required at all?
-#if 0
-  AssertLockHeld (pool.cs);
-
-  if (!tx.IsKevacoin ())
-    return;
-
-  for (const auto& txout : tx.vout) {
-    const CKevaScript nameOp(txout.scriptPubKey);
-    if (nameOp.isKevaOp() && nameOp.getKevaOp() == OP_KEVA_PUT) {
-      const valtype& nameSpace = nameOp.getOpNamespace();
-      const NamespaceTxMap::const_iterator mit = mapNamespaceRegs.find(nameSpace);
-      if (mit != mapNamespaceRegs.end()) {
-        const CTxMemPool::txiter mit2 = pool.mapTx.find(mit->second);
-        assert(mit2 != pool.mapTx.end());
-        pool.removeRecursive (mit2->GetTx(),
-                              MemPoolRemovalReason::KEVA_CONFLICT);
-      }
-    }
-  }
-#endif
 }
 
 bool CKevaMemPool::validateNamespace(const CTransaction& tx, const valtype& nameSpace) const

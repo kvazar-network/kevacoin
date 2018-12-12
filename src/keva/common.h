@@ -2,7 +2,7 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-// Copyright (c) 2018 Jianping Wu
+// Copyright (c) 2018
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -246,37 +246,47 @@ public:
 };
 
 /* ************************************************************************** */
-/* CNameIterator.  */
+/* CKevaIterator.  */
 
 /**
  * Interface for iterators over the name database.
  */
-class CNameIterator
+class CKevaIterator
 {
+protected:
+  const valtype& nameSpace;
 
 public:
 
+  CKevaIterator(const valtype& ns) :nameSpace(ns)
+  {}
+
   // Virtual destructor in case subclasses need them.
-  virtual ~CNameIterator ();
+  virtual ~CKevaIterator();
+
+  const valtype& getNamespace() {
+    return nameSpace;
+  }
 
   /**
    * Seek to a given lower bound.
-   * @param start The name to seek to.
+   * @param start The key to seek to.
    */
-  virtual void seek (const valtype& name) = 0;
+  virtual void seek(const valtype& start) = 0;
 
   /**
-   * Get the next name.  Returns false if no more names are available.
-   * @param name Put the name here.
-   * @param data Put the name's data here.
-   * @return True if successful, false if no more names.
+   * Get the next key.  Returns false if no more keys are available.
+   * @param nameSpace Put the namespace here.
+   * @param key Put the key here.
+   * @param data Put the key's data here.
+   * @return True if successful, false if no more keys.
    */
-  virtual bool next (valtype& name, CKevaData& data) = 0;
+  virtual bool next(valtype& key, CKevaData& data) = 0;
 
 };
 
 /* ************************************************************************** */
-/* CNameCache.  */
+/* CKevaCache.  */
 
 /**
  * Cache / record of updates to the name database.  In addition to
@@ -293,7 +303,7 @@ private:
    * This is used to sort the cache entry map in the same way as the
    * database is sorted.
    */
-  class NameComparator
+  class KeyComparator
   {
   public:
     inline bool operator() (const std::tuple<valtype, valtype> a,
@@ -314,7 +324,7 @@ public:
    * Type of name entry map.  This is public because it is also used
    * by the unit tests.
    */
-  typedef std::map<std::tuple<valtype, valtype>, CKevaData, NameComparator> EntryMap;
+  typedef std::map<std::tuple<valtype, valtype>, CKevaData, KeyComparator> EntryMap;
 
   typedef std::tuple<valtype, valtype> NamespaceKeyType;
 
@@ -326,7 +336,7 @@ private:
   /** Deleted names.  */
   std::set<NamespaceKeyType> deleted;
 
-  friend class CCacheNameIterator;
+  friend class CCacheKeyIterator;
 
 public:
 
@@ -379,7 +389,7 @@ public:
   /* Return a name iterator that combines a "base" iterator with the changes
      made to it according to the cache.  The base iterator is taken
      ownership of.  */
-  CNameIterator* iterateNames (CNameIterator* base) const;
+  CKevaIterator* iterateKeys(CKevaIterator* base) const;
 
   /* Query the cached changes to the expire index.  In particular,
      for a given height and a given set of names that were indexed to

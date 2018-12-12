@@ -2,7 +2,7 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-// Copyright (c) 2018 Jianping Wu
+// Copyright (c) 2018 the Kevacoin Core Developers
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -10,9 +10,6 @@
 
 #include <script/keva.h>
 
-typedef std::vector<unsigned char> valtype;
-
-bool fNameHistory = false;
 
 /* ************************************************************************** */
 /* CKevaData.  */
@@ -36,9 +33,9 @@ CKevaData::fromScript (unsigned h, const COutPoint& out,
 }
 
 /* ************************************************************************** */
-/* CNameIterator.  */
+/* CKevaIterator.  */
 
-CNameIterator::~CNameIterator ()
+CKevaIterator::~CKevaIterator ()
 {
   /* Nothing to be done here.  This may be overwritten by
      subclasses if they need a destructor.  */
@@ -47,8 +44,7 @@ CNameIterator::~CNameIterator ()
 /* ************************************************************************** */
 /* CKevaCacheNameIterator.  */
 
-// JWU TODO: this doesn't work at all!!!!
-class CCacheNameIterator : public CNameIterator
+class CCacheKeyIterator : public CKevaIterator
 {
 
 private:
@@ -57,12 +53,14 @@ private:
   const CKevaCache& cache;
 
   /** Base iterator to combine with the cache.  */
-  CNameIterator* base;
+  CKevaIterator* base;
 
   /** Whether or not the base iterator has more entries.  */
   bool baseHasMore;
-  /** "Next" name of the base iterator.  */
-  valtype baseName;
+
+  /** "Next" key of the base iterator.  */
+  valtype baseKey;
+
   /** "Next" data of the base iterator.  */
   CKevaData baseData;
 
@@ -72,7 +70,7 @@ private:
   /* Call the base iterator's next() routine to fill in the internal
      "cache" for the next entry.  This already skips entries that are
      marked as deleted in the cache.  */
-  void advanceBaseIterator ();
+  void advanceBaseIterator();
 
 public:
 
@@ -81,104 +79,92 @@ public:
    * @param c The cache object to use.
    * @param b The base iterator.
    */
-  CCacheNameIterator (const CKevaCache& c, CNameIterator* b);
+  CCacheKeyIterator(const CKevaCache& c, CKevaIterator* b);
 
   /* Destruct, this deletes also the base iterator.  */
-  ~CCacheNameIterator ();
+  ~CCacheKeyIterator();
 
   /* Implement iterator methods.  */
-  void seek (const valtype& name);
-  bool next (valtype& name, CKevaData& data);
+  void seek(const valtype& key);
+  bool next(valtype& key, CKevaData& data);
 
 };
 
-CCacheNameIterator::CCacheNameIterator (const CKevaCache& c, CNameIterator* b)
-  : cache(c), base(b)
+CCacheKeyIterator::CCacheKeyIterator(const CKevaCache& c, CKevaIterator* b)
+  : cache(c), base(b), CKevaIterator(b->getNamespace())
 {
   /* Add a seek-to-start to ensure that everything is consistent.  This call
      may be superfluous if we seek to another position afterwards anyway,
      but it should also not hurt too much.  */
-  seek (valtype ());
+  seek(valtype());
 }
 
-CCacheNameIterator::~CCacheNameIterator ()
+CCacheKeyIterator::~CCacheKeyIterator()
 {
   delete base;
 }
 
 void
-CCacheNameIterator::advanceBaseIterator ()
+CCacheKeyIterator::advanceBaseIterator()
 {
   assert (baseHasMore);
-  do
-    baseHasMore = base->next (baseName, baseData);
-  while (baseHasMore && cache.isDeleted(baseName, baseName));
+  do {
+    baseHasMore = base->next(baseKey, baseData);
+  } while (baseHasMore && cache.isDeleted(nameSpace, baseKey));
 }
 
 void
-CCacheNameIterator::seek(const valtype& start)
+CCacheKeyIterator::seek(const valtype& start)
 {
-  // JWU TODO: fix this!
-#if 0
-  cacheIter = cache.entries.lower_bound(start);
-#endif
+  cacheIter = cache.entries.lower_bound(std::make_tuple(nameSpace, start));
   base->seek(start);
 
   baseHasMore = true;
   advanceBaseIterator();
 }
 
-bool CCacheNameIterator::next (valtype& name, CKevaData& data)
+bool CCacheKeyIterator::next(valtype& key, CKevaData& data)
 {
-#if 0
-  // JWU TODO: fix this!
-
   /* Exit early if no more data is available in either the cache
      nor the base iterator.  */
-  if (!baseHasMore && cacheIter == cache.entries.end ())
+  if (!baseHasMore && cacheIter == cache.entries.end())
     return false;
 
   /* Determine which source to use for the next.  */
   bool useBase;
   if (!baseHasMore)
     useBase = false;
-  else if (cacheIter == cache.entries.end ())
+  else if (cacheIter == cache.entries.end())
     useBase = true;
-  else
-    {
-      /* A special case is when both iterators are equal.  In this case,
-         we want to use the cached version.  We also have to advance
-         the base iterator.  */
-      if (baseName == cacheIter->first)
-        advanceBaseIterator ();
+  else {
+    /* A special case is when both iterators are equal.  In this case,
+        we want to use the cached version.  We also have to advance
+        the base iterator.  */
+    if (baseKey == std::get<1>(cacheIter->first))
+      advanceBaseIterator ();
 
-      /* Due to advancing the base iterator above, it may happen that
-         no more base entries are present.  Handle this gracefully.  */
-      if (!baseHasMore)
-        useBase = false;
-      else
-        {
-          assert (baseName != cacheIter->first);
+    /* Due to advancing the base iterator above, it may happen that
+        no more base entries are present.  Handle this gracefully.  */
+    if (!baseHasMore)
+      useBase = false;
+    else {
+      assert(baseKey != std::get<1>(cacheIter->first));
 
-          CKevaCache::NameComparator cmp;
-          useBase = cmp (baseName, cacheIter->first);
-        }
+      CKevaCache::KeyComparator cmp;
+      useBase = cmp(std::make_tuple(nameSpace, baseKey), cacheIter->first);
     }
+  }
 
   /* Use the correct source now and advance it.  */
-  if (useBase)
-    {
-      name = baseName;
-      data = baseData;
-      advanceBaseIterator ();
-    }
-  else
-    {
-      name = cacheIter->first;
-      data = cacheIter->second;
-      ++cacheIter;
-    }
-#endif
+  if (useBase) {
+    key = baseKey;
+    data = baseData;
+    advanceBaseIterator();
+  } else {
+    key = std::get<1>(cacheIter->first);
+    data = cacheIter->second;
+    ++cacheIter;
+  }
   return true;
 }
 
@@ -235,10 +221,10 @@ CKevaCache::remove(const valtype& nameSpace, const valtype& key)
   deleted.insert(name);
 }
 
-CNameIterator*
-CKevaCache::iterateNames(CNameIterator* base) const
+CKevaIterator*
+CKevaCache::iterateKeys(CKevaIterator* base) const
 {
-  return new CCacheNameIterator (*this, base);
+  return new CCacheKeyIterator(*this, base);
 }
 
 void

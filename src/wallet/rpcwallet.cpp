@@ -3597,6 +3597,7 @@ extern UniValue keva_delete(const JSONRPCRequest& request);
 extern UniValue keva_get(const JSONRPCRequest& request);
 extern UniValue keva_list_namespaces(const JSONRPCRequest& request);
 extern UniValue keva_pending(const JSONRPCRequest& request);
+extern UniValue keva_filter(const JSONRPCRequest& request);
 
 static const CRPCCommand commands[] =
 { //  category              name                        actor (function)           argNames
@@ -3661,7 +3662,8 @@ static const CRPCCommand commands[] =
     { "kevacoin",           "keva_put",                 &keva_put,                 {"namespace", "key", "value"} },
     { "kevacoin",           "keva_delete",              &keva_delete,              {"namespace", "key"} },
     { "kevacoin",           "keva_get",                 &keva_get,                 {"namespace", "key"} },
-    { "kevacoin",           "keva_pending",             &keva_pending,             {"namespace"} }
+    { "kevacoin",           "keva_pending",             &keva_pending,             {"namespace"} },
+    { "kevacoin",           "keva_filter",              &keva_filter,              {"namespace", "regexp", "from", "nb", "stat"} }
 };
 
 void RegisterWalletRPCCommands(CRPCTable &t)

@@ -84,7 +84,7 @@ std::vector<uint256> CCoinsViewDB::GetHeadBlocks() const {
     return vhashHeadBlocks;
 }
 
-class CDbNameIterator : public CNameIterator
+class CDbKeyIterator : public CKevaIterator
 {
 
 private:
@@ -94,42 +94,43 @@ private:
 
 public:
 
-    ~CDbNameIterator();
+    ~CDbKeyIterator();
 
     /**
      * Construct a new name iterator for the database.
      * @param db The database to create the iterator for.
      */
-    CDbNameIterator(const CDBWrapper& db);
+    CDbKeyIterator(const CDBWrapper& db, const valtype& nameSpace);
 
     /* Implement iterator methods.  */
     void seek(const valtype& start);
-    bool next(valtype& name, CKevaData& data);
+    bool next(valtype& key, CKevaData& data);
 
 };
 
-CDbNameIterator::~CDbNameIterator() {
+CDbKeyIterator::~CDbKeyIterator() {
     delete iter;
 }
 
-CDbNameIterator::CDbNameIterator(const CDBWrapper& db)
-    : iter(const_cast<CDBWrapper*>(&db)->NewIterator())
+CDbKeyIterator::CDbKeyIterator(const CDBWrapper& db, const valtype& ns)
+    : iter(const_cast<CDBWrapper*>(&db)->NewIterator()), CKevaIterator(ns)
 {
     seek(valtype());
 }
 
-void CDbNameIterator::seek(const valtype& start) {
-    iter->Seek(std::make_pair(DB_NAME, start));
+void CDbKeyIterator::seek(const valtype& start) {
+    iter->Seek(std::make_pair(DB_NAME, std::make_pair(nameSpace, start)));
 }
 
-bool CDbNameIterator::next(valtype& name, CKevaData& data) {
+bool CDbKeyIterator::next(valtype& key, CKevaData& data) {
     if (!iter->Valid())
         return false;
 
-    std::pair<char, valtype> key;
-    if (!iter->GetKey(key) || key.first != DB_NAME)
+    std::pair<char, std::pair<valtype, valtype>> curKey;
+    if (!iter->GetKey(curKey) || curKey.first != DB_NAME)
         return false;
-    name = key.second;
+
+    key = std::get<1>(curKey.second);
 
     if (!iter->GetValue(data)) {
         return error("%s : failed to read data from iterator", __func__);
@@ -139,8 +140,8 @@ bool CDbNameIterator::next(valtype& name, CKevaData& data) {
     return true;
 }
 
-CNameIterator* CCoinsViewDB::IterateNames() const {
-    return new CDbNameIterator(db);
+CKevaIterator* CCoinsViewDB::IterateKeys(const valtype& nameSpace) const {
+    return new CDbKeyIterator(db, nameSpace);
 }
 
 bool CCoinsViewDB::GetNamespace(const valtype &nameSpace, CKevaData &data) const {

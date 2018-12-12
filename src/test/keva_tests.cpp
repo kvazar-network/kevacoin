@@ -180,7 +180,7 @@ private:
   /**
    * "Fake" name iterator returned.
    */
-  class Iterator : public CNameIterator
+  class Iterator : public CKevaIterator
   {
   public:
 
@@ -198,8 +198,8 @@ private:
 
 public:
 
-  CNameIterator*
-  IterateNames() const
+  CKevaIterator*
+  IterateKeys() const
   {
     return new Iterator();
   }
@@ -271,7 +271,7 @@ private:
    * @param iter The iterator to use.
    * @return The resulting entry list.
    */
-  static EntryList getNamesFromIterator (CNameIterator& iter);
+  static EntryList getNamesFromIterator (CKevaIterator& iter);
 
 public:
 
@@ -340,7 +340,7 @@ NameIterationTester::verify (const CCoinsView& view) const
 
   /* Seek the iterator to the end first for "maximum confusion".  This ensures
      that seeking to valtype() works.  */
-  std::unique_ptr<CNameIterator> iter(view.IterateNames());
+  std::unique_ptr<CKevaIterator> iter(view.IterateKeys());
   const valtype end = ValtypeFromString ("zzzzzzzzzzzzzzzz");
   {
     valtype name;
@@ -392,14 +392,14 @@ NameIterationTester::EntryList
 NameIterationTester::getNamesFromView (const CCoinsView& view,
                                        const valtype& start)
 {
-  std::unique_ptr<CNameIterator> iter(view.IterateNames());
+  std::unique_ptr<CKevaIterator> iter(view.IterateKeys());
   iter->seek (start);
 
   return getNamesFromIterator (*iter);
 }
 
 NameIterationTester::EntryList
-NameIterationTester::getNamesFromIterator (CNameIterator& iter)
+NameIterationTester::getNamesFromIterator (CKevaIterator& iter)
 {
   EntryList res;
 
@@ -702,9 +702,6 @@ BOOST_AUTO_TEST_CASE (name_tx_verification)
 
 BOOST_AUTO_TEST_CASE(keva_updates_undo)
 {
-  /* Enable name history to test this on the go.  */
-  fNameHistory = true;
-
   const valtype nameSpace = ValtypeFromString ("database-test-namespace");
   const valtype displayName = ValtypeFromString ("display name");
   const valtype key1 = ValtypeFromString ("key1");
