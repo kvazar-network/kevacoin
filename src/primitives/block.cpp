@@ -23,7 +23,30 @@ uint256 CBlockHeader::GetHash() const
 uint256 CBlockHeader::GetPoWHash() const
 {
     uint256 thash;
-    cn_slow_hash(BEGIN(nVersion), 80, BEGIN(thash), 2, 0);
+    // Convert it to Cryptonight header format.
+    uint8_t cnHeader[76] = {};
+    // Bitcoin header size is 80 bytes, while CN is 76 bytes.
+    // To reduce it to 76, combine nVersion(4 bytes) and hashPrevBlock(32 byte)
+    // into 32 byte SHA2 hash.
+    uint8_t combineHash[32] = {};
+    CSHA256().Write((uint8_t*)BEGIN(nVersion), 36).Finalize(combineHash);
+    memcpy(cnHeader, combineHash, sizeof(combineHash));
+    uint32_t offset = sizeof(combineHash);
+    // Copy 7 bytes of hashMerkleRoot
+    memcpy(cnHeader + offset, BEGIN(nVersion) + 36, 7);
+    offset += 7;
+    // Copy nonce.
+    assert(offset == 39);
+    memcpy(cnHeader + offset, BEGIN(nVersion) + 76, 4);
+    offset += 4;
+    // Copy the rest of hashMerkleRoot (25 bytes)
+    memcpy(cnHeader + offset, BEGIN(nVersion) + 36 + 7, 25);
+    offset += 25;
+    assert(offset == 68);
+    // Copy the rest of the header (timestamp and bits).
+    memcpy(cnHeader + offset, BEGIN(nVersion) + 68, 8);
+    // Compute the CN hash.
+    cn_slow_hash(cnHeader, sizeof(cnHeader), BEGIN(thash), 2, 0);
     return thash;
 }
 
