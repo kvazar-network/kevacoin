@@ -203,9 +203,9 @@ public:
         pchMessageStart[3] = 0xe4;
         nDefaultPort = 19335;
         nPruneAfterHeight = 1000;
-        genesis = CreateGenesisBlock(1550789769, 10030, 0x1f0fffff, 1, 500 * COIN);
+        genesis = CreateGenesisBlock(1550900037, 3033, 0x1f0fffff, 1, 500 * COIN);
         consensus.hashGenesisBlock = genesis.GetHash();
-        assert(consensus.hashGenesisBlock == uint256S("e1f4cbc6fa8f2cc528387496120ff3aea1e4cc1e4c31f8af619d5c30a8a326f4"));
+        assert(consensus.hashGenesisBlock == uint256S("584a067cf7ea6daf30c351a46c6b7403d6fdc0e6e953cf7531d11eb7d834546c"));
         assert(genesis.hashMerkleRoot == uint256S("3cf6c3b6da3f4058853ee70369ee43d473aca91ae8fc8f44a645beb21c392d80"));
 
         vFixedSeeds.clear();
