@@ -76,6 +76,8 @@ namespace cryptonote
   bool add_extra_nonce_to_tx_extra(std::vector<uint8_t>& tx_extra, const blobdata& extra_nonce);
   bool append_keva_block_to_extra(std::vector<uint8_t>& tx_extra, const tx_extra_keva_block& keva_block);
   bool get_keva_block_from_extra(const std::vector<uint8_t>& tx_extra, tx_extra_keva_block& keva_block);
+  bool append_keva_blockhash_to_extra(std::vector<uint8_t>& tx_extra, const tx_extra_keva_blockhash& keva_blockhash);
+  bool get_keva_blockhash_from_extra(const std::vector<uint8_t>& tx_extra, tx_extra_keva_blockhash& keva_blockhash);
   bool remove_field_from_tx_extra(std::vector<uint8_t>& tx_extra, const std::type_info &type);
   void set_payment_id_to_tx_extra_nonce(blobdata& extra_nonce, const crypto::hash& payment_id);
   void set_encrypted_payment_id_to_tx_extra_nonce(blobdata& extra_nonce, const crypto::hash8& payment_id);

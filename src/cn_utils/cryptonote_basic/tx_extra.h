@@ -38,10 +38,17 @@
 #define TX_EXTRA_TAG_PUBKEY                 0x01
 #define TX_EXTRA_NONCE                      0x02
 #define TX_EXTRA_MERGE_MINING_TAG           0x03
+
+// TX_EXTRA_KEVA_BLOCK_HASH_TAG is exactly the same as
+// TX_EXTRA_MERGE_MINING_TAG
+#define TX_EXTRA_KEVA_BLOCKHASH_TAG        0x03
+
 #define TX_EXTRA_TAG_ADDITIONAL_PUBKEYS     0x04
 #define TX_EXTRA_MYSTERIOUS_MINERGATE_TAG   0xDE
 
-#define TX_EXTRA_KEVA_BLOCK_TAG             0xa1
+// TX_EXTRA_KEVA_BLOCK_TAG is exactly the same as
+// TX_EXTRA_MYSTERIOUS_MINERGATE_TAG
+#define TX_EXTRA_KEVA_BLOCK_TAG             0xDE
 
 #define TX_EXTRA_NONCE_PAYMENT_ID           0x00
 #define TX_EXTRA_NONCE_ENCRYPTED_PAYMENT_ID 0x01
@@ -162,6 +169,8 @@ namespace cryptonote
     }
   };
 
+  typedef tx_extra_merge_mining_tag tx_extra_keva_blockhash;
+
   // per-output additional tx pubkey for multi-destination transfers involving at least one subaddress
   struct tx_extra_additional_pub_keys
   {
@@ -181,21 +190,13 @@ namespace cryptonote
     END_SERIALIZE()
   };
 
-  struct tx_extra_keva_block
-  {
-    std::string keva_block;
-
-    BEGIN_SERIALIZE()
-      FIELD(keva_block)
-    END_SERIALIZE()
-  };
-
+  typedef tx_extra_mysterious_minergate tx_extra_keva_block;
 
   // tx_extra_field format, except tx_extra_padding and tx_extra_pub_key:
   //   varint tag;
   //   varint size;
   //   varint data[];
-  typedef boost::variant<tx_extra_padding, tx_extra_pub_key, tx_extra_nonce, tx_extra_merge_mining_tag, tx_extra_additional_pub_keys, tx_extra_mysterious_minergate, tx_extra_keva_block> tx_extra_field;
+  typedef boost::variant<tx_extra_padding, tx_extra_pub_key, tx_extra_nonce, tx_extra_merge_mining_tag, tx_extra_additional_pub_keys, tx_extra_mysterious_minergate, tx_extra_keva_block, tx_extra_keva_blockhash> tx_extra_field;
 }
 
 VARIANT_TAG(binary_archive, cryptonote::tx_extra_padding, TX_EXTRA_TAG_PADDING);
@@ -204,4 +205,3 @@ VARIANT_TAG(binary_archive, cryptonote::tx_extra_nonce, TX_EXTRA_NONCE);
 VARIANT_TAG(binary_archive, cryptonote::tx_extra_merge_mining_tag, TX_EXTRA_MERGE_MINING_TAG);
 VARIANT_TAG(binary_archive, cryptonote::tx_extra_additional_pub_keys, TX_EXTRA_TAG_ADDITIONAL_PUBKEYS);
 VARIANT_TAG(binary_archive, cryptonote::tx_extra_mysterious_minergate, TX_EXTRA_MYSTERIOUS_MINERGATE_TAG);
-VARIANT_TAG(binary_archive, cryptonote::tx_extra_keva_block, TX_EXTRA_KEVA_BLOCK_TAG);

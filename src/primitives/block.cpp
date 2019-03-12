@@ -14,6 +14,8 @@
 
 extern "C" void cn_slow_hash(const void *data, size_t length, char *hash, int variant, int prehashed, uint64_t height);
 
+const uint256 CBlockHeader::DIFFICULTY_1 = uint256S("ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff");
+
 uint256 CBlockHeader::GetHash() const
 {
     CHashWriter hashWriter(SER_GETHASH, PROTOCOL_VERSION);
@@ -30,12 +32,42 @@ uint256 CBlockHeader::GetPoWHash() const
         return thash;
     }
 
-    // prev_id of CN header is used to store the kevacoin block hash.
-    // The value of prev_id and block hash must be the same to prove
-    // that PoW has been properly done.
-    if (GetHash() != cnHeader.prev_id) {
-        memset(thash.begin(), 0xff, thash.size());
+    if (!IsAuxpow()) {
+        // prev_id of CN header is used to store the kevacoin block hash.
+        // The value of prev_id and block hash must be the same to prove
+        // that PoW has been properly done.
+        if (GetHash() != cnHeader.prev_id) {
+            return DIFFICULTY_1;
+        }
+        cryptonote::blobdata blob = cryptonote::t_serializable_object_to_blob(cnHeader);
+        cn_slow_hash(blob.data(), blob.size(), BEGIN(thash), 2, 0, 0);
         return thash;
+    }
+
+    // Merged mining.
+    cryptonote::tx_extra_keva_blockhash keva_blockhash;
+    if (!cryptonote::get_keva_blockhash_from_extra(cnHeader.aux_pow->miner_tx.extra, keva_blockhash)) {
+        return DIFFICULTY_1;
+    }
+    uint256 actualHash = GetHash();
+    if (memcmp(keva_blockhash.merkle_root.data, actualHash.begin(), thash.size()) != 0) {
+        return DIFFICULTY_1;
+    }
+
+    crypto::hash miner_tx_hash;
+    if (!cryptonote::get_transaction_hash(cnHeader.aux_pow->miner_tx, miner_tx_hash)) {
+        return DIFFICULTY_1;
+    }
+
+    crypto::hash aux_blocks_merkle_root;
+    crypto::tree_hash_from_branch(
+        reinterpret_cast<const char (*)[32]>(cnHeader.aux_pow->merkle_branch.data()),
+        cnHeader.aux_pow->merkle_branch.size(),
+        reinterpret_cast<char*>(&miner_tx_hash), 0,
+        reinterpret_cast<char*>(&aux_blocks_merkle_root));
+
+    if (memcmp(aux_blocks_merkle_root.data, cnHeader.merkle_root.begin(), cnHeader.merkle_root.size()) != 0) {
+        return DIFFICULTY_1;
     }
     cryptonote::blobdata blob = cryptonote::t_serializable_object_to_blob(cnHeader);
     cn_slow_hash(blob.data(), blob.size(), BEGIN(thash), 2, 0, 0);

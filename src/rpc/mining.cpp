@@ -302,8 +302,8 @@ std::string gbt_vb_name(const Consensus::DeploymentPos pos) {
 UniValue getblocktemplate(const JSONRPCRequest& request)
 {
     // JSON-RPC2 request
-    // {reserve_size: 8, wallet_address: poolAddress}
-    if (request.fHelp || request.params.size() != 2)
+    // {reserve_size: 8, wallet_address: poolAddress, aux_block: true | false}
+    if (request.fHelp || request.params.size() < 2)
         throw std::runtime_error(
             "getblocktemplate ( TemplateRequest )\n"
             "\nIf the request parameters include a 'mode' key, that is used to explicitly select between the default 'template' request or a 'proposal'.\n"
@@ -405,6 +405,14 @@ UniValue getblocktemplate(const JSONRPCRequest& request)
         throw JSONRPCError(RPC_INVALID_PARAMS, "Invalid wallet address");
     }
 
+    bool is_aux_block = false;
+    if (request.params.size() == 3) {
+        if (request.params[2].getType() != UniValue::VBOOL) {
+            throw JSONRPCError(RPC_INVALID_PARAMS, "Incorrect is_autx_block type, boolean expected");
+        }
+        is_aux_block = request.params[2].get_bool();
+    }
+
     LOCK(cs_main);
 
     std::string strMode = "template";
@@ -448,7 +456,12 @@ UniValue getblocktemplate(const JSONRPCRequest& request)
 
     // Update nTime
     UpdateTime(pblock, consensusParams, pindexPrev);
-    pblock->nNonce = 0;
+    if (is_aux_block) {
+        // Mark it as auxpow block.
+        pblock->SetChainID();
+    } else {
+        pblock->nNonce = 0;
+    }
 
     std::set<std::string> setClientRules;
     UniValue aRules(UniValue::VARR);
@@ -544,7 +557,7 @@ UniValue getblocktemplate(const JSONRPCRequest& request)
     stream << *pblock;
     std::string kevaBlockData = stream.str();
     cryptonote::tx_extra_keva_block extra_keva_block;
-    extra_keva_block.keva_block = kevaBlockData;
+    extra_keva_block.data = kevaBlockData;
     if (!cryptonote::append_keva_block_to_extra(cn_block.miner_tx.extra, extra_keva_block)) {
         throw JSONRPCError(RPC_INTERNAL_ERROR, "Internal error: failed to add block");
     }
@@ -608,7 +621,7 @@ static uint256 CryptoHashToUint256(const crypto::hash& hash)
 // Cryptonote RPC call, only one parameter allowed.
 UniValue submitblock(const JSONRPCRequest& request)
 {
-    if (request.fHelp || request.params.size() != 1) {
+    if (request.fHelp || request.params.size() < 2) {
         throw std::runtime_error(
             "submitblock \"hexdata\"\n"
             "\nAttempts to submit new block to network.\n"
@@ -616,7 +629,7 @@ UniValue submitblock(const JSONRPCRequest& request)
 
             "\nArguments\n"
             "1. \"hexdata\"        (string, required) the hex-encoded block data to submit\n"
-            "2. \"dummy\"          (optional) dummy value, for compatibility with BIP22. This value is ignored.\n"
+            "2. \"auxpow\"         (string, optional) block auxpow data for merged mining.\n"
             "\nResult:\n"
             "\nExamples:\n"
             + HelpExampleCli("submitblock", "\"mydata\"")
@@ -624,15 +637,26 @@ UniValue submitblock(const JSONRPCRequest& request)
         );
     }
 
+    std::unique_ptr<CAuxPow> auxPow = std::make_unique<CAuxPow>();
+    bool isAuxPow = false;
+    if (request.params.size() == 2) {
+        if (request.params[1].getType() != UniValue::VSTR) {
+            throw JSONRPCError(RPC_INVALID_PARAMETER, "auxpow must be string type");
+        }
+        std::stringstream ss;
+        ss << request.params[1].get_str();
+        // load
+        binary_archive<false> ba(ss);
+        isAuxPow = ::serialization::serialize(ba, *auxPow);
+    }
+
     cryptonote::blobdata blockblob;
-    if(!epee::string_tools::parse_hexstr_to_binbuff(request.params[0].get_str(), blockblob))
-    {
+    if(!epee::string_tools::parse_hexstr_to_binbuff(request.params[0].get_str(), blockblob)) {
         throw JSONRPCError(RPC_DESERIALIZATION_ERROR, "Wrong block blob");
     }
 
     cryptonote::block cnblock = AUTO_VAL_INIT(cnblock);
-    if(!cryptonote::parse_and_validate_block_from_blob(blockblob, cnblock))
-    {
+    if(!cryptonote::parse_and_validate_block_from_blob(blockblob, cnblock)) {
         throw JSONRPCError(RPC_DESERIALIZATION_ERROR, "Wrong block blob");
     }
 
@@ -643,7 +667,7 @@ UniValue submitblock(const JSONRPCRequest& request)
 
     std::shared_ptr<CBlock> blockptr = std::make_shared<CBlock>();
     CBlock& block = *blockptr;
-    const std::vector<char> keva_block(keva_block_blob.keva_block.begin(), keva_block_blob.keva_block.end());
+    const std::vector<char> keva_block(keva_block_blob.data.begin(), keva_block_blob.data.end());
     CDataStream ssBlock(keva_block, SER_NETWORK, PROTOCOL_VERSION);
     try {
         ssBlock >> block;
@@ -670,6 +694,11 @@ UniValue submitblock(const JSONRPCRequest& request)
     // Cryptonote prev_id is used to store the block hash of kevacoin.
     if (hash != block.cnHeader.prev_id) {
         throw JSONRPCError(RPC_VERIFY_ERROR, "Kevacoin block hash does not match cryptnote hash");
+    }
+
+    block.cnHeader.SetAuxBlock(isAuxPow);
+    if (isAuxPow) {
+        block.cnHeader.aux_pow = std::move(auxPow);
     }
 
     // TODO: fix the return message.
@@ -924,8 +953,8 @@ static const CRPCCommand commands[] =
     { "mining",             "getnetworkhashps",       &getnetworkhashps,       {"nblocks","height"} },
     { "mining",             "getmininginfo",          &getmininginfo,          {} },
     { "mining",             "prioritisetransaction",  &prioritisetransaction,  {"txid","dummy","fee_delta"} },
-    { "mining",             "getblocktemplate",       &getblocktemplate,       {"reserve_size", "wallet_address"} },
-    { "mining",             "submitblock",            &submitblock,            {"hexdata","dummy"} },
+    { "mining",             "getblocktemplate",       &getblocktemplate,       {"reserve_size", "wallet_address", "is_aux_block"} },
+    { "mining",             "submitblock",            &submitblock,            {"hexdata","auxpow"} },
 
 
     { "generating",         "generatetoaddress",      &generatetoaddress,      {"nblocks","address","maxtries"} },

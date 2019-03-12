@@ -12,6 +12,56 @@
 
 #include <cryptonote_basic/cryptonote_format_utils.h>
 
+class CAuxPow
+{
+public:
+    // Cryptnote coinbase tx, which contains the block hash of kevacoin block.
+    cryptonote::transaction miner_tx;
+
+    // Merkle branch is used to establish that miner_tx is part of the
+    // merkel tree whose root is merkle_root.
+    std::vector<crypto::hash>  merkle_branch;
+
+    uint256 CheckMerkleBranch (uint256 hash,
+                            const std::vector<uint256>& vMerkleBranch,
+                            int nIndex)
+    {
+        if (nIndex == -1) {
+            return uint256();
+        }
+#if 0
+        for (std::vector<uint256>::const_iterator it(vMerkleBranch.begin());
+            it != vMerkleBranch.end(); ++it) {
+            if (nIndex & 1) {
+                hash = Hash(BEGIN(*it), END(*it), BEGIN(hash), END(hash));
+            } else {
+                hash = Hash(BEGIN(hash), END(hash), BEGIN(*it), END(*it));
+            }
+            nIndex >>= 1;
+        }
+        return hash;
+#endif
+    }
+
+    // load
+    template <template <bool> class Archive>
+    bool do_serialize(Archive<false>& ar)
+    {
+        FIELD(miner_tx)
+        FIELD(merkle_branch)
+        return true;
+    }
+
+    // store
+    template <template <bool> class Archive>
+    bool do_serialize(Archive<true>& ar)
+    {
+        FIELD(miner_tx)
+        FIELD(merkle_branch)
+        return true;
+    }
+};
+
 /**
  * This header is to store the proof-of-work of cryptonote mining.
  * Kevacoin uses Cryptonight PoW and uses its existing infrastructure
@@ -28,9 +78,25 @@ public:
     uint256  merkle_root;
     size_t   nTxes; // Number of transactions.
 
-    CryptoNoteHeader()
+private:
+    bool is_aux_block;
+
+public:
+    std::unique_ptr<CAuxPow> aux_pow; // It is used only is_aux_block is true.
+
+    CryptoNoteHeader() : is_aux_block(false)
     {
         SetNull();
+    }
+
+    void SetAuxBlock(bool isAuxBlock)
+    {
+        is_aux_block = isAuxBlock;
+    }
+
+    bool IsAuxBlock()
+    {
+        return is_aux_block;
     }
 
     void SetNull()
@@ -64,6 +130,10 @@ public:
       FIELD(merkle_hash)
       memcpy(merkle_root.begin(), &merkle_hash, merkle_root.size());
       VARINT_FIELD(nTxes)
+      if (is_aux_block) {
+        aux_pow_ptr = std::make_unique<CAuxPow>();
+        FIELD(*aux_pow_ptr)
+      }
       return true;
     }
 
@@ -82,6 +152,9 @@ public:
       memcpy(&merkle_hash, merkle_root.begin(), merkle_root.size());
       FIELD(merkle_hash)
       VARINT_FIELD(nTxes)
+      if (is_aux_block) {
+        FIELD(*aux_pow)
+      }
       return true;
     }
 
@@ -124,6 +197,7 @@ public:
     uint256 hashMerkleRoot;
     uint32_t nTime;
     uint32_t nBits;
+    // nNonce is used to store chainID in merged mining.
     uint32_t nNonce;
 
     // CryptoNote header for emulation or merged mining
@@ -146,6 +220,7 @@ public:
         READWRITE(nNonce);
         // Genesis block does not have cnHeader.
         if (!hashPrevBlock.IsNull()) {
+            cnHeader.SetAuxBlock(IsAuxpow());
             READWRITE(cnHeader);
         }
     }
@@ -173,6 +248,30 @@ public:
     {
         return (int64_t)nTime;
     }
+
+    static const int32_t DEFAULT_AUXPOW_CHAIN_ID = 0x000000AD;
+
+    // ChainID is used for merged mining.
+    inline void SetChainID(uint32_t chainID = CBlockHeader::DEFAULT_AUXPOW_CHAIN_ID)
+    {
+        nNonce = chainID;
+    }
+
+    inline uint32_t GetChainID() const
+    {
+        return nNonce;
+    }
+
+    /**
+     * Check if the auxpow flag is set in the version.
+     * @return True iff this block version is marked as auxpow.
+     */
+    inline bool IsAuxpow() const
+    {
+        return nNonce != 0;
+    }
+
+    static const uint256 DIFFICULTY_1;
 };
 
 
@@ -193,7 +292,13 @@ public:
     CBlock(const CBlockHeader &header)
     {
         SetNull();
-        *((CBlockHeader*)this) = header;
+        //*((CBlockHeader*)this) = header;
+        nVersion       = header.nVersion;
+        hashPrevBlock  = header.hashPrevBlock;
+        hashMerkleRoot = header.hashMerkleRoot;
+        nTime          = header.nTime;
+        nBits          = header.nBits;
+        nNonce         = header.nNonce;
     }
 
     ADD_SERIALIZE_METHODS;
