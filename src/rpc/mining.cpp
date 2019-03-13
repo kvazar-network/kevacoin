@@ -643,8 +643,14 @@ UniValue submitblock(const JSONRPCRequest& request)
         if (request.params[1].getType() != UniValue::VSTR) {
             throw JSONRPCError(RPC_INVALID_PARAMETER, "auxpow must be string type");
         }
+
+        cryptonote::blobdata auxblob;
+        if(!epee::string_tools::parse_hexstr_to_binbuff(request.params[1].get_str(), auxblob)) {
+            throw JSONRPCError(RPC_DESERIALIZATION_ERROR, "Wrong block blob");
+        }
+
         std::stringstream ss;
-        ss << request.params[1].get_str();
+        ss << auxblob;
         // load
         binary_archive<false> ba(ss);
         auxPow = std::shared_ptr<CAuxPow>(new CAuxPow());
