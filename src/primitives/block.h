@@ -9,6 +9,7 @@
 #include <primitives/transaction.h>
 #include <serialize.h>
 #include <uint256.h>
+#include <utilstrencodings.h>
 
 #include <cryptonote_basic/cryptonote_format_utils.h>
 
@@ -21,27 +22,6 @@ public:
     // Merkle branch is used to establish that miner_tx is part of the
     // merkel tree whose root is merkle_root.
     std::vector<crypto::hash>  merkle_branch;
-
-    uint256 CheckMerkleBranch (uint256 hash,
-                            const std::vector<uint256>& vMerkleBranch,
-                            int nIndex)
-    {
-        if (nIndex == -1) {
-            return uint256();
-        }
-#if 0
-        for (std::vector<uint256>::const_iterator it(vMerkleBranch.begin());
-            it != vMerkleBranch.end(); ++it) {
-            if (nIndex & 1) {
-                hash = Hash(BEGIN(*it), END(*it), BEGIN(hash), END(hash));
-            } else {
-                hash = Hash(BEGIN(hash), END(hash), BEGIN(*it), END(*it));
-            }
-            nIndex >>= 1;
-        }
-        return hash;
-#endif
-    }
 
     // load
     template <template <bool> class Archive>
@@ -82,7 +62,7 @@ private:
     bool is_aux_block;
 
 public:
-    std::unique_ptr<CAuxPow> aux_pow; // It is used only is_aux_block is true.
+    std::shared_ptr<CAuxPow> aux_pow_ptr; // It is used only is_aux_block is true.
 
     CryptoNoteHeader() : is_aux_block(false)
     {
@@ -131,7 +111,7 @@ public:
       memcpy(merkle_root.begin(), &merkle_hash, merkle_root.size());
       VARINT_FIELD(nTxes)
       if (is_aux_block) {
-        aux_pow_ptr = std::make_unique<CAuxPow>();
+        aux_pow_ptr = std::shared_ptr<CAuxPow>(new CAuxPow());
         FIELD(*aux_pow_ptr)
       }
       return true;
@@ -153,7 +133,7 @@ public:
       FIELD(merkle_hash)
       VARINT_FIELD(nTxes)
       if (is_aux_block) {
-        FIELD(*aux_pow)
+        FIELD(*aux_pow_ptr)
       }
       return true;
     }

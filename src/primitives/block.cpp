@@ -46,7 +46,7 @@ uint256 CBlockHeader::GetPoWHash() const
 
     // Merged mining.
     cryptonote::tx_extra_keva_blockhash keva_blockhash;
-    if (!cryptonote::get_keva_blockhash_from_extra(cnHeader.aux_pow->miner_tx.extra, keva_blockhash)) {
+    if (!cryptonote::get_keva_blockhash_from_extra(cnHeader.aux_pow_ptr->miner_tx.extra, keva_blockhash)) {
         return DIFFICULTY_1;
     }
     uint256 actualHash = GetHash();
@@ -55,14 +55,14 @@ uint256 CBlockHeader::GetPoWHash() const
     }
 
     crypto::hash miner_tx_hash;
-    if (!cryptonote::get_transaction_hash(cnHeader.aux_pow->miner_tx, miner_tx_hash)) {
+    if (!cryptonote::get_transaction_hash(cnHeader.aux_pow_ptr->miner_tx, miner_tx_hash)) {
         return DIFFICULTY_1;
     }
 
     crypto::hash aux_blocks_merkle_root;
     crypto::tree_hash_from_branch(
-        reinterpret_cast<const char (*)[32]>(cnHeader.aux_pow->merkle_branch.data()),
-        cnHeader.aux_pow->merkle_branch.size(),
+        reinterpret_cast<const char (*)[32]>(cnHeader.aux_pow_ptr->merkle_branch.data()),
+        cnHeader.aux_pow_ptr->merkle_branch.size(),
         reinterpret_cast<char*>(&miner_tx_hash), 0,
         reinterpret_cast<char*>(&aux_blocks_merkle_root));
 

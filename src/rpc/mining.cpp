@@ -621,7 +621,7 @@ static uint256 CryptoHashToUint256(const crypto::hash& hash)
 // Cryptonote RPC call, only one parameter allowed.
 UniValue submitblock(const JSONRPCRequest& request)
 {
-    if (request.fHelp || request.params.size() < 2) {
+    if (request.fHelp || request.params.size() > 2 || request.params.size() < 1) {
         throw std::runtime_error(
             "submitblock \"hexdata\"\n"
             "\nAttempts to submit new block to network.\n"
@@ -637,7 +637,7 @@ UniValue submitblock(const JSONRPCRequest& request)
         );
     }
 
-    std::unique_ptr<CAuxPow> auxPow = std::make_unique<CAuxPow>();
+    std::shared_ptr<CAuxPow> auxPow;
     bool isAuxPow = false;
     if (request.params.size() == 2) {
         if (request.params[1].getType() != UniValue::VSTR) {
@@ -647,6 +647,7 @@ UniValue submitblock(const JSONRPCRequest& request)
         ss << request.params[1].get_str();
         // load
         binary_archive<false> ba(ss);
+        auxPow = std::shared_ptr<CAuxPow>(new CAuxPow());
         isAuxPow = ::serialization::serialize(ba, *auxPow);
     }
 
@@ -698,7 +699,7 @@ UniValue submitblock(const JSONRPCRequest& request)
 
     block.cnHeader.SetAuxBlock(isAuxPow);
     if (isAuxPow) {
-        block.cnHeader.aux_pow = std::move(auxPow);
+        block.cnHeader.aux_pow_ptr = auxPow;
     }
 
     // TODO: fix the return message.
@@ -954,7 +955,7 @@ static const CRPCCommand commands[] =
     { "mining",             "getmininginfo",          &getmininginfo,          {} },
     { "mining",             "prioritisetransaction",  &prioritisetransaction,  {"txid","dummy","fee_delta"} },
     { "mining",             "getblocktemplate",       &getblocktemplate,       {"reserve_size", "wallet_address", "is_aux_block"} },
-    { "mining",             "submitblock",            &submitblock,            {"hexdata","auxpow"} },
+    { "mining",             "submitblock",            &submitblock,            {"hexdata", "auxpow"} },
 
 
     { "generating",         "generatetoaddress",      &generatetoaddress,      {"nblocks","address","maxtries"} },
