@@ -17,6 +17,7 @@ class ReceiveCoinsDialog;
 class SendCoinsDialog;
 class SendCoinsRecipient;
 class TransactionView;
+class KevaView;
 class WalletModel;
 class AddressBookPage;
 
@@ -60,12 +61,15 @@ private:
 
     OverviewPage *overviewPage;
     QWidget *transactionsPage;
+    QWidget *kevaPage;
     ReceiveCoinsDialog *receiveCoinsPage;
     SendCoinsDialog *sendCoinsPage;
     AddressBookPage *usedSendingAddressesPage;
     AddressBookPage *usedReceivingAddressesPage;
 
     TransactionView *transactionView;
+
+    KevaView *kevaView;
 
     QProgressDialog *progressDialog;
     const PlatformStyle *platformStyle;
@@ -75,6 +79,8 @@ public Q_SLOTS:
     void gotoOverviewPage();
     /** Switch to history (transactions) page */
     void gotoHistoryPage();
+    /** Switch to Keva page */
+    void gotoKevaPage();
     /** Switch to receive coins page */
     void gotoReceiveCoinsPage();
     /** Switch to send coins page */
