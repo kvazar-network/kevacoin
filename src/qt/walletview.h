@@ -15,9 +15,9 @@ class OverviewPage;
 class PlatformStyle;
 class ReceiveCoinsDialog;
 class SendCoinsDialog;
+class KevaDialog;
 class SendCoinsRecipient;
 class TransactionView;
-class KevaView;
 class WalletModel;
 class AddressBookPage;
 
@@ -61,15 +61,13 @@ private:
 
     OverviewPage *overviewPage;
     QWidget *transactionsPage;
-    QWidget *kevaPage;
     ReceiveCoinsDialog *receiveCoinsPage;
     SendCoinsDialog *sendCoinsPage;
+    KevaDialog *kevaPage;
     AddressBookPage *usedSendingAddressesPage;
     AddressBookPage *usedReceivingAddressesPage;
 
     TransactionView *transactionView;
-
-    KevaView *kevaView;
 
     QProgressDialog *progressDialog;
     const PlatformStyle *platformStyle;
