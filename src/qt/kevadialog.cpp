@@ -37,8 +37,8 @@ KevaDialog::KevaDialog(const PlatformStyle *_platformStyle, QWidget *parent) :
         ui->showRequestButton->setIcon(QIcon());
         ui->removeRequestButton->setIcon(QIcon());
     } else {
-        ui->clearButton->setIcon(_platformStyle->SingleColorIcon(":/icons/remove"));
-        ui->receiveButton->setIcon(_platformStyle->SingleColorIcon(":/icons/receiving_addresses"));
+        ui->clearButton->setIcon(_platformStyle->SingleColorIcon(":/icons/eye"));
+        ui->receiveButton->setIcon(_platformStyle->SingleColorIcon(":/icons/address-book"));
         ui->showRequestButton->setIcon(_platformStyle->SingleColorIcon(":/icons/edit"));
         ui->removeRequestButton->setIcon(_platformStyle->SingleColorIcon(":/icons/remove"));
     }
@@ -93,12 +93,6 @@ void KevaDialog::setModel(WalletModel *_model)
             SLOT(recentRequestsView_selectionChanged(QItemSelection, QItemSelection)));
         // Last 2 columns are set by the columnResizingFixer, when the table geometry is ready.
         columnResizingFixer = new GUIUtil::TableViewLastColumnResizingFixer(tableView, AMOUNT_MINIMUM_COLUMN_WIDTH, DATE_COLUMN_WIDTH, this);
-
-        if (model->getDefaultAddressType() == OUTPUT_TYPE_BECH32) {
-            ui->useBech32->setCheckState(Qt::Checked);
-        } else {
-            ui->useBech32->setCheckState(Qt::Unchecked);
-        }
     }
 }
 
@@ -109,9 +103,7 @@ KevaDialog::~KevaDialog()
 
 void KevaDialog::clear()
 {
-    ui->reqAmount->clear();
     ui->reqLabel->setText("");
-    ui->reqMessage->setText("");
     updateDisplayUnit();
 }
 
@@ -129,7 +121,6 @@ void KevaDialog::updateDisplayUnit()
 {
     if(model && model->getOptionsModel())
     {
-        ui->reqAmount->setDisplayUnit(model->getOptionsModel()->getDisplayUnit());
     }
 }
 
@@ -142,17 +133,14 @@ void KevaDialog::on_receiveButton_clicked()
     QString label = ui->reqLabel->text();
     /* Generate new receiving address */
     OutputType address_type;
-    if (ui->useBech32->isChecked()) {
-        address_type = OUTPUT_TYPE_BECH32;
-    } else {
-        address_type = model->getDefaultAddressType();
-        if (address_type == OUTPUT_TYPE_BECH32) {
-            address_type = OUTPUT_TYPE_P2SH_SEGWIT;
-        }
+    address_type = model->getDefaultAddressType();
+    if (address_type == OUTPUT_TYPE_BECH32) {
+        address_type = OUTPUT_TYPE_P2SH_SEGWIT;
     }
+
     address = model->getAddressTableModel()->addRow(AddressTableModel::Receive, label, "", address_type);
     SendCoinsRecipient info(address, label,
-        ui->reqAmount->value(), ui->reqMessage->text());
+        NULL, NULL);
     ReceiveRequestDialog *dialog = new ReceiveRequestDialog(this);
     dialog->setAttribute(Qt::WA_DeleteOnClose);
     dialog->setModel(model->getOptionsModel());
@@ -218,7 +206,7 @@ void KevaDialog::keyPressEvent(QKeyEvent *event)
     if (event->key() == Qt::Key_Return)
     {
         // press return -> submit form
-        if (ui->reqLabel->hasFocus() || ui->reqAmount->hasFocus() || ui->reqMessage->hasFocus())
+        if (ui->reqLabel->hasFocus())
         {
             event->ignore();
             on_receiveButton_clicked();

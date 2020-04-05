@@ -313,7 +313,7 @@ void BitcoinGUI::createActions()
     historyAction->setShortcut(QKeySequence(Qt::ALT + Qt::Key_4));
     tabGroup->addAction(historyAction);
 
-    kevaAction = new QAction(platformStyle->SingleColorIcon(":/icons/key"), tr("&Keva"), this);
+    kevaAction = new QAction(platformStyle->SingleColorIcon(":/icons/keva"), tr("&Keva"), this);
     kevaAction->setStatusTip(tr("Keva related operations"));
     kevaAction->setToolTip(kevaAction->statusTip());
     kevaAction->setCheckable(true);
