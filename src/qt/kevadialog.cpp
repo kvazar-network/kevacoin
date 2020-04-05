@@ -3,6 +3,7 @@
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
 #include <wallet/wallet.h>
+#include <keva/common.h>
 
 #include <qt/kevadialog.h>
 #include <qt/forms/ui_kevadialog.h>
@@ -13,7 +14,7 @@
 #include <qt/optionsmodel.h>
 #include <qt/platformstyle.h>
 #include <qt/receiverequestdialog.h>
-#include <qt/recentrequeststablemodel.h>
+#include <qt/kevatablemodel.h>
 #include <qt/walletmodel.h>
 
 #include <QAction>
@@ -32,12 +33,10 @@ KevaDialog::KevaDialog(const PlatformStyle *_platformStyle, QWidget *parent) :
     ui->setupUi(this);
 
     if (!_platformStyle->getImagesOnButtons()) {
-        ui->clearButton->setIcon(QIcon());
         ui->receiveButton->setIcon(QIcon());
         ui->showRequestButton->setIcon(QIcon());
         ui->removeRequestButton->setIcon(QIcon());
     } else {
-        ui->clearButton->setIcon(_platformStyle->SingleColorIcon(":/icons/eye"));
         ui->receiveButton->setIcon(_platformStyle->SingleColorIcon(":/icons/address-book"));
         ui->showRequestButton->setIcon(_platformStyle->SingleColorIcon(":/icons/edit"));
         ui->removeRequestButton->setIcon(_platformStyle->SingleColorIcon(":/icons/remove"));
@@ -63,7 +62,6 @@ KevaDialog::KevaDialog(const PlatformStyle *_platformStyle, QWidget *parent) :
     connect(copyMessageAction, SIGNAL(triggered()), this, SLOT(copyMessage()));
     connect(copyAmountAction, SIGNAL(triggered()), this, SLOT(copyAmount()));
 
-    connect(ui->clearButton, SIGNAL(clicked()), this, SLOT(clear()));
 }
 
 void KevaDialog::setModel(WalletModel *_model)
@@ -72,27 +70,24 @@ void KevaDialog::setModel(WalletModel *_model)
 
     if(_model && _model->getOptionsModel())
     {
-        _model->getRecentRequestsTableModel()->sort(RecentRequestsTableModel::Date, Qt::DescendingOrder);
-        connect(_model->getOptionsModel(), SIGNAL(displayUnitChanged(int)), this, SLOT(updateDisplayUnit()));
-        updateDisplayUnit();
-
+        _model->getKevaTableModel()->sort(KevaTableModel::Date, Qt::DescendingOrder);
         QTableView* tableView = ui->recentRequestsView;
 
         tableView->verticalHeader()->hide();
         tableView->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
-        tableView->setModel(_model->getRecentRequestsTableModel());
+        tableView->setModel(_model->getKevaTableModel());
         tableView->setAlternatingRowColors(true);
         tableView->setSelectionBehavior(QAbstractItemView::SelectRows);
         tableView->setSelectionMode(QAbstractItemView::ContiguousSelection);
-        tableView->setColumnWidth(RecentRequestsTableModel::Date, DATE_COLUMN_WIDTH);
-        tableView->setColumnWidth(RecentRequestsTableModel::Label, LABEL_COLUMN_WIDTH);
-        tableView->setColumnWidth(RecentRequestsTableModel::Amount, AMOUNT_MINIMUM_COLUMN_WIDTH);
+        tableView->setColumnWidth(KevaTableModel::Date, DATE_COLUMN_WIDTH);
+        tableView->setColumnWidth(KevaTableModel::Key, KEY_COLUMN_WIDTH);
+        tableView->setColumnWidth(KevaTableModel::Block, BLOCK_MINIMUM_COLUMN_WIDTH);
 
         connect(tableView->selectionModel(),
             SIGNAL(selectionChanged(QItemSelection, QItemSelection)), this,
             SLOT(recentRequestsView_selectionChanged(QItemSelection, QItemSelection)));
         // Last 2 columns are set by the columnResizingFixer, when the table geometry is ready.
-        columnResizingFixer = new GUIUtil::TableViewLastColumnResizingFixer(tableView, AMOUNT_MINIMUM_COLUMN_WIDTH, DATE_COLUMN_WIDTH, this);
+        columnResizingFixer = new GUIUtil::TableViewLastColumnResizingFixer(tableView, BLOCK_MINIMUM_COLUMN_WIDTH, DATE_COLUMN_WIDTH, this);
     }
 }
 
@@ -103,7 +98,7 @@ KevaDialog::~KevaDialog()
 
 void KevaDialog::clear()
 {
-    ui->reqLabel->setText("");
+    ui->nameSpace->setText("");
     updateDisplayUnit();
 }
 
@@ -124,40 +119,29 @@ void KevaDialog::updateDisplayUnit()
     }
 }
 
-void KevaDialog::on_receiveButton_clicked()
+void KevaDialog::on_showContent_clicked()
 {
-    if(!model || !model->getOptionsModel() || !model->getAddressTableModel() || !model->getRecentRequestsTableModel())
+    if(!model || !model->getKevaTableModel())
         return;
 
-    QString address;
-    QString label = ui->reqLabel->text();
-    /* Generate new receiving address */
-    OutputType address_type;
-    address_type = model->getDefaultAddressType();
-    if (address_type == OUTPUT_TYPE_BECH32) {
-        address_type = OUTPUT_TYPE_P2SH_SEGWIT;
+    valtype namespaceVal;
+    QString nameSpace = ui->nameSpace->text();
+    if (!DecodeKevaNamespace(nameSpace.toStdString(), Params(), namespaceVal)) {
+        // TODO: show error dialog
+        return;
     }
 
-    address = model->getAddressTableModel()->addRow(AddressTableModel::Receive, label, "", address_type);
-    SendCoinsRecipient info(address, label,
-        NULL, NULL);
-    ReceiveRequestDialog *dialog = new ReceiveRequestDialog(this);
-    dialog->setAttribute(Qt::WA_DeleteOnClose);
-    dialog->setModel(model->getOptionsModel());
-    dialog->setInfo(info);
-    dialog->show();
-    clear();
-
-    /* Store request for later reference */
-    model->getRecentRequestsTableModel()->addNewRequest(info);
+    std::vector<KevaEntry> vKevaEntries;
+    model->getKevaEntries(vKevaEntries, ValtypeToString(namespaceVal));
+    model->getKevaTableModel()->setKeva(vKevaEntries);
 }
 
 void KevaDialog::on_recentRequestsView_doubleClicked(const QModelIndex &index)
 {
-    const RecentRequestsTableModel *submodel = model->getRecentRequestsTableModel();
+    const KevaTableModel *submodel = model->getKevaTableModel();
     ReceiveRequestDialog *dialog = new ReceiveRequestDialog(this);
     dialog->setModel(model->getOptionsModel());
-    dialog->setInfo(submodel->entry(index.row()).recipient);
+    //dialog->setInfo(submodel->entry(index.row()).recipient);
     dialog->setAttribute(Qt::WA_DeleteOnClose);
     dialog->show();
 }
@@ -172,7 +156,7 @@ void KevaDialog::recentRequestsView_selectionChanged(const QItemSelection &selec
 
 void KevaDialog::on_showRequestButton_clicked()
 {
-    if(!model || !model->getRecentRequestsTableModel() || !ui->recentRequestsView->selectionModel())
+    if(!model || !model->getKevaTableModel() || !ui->recentRequestsView->selectionModel())
         return;
     QModelIndexList selection = ui->recentRequestsView->selectionModel()->selectedRows();
 
@@ -183,14 +167,14 @@ void KevaDialog::on_showRequestButton_clicked()
 
 void KevaDialog::on_removeRequestButton_clicked()
 {
-    if(!model || !model->getRecentRequestsTableModel() || !ui->recentRequestsView->selectionModel())
+    if(!model || !model->getKevaTableModel() || !ui->recentRequestsView->selectionModel())
         return;
     QModelIndexList selection = ui->recentRequestsView->selectionModel()->selectedRows();
     if(selection.empty())
         return;
     // correct for selection mode ContiguousSelection
     QModelIndex firstIndex = selection.at(0);
-    model->getRecentRequestsTableModel()->removeRows(firstIndex.row(), selection.length(), firstIndex.parent());
+    model->getKevaTableModel()->removeRows(firstIndex.row(), selection.length(), firstIndex.parent());
 }
 
 // We override the virtual resizeEvent of the QWidget to adjust tables column
@@ -198,7 +182,7 @@ void KevaDialog::on_removeRequestButton_clicked()
 void KevaDialog::resizeEvent(QResizeEvent *event)
 {
     QWidget::resizeEvent(event);
-    columnResizingFixer->stretchColumnWidth(RecentRequestsTableModel::Message);
+    columnResizingFixer->stretchColumnWidth(KevaTableModel::Block);
 }
 
 void KevaDialog::keyPressEvent(QKeyEvent *event)
@@ -206,10 +190,10 @@ void KevaDialog::keyPressEvent(QKeyEvent *event)
     if (event->key() == Qt::Key_Return)
     {
         // press return -> submit form
-        if (ui->reqLabel->hasFocus())
+        if (ui->nameSpace->hasFocus())
         {
             event->ignore();
-            on_receiveButton_clicked();
+            on_showContent_clicked();
             return;
         }
     }
@@ -219,7 +203,7 @@ void KevaDialog::keyPressEvent(QKeyEvent *event)
 
 QModelIndex KevaDialog::selectedRow()
 {
-    if(!model || !model->getRecentRequestsTableModel() || !ui->recentRequestsView->selectionModel())
+    if(!model || !model->getKevaTableModel() || !ui->recentRequestsView->selectionModel())
         return QModelIndex();
     QModelIndexList selection = ui->recentRequestsView->selectionModel()->selectedRows();
     if(selection.empty())
@@ -236,7 +220,7 @@ void KevaDialog::copyColumnToClipboard(int column)
     if (!firstIndex.isValid()) {
         return;
     }
-    GUIUtil::setClipboard(model->getRecentRequestsTableModel()->data(firstIndex.child(firstIndex.row(), column), Qt::EditRole).toString());
+    GUIUtil::setClipboard(model->getKevaTableModel()->data(firstIndex.child(firstIndex.row(), column), Qt::EditRole).toString());
 }
 
 // context menu
@@ -251,30 +235,32 @@ void KevaDialog::showMenu(const QPoint &point)
 // context menu action: copy URI
 void KevaDialog::copyURI()
 {
+#if 0
     QModelIndex sel = selectedRow();
     if (!sel.isValid()) {
         return;
     }
 
-    const RecentRequestsTableModel * const submodel = model->getRecentRequestsTableModel();
+    const KevaTableModel * const submodel = model->getKevaTableModel();
     const QString uri = GUIUtil::formatBitcoinURI(submodel->entry(sel.row()).recipient);
     GUIUtil::setClipboard(uri);
+#endif
 }
 
 // context menu action: copy label
 void KevaDialog::copyLabel()
 {
-    copyColumnToClipboard(RecentRequestsTableModel::Label);
+    copyColumnToClipboard(KevaTableModel::Key);
 }
 
 // context menu action: copy message
 void KevaDialog::copyMessage()
 {
-    copyColumnToClipboard(RecentRequestsTableModel::Message);
+    copyColumnToClipboard(KevaTableModel::Value);
 }
 
 // context menu action: copy amount
 void KevaDialog::copyAmount()
 {
-    copyColumnToClipboard(RecentRequestsTableModel::Amount);
+    copyColumnToClipboard(KevaTableModel::Block);
 }

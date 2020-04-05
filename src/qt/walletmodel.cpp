@@ -11,12 +11,15 @@
 #include <qt/optionsmodel.h>
 #include <qt/paymentserver.h>
 #include <qt/recentrequeststablemodel.h>
+#include <qt/kevatablemodel.h>
 #include <qt/sendcoinsdialog.h>
 #include <qt/transactiontablemodel.h>
 
 #include <base58.h>
 #include <chain.h>
 #include <keystore.h>
+#include <keva/common.h>
+#include <keva/main.h>
 #include <validation.h>
 #include <net.h> // for g_connman
 #include <policy/fees.h>
@@ -41,6 +44,7 @@ WalletModel::WalletModel(const PlatformStyle *platformStyle, CWallet *_wallet, O
     QObject(parent), wallet(_wallet), optionsModel(_optionsModel), addressTableModel(0),
     transactionTableModel(0),
     recentRequestsTableModel(0),
+    kevaTableModel(0),
     cachedBalance(0), cachedUnconfirmedBalance(0), cachedImmatureBalance(0),
     cachedEncryptionStatus(Unencrypted),
     cachedNumBlocks(0)
@@ -51,6 +55,7 @@ WalletModel::WalletModel(const PlatformStyle *platformStyle, CWallet *_wallet, O
     addressTableModel = new AddressTableModel(wallet, this);
     transactionTableModel = new TransactionTableModel(platformStyle, wallet, this);
     recentRequestsTableModel = new RecentRequestsTableModel(wallet, this);
+    kevaTableModel = new KevaTableModel(wallet, this);
 
     // This timer will be fired repeatedly to update the balance
     pollTimer = new QTimer(this);
@@ -391,6 +396,11 @@ TransactionTableModel *WalletModel::getTransactionTableModel()
 RecentRequestsTableModel *WalletModel::getRecentRequestsTableModel()
 {
     return recentRequestsTableModel;
+}
+
+KevaTableModel *WalletModel::getKevaTableModel()
+{
+    return kevaTableModel;
 }
 
 WalletModel::EncryptionStatus WalletModel::getEncryptionStatus() const
@@ -742,4 +752,22 @@ OutputType WalletModel::getDefaultAddressType() const
 int WalletModel::getDefaultConfirmTarget() const
 {
     return nTxConfirmTarget;
+}
+
+void WalletModel::getKevaEntries(std::vector<KevaEntry>& vKevaEntries, std::string nameSpace)
+{
+    LOCK(cs_main);
+
+    valtype key;
+    CKevaData data;
+    std::unique_ptr<CKevaIterator> iter(pcoinsTip->IterateKeys(ValtypeFromString(nameSpace)));
+    while (iter->next(key, data)) {
+        KevaEntry entry;
+        entry.key = ValtypeToString(key);
+        entry.value = ValtypeToString(data.getValue());
+        entry.block = data.getHeight();
+        // TODO: figure out how to get the date time from block.
+        entry.date = QDateTime::currentDateTime();
+        vKevaEntries.push_back(std::move(entry));
+    }
 }

@@ -29,9 +29,9 @@
       <item>
        <layout class="QGridLayout" name="gridLayout">
         <item row="4" column="2">
-         <widget class="QLineEdit" name="reqLabel">
+         <widget class="QLineEdit" name="nameSpace">
           <property name="toolTip">
-           <string>An optional label to associate with the new receiving address.</string>
+           <string>The namespace ID with a prefix "N".</string>
           </property>
          </widget>
         </item>
@@ -45,7 +45,7 @@
         <item row="4" column="0">
          <widget class="QLabel" name="label_2">
           <property name="toolTip">
-           <string>The namespace ID, which has a prefix "N".</string>
+           <string>The namespace ID with a prefix "N".</string>
           </property>
           <property name="text">
            <string>&amp;Namespace:</string>
@@ -54,14 +54,14 @@
            <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
           </property>
           <property name="buddy">
-           <cstring>reqLabel</cstring>
+           <cstring>namespace</cstring>
           </property>
          </widget>
         </item>
         <item row="7" column="2">
          <layout class="QHBoxLayout" name="horizontalLayout">
           <item>
-           <widget class="QPushButton" name="clearButton">
+           <widget class="QPushButton" name="showContent">
             <property name="sizePolicy">
              <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
               <horstretch>0</horstretch>

@@ -21,6 +21,8 @@ class AddressTableModel;
 class OptionsModel;
 class PlatformStyle;
 class RecentRequestsTableModel;
+class KevaTableModel;
+class KevaEntry;
 class TransactionTableModel;
 class WalletModelTransaction;
 
@@ -130,6 +132,7 @@ public:
     AddressTableModel *getAddressTableModel();
     TransactionTableModel *getTransactionTableModel();
     RecentRequestsTableModel *getRecentRequestsTableModel();
+    KevaTableModel *getKevaTableModel();
 
     CAmount getBalance(const CCoinControl *coinControl = nullptr) const;
     CAmount getUnconfirmedBalance() const;
@@ -220,6 +223,9 @@ public:
 
     int getDefaultConfirmTarget() const;
 
+    // Keva
+    void getKevaEntries(std::vector<KevaEntry>& vKevaEntries, std::string nameSpace);
+
 private:
     CWallet *wallet;
     bool fHaveWatchOnly;
@@ -232,6 +238,7 @@ private:
     AddressTableModel *addressTableModel;
     TransactionTableModel *transactionTableModel;
     RecentRequestsTableModel *recentRequestsTableModel;
+    KevaTableModel *kevaTableModel;
 
     // Cache some values to be able to detect changes
     CAmount cachedBalance;

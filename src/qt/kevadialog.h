@@ -34,9 +34,9 @@ class KevaDialog : public QDialog
 public:
     enum ColumnWidths {
         DATE_COLUMN_WIDTH = 130,
-        LABEL_COLUMN_WIDTH = 120,
-        AMOUNT_MINIMUM_COLUMN_WIDTH = 180,
-        MINIMUM_COLUMN_WIDTH = 130
+        KEY_COLUMN_WIDTH = 120,
+        BLOCK_MINIMUM_COLUMN_WIDTH = 100,
+        MINIMUM_COLUMN_WIDTH = 100
     };
 
     explicit KevaDialog(const PlatformStyle *platformStyle, QWidget *parent = 0);
@@ -64,7 +64,7 @@ private:
     virtual void resizeEvent(QResizeEvent *event);
 
 private Q_SLOTS:
-    void on_receiveButton_clicked();
+    void on_showContent_clicked();
     void on_showRequestButton_clicked();
     void on_removeRequestButton_clicked();
     void on_recentRequestsView_doubleClicked(const QModelIndex &index);
