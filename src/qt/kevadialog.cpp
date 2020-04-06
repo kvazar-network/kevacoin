@@ -70,7 +70,7 @@ void KevaDialog::setModel(WalletModel *_model)
 
     if(_model && _model->getOptionsModel())
     {
-        _model->getKevaTableModel()->sort(KevaTableModel::Date, Qt::DescendingOrder);
+        _model->getKevaTableModel()->sort(KevaTableModel::Block, Qt::DescendingOrder);
         QTableView* tableView = ui->recentRequestsView;
 
         tableView->verticalHeader()->hide();
@@ -133,7 +133,7 @@ void KevaDialog::on_showContent_clicked()
 
     std::vector<KevaEntry> vKevaEntries;
     model->getKevaEntries(vKevaEntries, ValtypeToString(namespaceVal));
-    model->getKevaTableModel()->setKeva(vKevaEntries);
+    model->getKevaTableModel()->setKeva(std::move(vKevaEntries));
 }
 
 void KevaDialog::on_recentRequestsView_doubleClicked(const QModelIndex &index)

@@ -123,14 +123,17 @@ Qt::ItemFlags KevaTableModel::flags(const QModelIndex &index) const
 
 
 // actually add to table in GUI
-void KevaTableModel::setKeva(std::vector<KevaEntry>& vKevaEntries)
+void KevaTableModel::setKeva(std::vector<KevaEntry> vKevaEntries)
 {
+    // Remove the old ones.
+    removeRows(0, list.size());
     list.clear();
-    beginInsertRows(QModelIndex(), 0, 0);
+
     for (auto it = vKevaEntries.begin(); it != vKevaEntries.end(); it++) {
+        beginInsertRows(QModelIndex(), 0, 0);
         list.prepend(*it);
+        endInsertRows();
     }
-    endInsertRows();
 }
 
 void KevaTableModel::sort(int column, Qt::SortOrder order)
@@ -161,6 +164,6 @@ bool KevaEntryLessThan::operator()(KevaEntry &left, KevaEntry &right) const
     case KevaTableModel::Value:
         return pLeft->value < pRight->value;
     default:
-        return pLeft->date.toTime_t() < pRight->date.toTime_t();
+        return pLeft->block < pRight->block;
     }
 }

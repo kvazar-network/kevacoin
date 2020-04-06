@@ -758,9 +758,10 @@ void WalletModel::getKevaEntries(std::vector<KevaEntry>& vKevaEntries, std::stri
 {
     LOCK(cs_main);
 
+    valtype nameSpaceVal = ValtypeFromString(nameSpace);
     valtype key;
     CKevaData data;
-    std::unique_ptr<CKevaIterator> iter(pcoinsTip->IterateKeys(ValtypeFromString(nameSpace)));
+    std::unique_ptr<CKevaIterator> iter(pcoinsTip->IterateKeys(nameSpaceVal));
     while (iter->next(key, data)) {
         KevaEntry entry;
         entry.key = ValtypeToString(key);

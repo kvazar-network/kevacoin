@@ -68,7 +68,7 @@ public:
     /*@}*/
 
     const KevaEntry &entry(int row) const { return list[row]; }
-    void setKeva(std::vector<KevaEntry>& vKevaEntries);
+    void setKeva(std::vector<KevaEntry> vKevaEntries);
 
 public Q_SLOTS:
     void sort(int column, Qt::SortOrder order = Qt::AscendingOrder);
