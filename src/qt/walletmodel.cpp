@@ -768,7 +768,11 @@ void WalletModel::getKevaEntries(std::vector<KevaEntry>& vKevaEntries, std::stri
         entry.value = ValtypeToString(data.getValue());
         entry.block = data.getHeight();
         // TODO: figure out how to get the date time from block.
-        entry.date = QDateTime::currentDateTime();
+
+        CBlockIndex* pblockindex = chainActive[entry.block];
+        if (pblockindex) {
+            entry.date.setTime_t(pblockindex->nTime);
+        }
         vKevaEntries.push_back(std::move(entry));
     }
 }

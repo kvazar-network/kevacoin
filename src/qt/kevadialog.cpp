@@ -134,6 +134,7 @@ void KevaDialog::on_showContent_clicked()
     std::vector<KevaEntry> vKevaEntries;
     model->getKevaEntries(vKevaEntries, ValtypeToString(namespaceVal));
     model->getKevaTableModel()->setKeva(std::move(vKevaEntries));
+    model->getKevaTableModel()->sort(KevaTableModel::Date, Qt::DescendingOrder);
 }
 
 void KevaDialog::on_recentRequestsView_doubleClicked(const QModelIndex &index)
