@@ -15,6 +15,7 @@
 #include <qt/platformstyle.h>
 #include <qt/receiverequestdialog.h>
 #include <qt/kevatablemodel.h>
+#include <qt/kevadetaildialog.h>
 #include <qt/walletmodel.h>
 
 #include <QAction>
@@ -56,7 +57,7 @@ KevaDialog::KevaDialog(const PlatformStyle *_platformStyle, QWidget *parent) :
     contextMenu->addAction(copyAmountAction);
 
     // context menu signals
-    connect(ui->recentRequestsView, SIGNAL(customContextMenuRequested(QPoint)), this, SLOT(showMenu(QPoint)));
+    connect(ui->kevaView, SIGNAL(customContextMenuRequested(QPoint)), this, SLOT(showMenu(QPoint)));
     connect(copyURIAction, SIGNAL(triggered()), this, SLOT(copyURI()));
     connect(copyLabelAction, SIGNAL(triggered()), this, SLOT(copyLabel()));
     connect(copyMessageAction, SIGNAL(triggered()), this, SLOT(copyMessage()));
@@ -71,7 +72,7 @@ void KevaDialog::setModel(WalletModel *_model)
     if(_model && _model->getOptionsModel())
     {
         _model->getKevaTableModel()->sort(KevaTableModel::Block, Qt::DescendingOrder);
-        QTableView* tableView = ui->recentRequestsView;
+        QTableView* tableView = ui->kevaView;
 
         tableView->verticalHeader()->hide();
         tableView->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
@@ -137,40 +138,37 @@ void KevaDialog::on_showContent_clicked()
     model->getKevaTableModel()->sort(KevaTableModel::Date, Qt::DescendingOrder);
 }
 
-void KevaDialog::on_recentRequestsView_doubleClicked(const QModelIndex &index)
+void KevaDialog::on_kevaView_doubleClicked(const QModelIndex &index)
 {
-    const KevaTableModel *submodel = model->getKevaTableModel();
-    ReceiveRequestDialog *dialog = new ReceiveRequestDialog(this);
-    dialog->setModel(model->getOptionsModel());
-    //dialog->setInfo(submodel->entry(index.row()).recipient);
+    KevaDetailDialog *dialog = new KevaDetailDialog(index, this);
     dialog->setAttribute(Qt::WA_DeleteOnClose);
     dialog->show();
 }
 
-void KevaDialog::recentRequestsView_selectionChanged(const QItemSelection &selected, const QItemSelection &deselected)
+void KevaDialog::kevaView_selectionChanged(const QItemSelection &selected, const QItemSelection &deselected)
 {
     // Enable Show/Remove buttons only if anything is selected.
-    bool enable = !ui->recentRequestsView->selectionModel()->selectedRows().isEmpty();
+    bool enable = !ui->kevaView->selectionModel()->selectedRows().isEmpty();
     ui->showRequestButton->setEnabled(enable);
     ui->removeRequestButton->setEnabled(enable);
 }
 
 void KevaDialog::on_showRequestButton_clicked()
 {
-    if(!model || !model->getKevaTableModel() || !ui->recentRequestsView->selectionModel())
+    if(!model || !model->getKevaTableModel() || !ui->kevaView->selectionModel())
         return;
-    QModelIndexList selection = ui->recentRequestsView->selectionModel()->selectedRows();
+    QModelIndexList selection = ui->kevaView->selectionModel()->selectedRows();
 
     for (const QModelIndex& index : selection) {
-        on_recentRequestsView_doubleClicked(index);
+        on_kevaView_doubleClicked(index);
     }
 }
 
 void KevaDialog::on_removeRequestButton_clicked()
 {
-    if(!model || !model->getKevaTableModel() || !ui->recentRequestsView->selectionModel())
+    if(!model || !model->getKevaTableModel() || !ui->kevaView->selectionModel())
         return;
-    QModelIndexList selection = ui->recentRequestsView->selectionModel()->selectedRows();
+    QModelIndexList selection = ui->kevaView->selectionModel()->selectedRows();
     if(selection.empty())
         return;
     // correct for selection mode ContiguousSelection
@@ -204,9 +202,9 @@ void KevaDialog::keyPressEvent(QKeyEvent *event)
 
 QModelIndex KevaDialog::selectedRow()
 {
-    if(!model || !model->getKevaTableModel() || !ui->recentRequestsView->selectionModel())
+    if(!model || !model->getKevaTableModel() || !ui->kevaView->selectionModel())
         return QModelIndex();
-    QModelIndexList selection = ui->recentRequestsView->selectionModel()->selectedRows();
+    QModelIndexList selection = ui->kevaView->selectionModel()->selectedRows();
     if(selection.empty())
         return QModelIndex();
     // correct for selection mode ContiguousSelection
