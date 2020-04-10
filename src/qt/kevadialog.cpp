@@ -15,8 +15,10 @@
 #include <qt/platformstyle.h>
 #include <qt/receiverequestdialog.h>
 #include <qt/kevatablemodel.h>
+#include <qt/kevanamespacemodel.h>
 #include <qt/kevadetaildialog.h>
 #include <qt/kevanewnamespacedialog.h>
+#include <qt/kevamynamespacesdialog.h>
 #include <qt/walletmodel.h>
 
 #include <QAction>
@@ -127,6 +129,24 @@ void KevaDialog::on_createNamespace_clicked()
         return;
 
     KevaNewNamespaceDialog *dialog = new KevaNewNamespaceDialog(this);
+    dialog->setAttribute(Qt::WA_DeleteOnClose);
+    dialog->show();
+}
+
+
+void KevaDialog::on_listNamespaces_clicked()
+{
+    if(!model || !model->getKevaTableModel())
+        return;
+
+    KevaMyNamespacesDialog *dialog = new KevaMyNamespacesDialog(this);
+
+    std::vector<NamespaceEntry> vNamespaceEntries;
+    model->getNamespaceEntries(vNamespaceEntries);
+    model->getKevaNamespaceModel()->setNamespace(std::move(vNamespaceEntries));
+    model->getKevaNamespaceModel()->sort(KevaNamespaceModel::Name, Qt::DescendingOrder);
+
+    dialog->setModel(model);
     dialog->setAttribute(Qt::WA_DeleteOnClose);
     dialog->show();
 }

@@ -124,6 +124,26 @@
            </widget>
           </item>
           <item>
+           <widget class="QPushButton" name="listNamespaces">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="toolTip">
+                <string>List my namepsaces</string>
+            </property>
+            <property name="text">
+             <string>&amp;My Namespaces</string>
+            </property>
+            <property name="icon">
+             <iconset resource="../bitcoin.qrc">
+              <normaloff>:/icons/editpaste</normaloff>:/icons/editpaste</iconset>
+            </property>
+           </widget>
+          </item>
+          <item>
            <spacer name="horizontalSpacer">
             <property name="orientation">
              <enum>Qt::Horizontal</enum>

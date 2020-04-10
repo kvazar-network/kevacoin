@@ -12,6 +12,7 @@
 #include <qt/paymentserver.h>
 #include <qt/recentrequeststablemodel.h>
 #include <qt/kevatablemodel.h>
+#include <qt/kevanamespacemodel.h>
 #include <qt/sendcoinsdialog.h>
 #include <qt/transactiontablemodel.h>
 
@@ -45,6 +46,7 @@ WalletModel::WalletModel(const PlatformStyle *platformStyle, CWallet *_wallet, O
     transactionTableModel(0),
     recentRequestsTableModel(0),
     kevaTableModel(0),
+    kevaNamespaceModel(0),
     cachedBalance(0), cachedUnconfirmedBalance(0), cachedImmatureBalance(0),
     cachedEncryptionStatus(Unencrypted),
     cachedNumBlocks(0)
@@ -56,6 +58,7 @@ WalletModel::WalletModel(const PlatformStyle *platformStyle, CWallet *_wallet, O
     transactionTableModel = new TransactionTableModel(platformStyle, wallet, this);
     recentRequestsTableModel = new RecentRequestsTableModel(wallet, this);
     kevaTableModel = new KevaTableModel(wallet, this);
+    kevaNamespaceModel = new KevaNamespaceModel(wallet, this);
 
     // This timer will be fired repeatedly to update the balance
     pollTimer = new QTimer(this);
@@ -401,6 +404,11 @@ RecentRequestsTableModel *WalletModel::getRecentRequestsTableModel()
 KevaTableModel *WalletModel::getKevaTableModel()
 {
     return kevaTableModel;
+}
+
+KevaNamespaceModel *WalletModel::getKevaNamespaceModel()
+{
+    return kevaNamespaceModel;
 }
 
 WalletModel::EncryptionStatus WalletModel::getEncryptionStatus() const
@@ -775,4 +783,62 @@ void WalletModel::getKevaEntries(std::vector<KevaEntry>& vKevaEntries, std::stri
         }
         vKevaEntries.push_back(std::move(entry));
     }
+}
+
+void WalletModel::getNamespaceEntries(std::vector<NamespaceEntry>& vNamespaceEntries)
+{
+    LOCK2(cs_main, wallet->cs_wallet);
+    std::map<std::string, std::string> mapObjects;
+    for (const auto& item : wallet->mapWallet) {
+        const CWalletTx& tx = item.second;
+        if (!tx.tx->IsKevacoin()) {
+            continue;
+        }
+
+        CKevaScript kevaOp;
+        int nOut = -1;
+        for (unsigned i = 0; i < tx.tx->vout.size(); ++i) {
+            const CKevaScript cur(tx.tx->vout[i].scriptPubKey);
+            if (cur.isKevaOp()) {
+                if (nOut != -1) {
+                    LogPrintf("ERROR: wallet contains tx with multiple name outputs");
+                } else {
+                    kevaOp = cur;
+                    nOut = i;
+                }
+            }
+        }
+
+        if (nOut == -1) {
+            continue;
+        }
+
+        if (!kevaOp.isNamespaceRegistration() && !kevaOp.isAnyUpdate()) {
+            continue;
+        }
+
+        const valtype nameSpace = kevaOp.getOpNamespace();
+        const std::string nameSpaceStr = EncodeBase58Check(nameSpace);
+        const CBlockIndex* pindex;
+        const int depth = tx.GetDepthInMainChain(pindex);
+        if (depth <= 0) {
+            continue;
+        }
+
+        const bool mine = IsMine(*wallet, kevaOp.getAddress());
+        CKevaData data;
+        if (mine && pcoinsTip->GetNamespace(nameSpace, data)) {
+            std::string displayName = ValtypeToString(data.getValue());
+            mapObjects[nameSpaceStr] = displayName;
+        }
+    }
+
+    std::map<std::string, std::string>::iterator it = mapObjects.begin();
+	while (it != mapObjects.end()) {
+        NamespaceEntry entry;
+        entry.id = it->first;
+        entry.name = it->second;
+        vNamespaceEntries.push_back(std::move(entry));
+		it++;
+	}
 }
