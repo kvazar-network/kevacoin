@@ -137,6 +137,7 @@ QT_FORMS_UI = \
   qt/forms/receiverequestdialog.ui \
   qt/forms/kevadialog.ui \
   qt/forms/kevadetaildialog.ui \
+  qt/forms/kevanewnamespacedialog.ui \
   qt/forms/debugwindow.ui \
   qt/forms/sendcoinsdialog.ui \
   qt/forms/sendcoinsentry.ui \
@@ -177,6 +178,7 @@ QT_MOC_CPP = \
   qt/moc_recentrequeststablemodel.cpp \
   qt/moc_kevatablemodel.cpp \
   qt/moc_kevadetaildialog.cpp \
+  qt/moc_kevanewnamespacedialog.cpp \
   qt/moc_rpcconsole.cpp \
   qt/moc_sendcoinsdialog.cpp \
   qt/moc_sendcoinsentry.cpp \
@@ -266,6 +268,7 @@ BITCOIN_QT_H = \
   qt/kevadialog.h \
   qt/kevatablemodel.h \
   qt/kevadetaildialog.h \
+  qt/kevanewnamespacedialog.h \
   qt/utilitydialog.h \
   qt/walletframe.h \
   qt/walletmodel.h \
@@ -384,6 +387,7 @@ BITCOIN_QT_WALLET_CPP = \
   qt/kevadialog.cpp \
   qt/kevatablemodel.cpp \
   qt/kevadetaildialog.cpp \
+  qt/kevanewnamespacedialog.cpp \
   qt/walletframe.cpp \
   qt/walletmodel.cpp \
   qt/walletmodeltransaction.cpp \

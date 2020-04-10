@@ -16,6 +16,7 @@
 #include <qt/receiverequestdialog.h>
 #include <qt/kevatablemodel.h>
 #include <qt/kevadetaildialog.h>
+#include <qt/kevanewnamespacedialog.h>
 #include <qt/walletmodel.h>
 
 #include <QAction>
@@ -118,6 +119,16 @@ void KevaDialog::updateDisplayUnit()
     if(model && model->getOptionsModel())
     {
     }
+}
+
+void KevaDialog::on_createNamespace_clicked()
+{
+    if(!model || !model->getKevaTableModel())
+        return;
+
+    KevaNewNamespaceDialog *dialog = new KevaNewNamespaceDialog(this);
+    dialog->setAttribute(Qt::WA_DeleteOnClose);
+    dialog->show();
 }
 
 void KevaDialog::on_showContent_clicked()

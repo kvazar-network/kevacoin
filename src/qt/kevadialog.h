@@ -65,6 +65,7 @@ private:
 
 private Q_SLOTS:
     void on_showContent_clicked();
+    void on_createNamespace_clicked();
     void on_showRequestButton_clicked();
     void on_removeRequestButton_clicked();
     void on_kevaView_doubleClicked(const QModelIndex &index);
