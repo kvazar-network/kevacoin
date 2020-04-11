@@ -95,6 +95,12 @@ void KevaDialog::setModel(WalletModel *_model)
     }
 }
 
+void KevaDialog::showNamespace(QString ns)
+{
+    ui->nameSpace->setText(ns);
+    on_showContent_clicked();
+}
+
 KevaDialog::~KevaDialog()
 {
     delete ui;

@@ -9,6 +9,8 @@
 #include <QString>
 
 #include <QDialog>
+#include <QItemSelection>
+#include <QAbstractItemView>
 
 class WalletModel;
 
@@ -31,12 +33,19 @@ class KevaMyNamespacesDialog : public QDialog
 public:
     explicit KevaMyNamespacesDialog(QWidget *parent = 0);
     ~KevaMyNamespacesDialog();
-    void accept();
     void setModel(WalletModel *_model);
+
+public Q_SLOTS:
+    void apply();
+    void reject();
+
+private Q_SLOTS:
+    void namespaceView_selectionChanged();
 
 private:
     Ui::KevaMyNamespacesDialog *ui;
     WalletModel *model;
+    QModelIndex selectedIndex;
 };
 
 #endif // BITCOIN_QT_KEVAMYNMAESPACESDIALOG_H

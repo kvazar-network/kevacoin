@@ -6,7 +6,9 @@
 #include <qt/forms/ui_kevamynamespacesdialog.h>
 
 #include <qt/kevanamespacemodel.h>
+#include <qt/kevadialog.h>
 
+#include <QPushButton>
 #include <QModelIndex>
 
 KevaMyNamespacesDialog::KevaMyNamespacesDialog(QWidget *parent) :
@@ -14,6 +16,9 @@ KevaMyNamespacesDialog::KevaMyNamespacesDialog(QWidget *parent) :
     ui(new Ui::KevaMyNamespacesDialog)
 {
     ui->setupUi(this);
+    ui->buttonBox->button(QDialogButtonBox::Apply)->setEnabled(false);
+    connect(ui->buttonBox->button(QDialogButtonBox::Close), SIGNAL(clicked()), this, SLOT(reject()));
+    connect(ui->buttonBox->button(QDialogButtonBox::Apply), SIGNAL(clicked()), this, SLOT(apply()));
 }
 
 void KevaMyNamespacesDialog::setModel(WalletModel *_model)
@@ -35,16 +40,37 @@ void KevaMyNamespacesDialog::setModel(WalletModel *_model)
         //tableView->setColumnWidth(KevaNamespaceModel::Name, NAME_COLUMN_WIDTH);
         tableView->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
 
-        connect(tableView->selectionModel(),
-            SIGNAL(selectionChanged(QItemSelection, QItemSelection)), this,
-            SLOT(recentRequestsView_selectionChanged(QItemSelection, QItemSelection)));
+        connect(tableView->selectionModel(), SIGNAL(selectionChanged(QItemSelection,QItemSelection)),
+        this, SLOT(namespaceView_selectionChanged()));
     }
 }
 
-void KevaMyNamespacesDialog::accept()
+
+void KevaMyNamespacesDialog::namespaceView_selectionChanged()
 {
-    // Create the namespace here.
-    QDialog::accept();
+    bool enable = !ui->namespaceView->selectionModel()->selectedRows().isEmpty();
+    ui->buttonBox->button(QDialogButtonBox::Apply)->setEnabled(enable);
+
+    if (enable) {
+        selectedIndex = ui->namespaceView->selectionModel()->currentIndex();
+    } else {
+        QModelIndex empty;
+        selectedIndex = empty;
+    }
+}
+
+void KevaMyNamespacesDialog::apply()
+{
+    QModelIndex idIdx = selectedIndex.sibling(selectedIndex.row(), KevaNamespaceModel::Id);
+    QString idStr = idIdx.data(Qt::DisplayRole).toString();
+    KevaDialog* dialog = (KevaDialog*)this->parentWidget();
+    dialog->showNamespace(idStr);
+    QDialog::close();
+}
+
+void KevaMyNamespacesDialog::reject()
+{
+    QDialog::reject();
 }
 
 KevaMyNamespacesDialog::~KevaMyNamespacesDialog()

@@ -43,6 +43,7 @@ public:
     ~KevaDialog();
 
     void setModel(WalletModel *model);
+    void showNamespace(QString ns);
 
 public Q_SLOTS:
     void clear();

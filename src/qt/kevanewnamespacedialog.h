@@ -23,6 +23,8 @@ class KevaNewNamespaceDialog : public QDialog
 public:
     explicit KevaNewNamespaceDialog(QWidget *parent = 0);
     ~KevaNewNamespaceDialog();
+
+public Q_SLOTS:
     void accept();
 
 private:
