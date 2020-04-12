@@ -16,8 +16,8 @@ KevaNewNamespaceDialog::KevaNewNamespaceDialog(QWidget *parent) :
     ui(new Ui::KevaNewNamespaceDialog)
 {
     ui->setupUi(this);
-    connect(ui->buttonBox->button(QDialogButtonBox::Cancel), SIGNAL(clicked()), this, SLOT(reject()));
-    connect(ui->buttonBox->button(QDialogButtonBox::Save), SIGNAL(clicked()), this, SLOT(accept()));
+    connect(ui->buttonBox->button(QDialogButtonBox::Cancel), SIGNAL(clicked()), this, SLOT(close()));
+    connect(ui->buttonBox->button(QDialogButtonBox::Save), SIGNAL(clicked()), this, SLOT(create()));
     connect(ui->namespaceText, SIGNAL(textChanged(const QString &)), this, SLOT(onNamespaceChanged(const QString &)));
     ui->buttonBox->button(QDialogButtonBox::Save)->setEnabled(false);
 }
@@ -29,21 +29,22 @@ void KevaNewNamespaceDialog::onNamespaceChanged(const QString & ns)
     ui->buttonBox->button(QDialogButtonBox::Save)->setEnabled(enabled);
 }
 
-void KevaNewNamespaceDialog::accept()
+void KevaNewNamespaceDialog::create()
 {
     KevaDialog* dialog = (KevaDialog*)this->parentWidget();
     QString nsText  = ui->namespaceText->text();
     std::string namespaceId;
     if (!dialog->createNamespace(nsText.toStdString(), namespaceId)) {
-        //TODO: error message.
+        QDialog::close();
         return;
     }
     dialog->showNamespace(QString::fromStdString(namespaceId));
-    QDialog::accept();
+    QDialog::close();
 }
 
-void KevaNewNamespaceDialog::reject()
+void KevaNewNamespaceDialog::close()
 {
+    QDialog::close();
 }
 
 KevaNewNamespaceDialog::~KevaNewNamespaceDialog()

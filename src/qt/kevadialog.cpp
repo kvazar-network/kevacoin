@@ -222,11 +222,26 @@ void KevaDialog::on_removeButton_clicked()
     std::string nameSpace = ui->nameSpace->text().toStdString();
     std::string key = keyStr.toStdString();
 
-    if (this->model->deleteKevaEntry(nameSpace, key)) {
-        // correct for selection mode ContiguousSelection
-        QModelIndex firstIndex = selection.at(0);
-        model->getKevaTableModel()->removeRows(firstIndex.row(), selection.length(), firstIndex.parent());
+    int ret = this->model->deleteKevaEntry(nameSpace, key);
+    if (ret > 0) {
+        QString msg;
+        switch (ret) {
+            case WalletModel::InvalidNamespace:
+                msg = tr("Invalid namespace \"%1\"").arg(ui->nameSpace->text());
+                break;
+            case WalletModel::KeyNotFound:
+                msg = tr("Key not found: \"%1\".").arg(keyStr);
+                break;
+            default:
+                msg = tr("Unknown error.");
+        }
+        QMessageBox::critical(this, tr("Error"), msg, QMessageBox::Ok);
+        return;
     }
+
+    // correct for selection mode ContiguousSelection
+    QModelIndex firstIndex = selection.at(0);
+    model->getKevaTableModel()->removeRows(firstIndex.row(), selection.length(), firstIndex.parent());
 }
 
 // We override the virtual resizeEvent of the QWidget to adjust tables column
@@ -324,9 +339,18 @@ int KevaDialog::createNamespace(std::string displayName, std::string& namespaceI
         return 0;
     }
 
-    if (!this->model->createNamespace(displayName, namespaceId)) {
-        // TODO: show error message.
-        return 1;
+    int ret = this->model->createNamespace(displayName, namespaceId);
+    if (ret > 0) {
+        QString msg;
+        switch (ret) {
+            case WalletModel::NamespaceTooLong:
+                msg = tr("Namespace too long \"%1\"").arg(QString::fromStdString(displayName));
+                break;
+            default:
+                msg = tr("Unknown error.");
+        }
+        QMessageBox::critical(this, tr("Error"), msg, QMessageBox::Ok);
+        return 0;
     }
     return 1;
 }

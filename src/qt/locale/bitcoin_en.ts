@@ -1167,7 +1167,7 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../kevadetaildialog.cpp" line="+17"/>
+        <location filename="../kevadetaildialog.cpp" line="+19"/>
         <source>Value for %1</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1175,18 +1175,18 @@
 <context>
     <name>KevaDialog</name>
     <message>
-        <location filename="../forms/kevadialog.ui" line="+215"/>
+        <location filename="../forms/kevadialog.ui" line="+235"/>
         <source>Show the selected request (does the same as double clicking an entry)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="-140"/>
-        <location line="+143"/>
+        <location line="-160"/>
+        <location line="+163"/>
         <source>Show</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="-184"/>
+        <location line="-204"/>
         <location line="+14"/>
         <source>The namespace ID with a prefix &quot;N&quot;.</source>
         <translation type="unfinished"></translation>
@@ -1208,22 +1208,32 @@
     </message>
     <message>
         <location line="+23"/>
-        <source>Bookmark this namespace</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location line="+3"/>
-        <source>&amp;Bookmark</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location line="+17"/>
         <source>Create a new namespace</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location line="+3"/>
-        <source>&amp;Create</source>
+        <source>&amp;Create namespace</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+17"/>
+        <source>List my namepsaces</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+3"/>
+        <source>&amp;My Namespaces</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+17"/>
+        <source>Show bookmarks</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+3"/>
+        <source>&amp;Bookmarks</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -1242,7 +1252,7 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../kevadialog.cpp" line="+47"/>
+        <location filename="../kevadialog.cpp" line="+50"/>
         <source>Copy URI</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1259,6 +1269,82 @@
     <message>
         <location line="+1"/>
         <source>Copy amount</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+162"/>
+        <source>Warning</source>
+        <translation type="unfinished">Warning</translation>
+    </message>
+    <message>
+        <location line="+0"/>
+        <source>Delete the key &quot;%1&quot;?</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+15"/>
+        <source>Invalid namespace &quot;%1&quot;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+3"/>
+        <source>Key not found: &quot;%1&quot;.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+3"/>
+        <location line="+114"/>
+        <source>Unknown error.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="-112"/>
+        <location line="+114"/>
+        <source>Error</source>
+        <translation type="unfinished">Error</translation>
+    </message>
+    <message>
+        <location line="-5"/>
+        <source>Namespace too long &quot;%1&quot;</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>KevaMyNamespacesDialog</name>
+    <message>
+        <location filename="../kevamynamespacesdialog.cpp" line="+20"/>
+        <source>Show</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>KevaNamespaceModel</name>
+    <message>
+        <location filename="../kevanamespacemodel.cpp" line="+21"/>
+        <source>Id</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+0"/>
+        <source>Name</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>KevaNewNamespaceDialog</name>
+    <message>
+        <location filename="../forms/kevanewnamespacedialog.ui" line="+22"/>
+        <source>The name of the namespace.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+3"/>
+        <source>Name:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+13"/>
+        <source>This pane allows the creation of a new Keva namespace</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -1285,7 +1371,7 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+73"/>
+        <location line="+81"/>
         <source>Requested</source>
         <translation type="unfinished"></translation>
     </message>
@@ -4020,12 +4106,12 @@
 <context>
     <name>WalletModel</name>
     <message>
-        <location filename="../walletmodel.cpp" line="+296"/>
+        <location filename="../walletmodel.cpp" line="+301"/>
         <source>Send Coins</source>
         <translation type="unfinished">Send Coins</translation>
     </message>
     <message>
-        <location line="+389"/>
+        <location line="+394"/>
         <location line="+39"/>
         <location line="+6"/>
         <source>Fee bump error</source>

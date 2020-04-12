@@ -48,7 +48,15 @@ QVariant KevaTableModel::data(const QModelIndex &index, int role) const
     if(!index.isValid() || index.row() >= list.length())
         return QVariant();
 
-    if(role == Qt::DisplayRole || role == Qt::EditRole)
+    if (role == Qt::TextColorRole)
+    {
+        const KevaEntry *rec = &list[index.row()];
+        if (rec->block < 0) {
+            return QVariant(QBrush (QColor(Qt::gray)));
+        }
+        return QVariant();
+    }
+    else if(role == Qt::DisplayRole || role == Qt::EditRole)
     {
         const KevaEntry *rec = &list[index.row()];
         switch(index.column())

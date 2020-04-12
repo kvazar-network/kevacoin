@@ -863,7 +863,7 @@ void WalletModel::getNamespaceEntries(std::vector<NamespaceEntry>& vNamespaceEnt
 
         for (auto ns: unconfirmedNamespaces) {
             NamespaceEntry entry;
-            entry.id = ValtypeToString(std::get<0>(ns));
+            entry.id = EncodeBase58Check(std::get<0>(ns));
             entry.name = ValtypeToString(std::get<1>(ns));
             entry.confirmed = false;
             vNamespaceEntries.push_back(std::move(entry));
@@ -886,7 +886,7 @@ int WalletModel::createNamespace(std::string displayNameStr, std::string& namesp
 {
     const valtype displayName = ValtypeFromString (displayNameStr);
     if (displayName.size() > MAX_NAMESPACE_LENGTH) {
-        return 0;
+        return NamespaceTooLong;
     }
 
     CReserveKey keyName(wallet);
@@ -915,7 +915,7 @@ int WalletModel::createNamespace(std::string displayNameStr, std::string& namesp
     keyName.KeepKey();
 
     namespaceId = EncodeBase58Check(kevaNamespace);
-    return 1;
+    return 0;
 }
 
 
@@ -923,14 +923,12 @@ int WalletModel::deleteKevaEntry(std::string namespaceStr, std::string keyStr)
 {
     valtype nameSpace;
     if (!DecodeKevaNamespace(namespaceStr, Params(), nameSpace)) {
-        //TODO: show error message.
-        return 0;
+        return InvalidNamespace;
     }
 
     const valtype key = ValtypeFromString(keyStr);
     if (key.size() > MAX_KEY_LENGTH) {
-        //TODO: show error message.
-        return 0;
+        return KeyTooLong;
     }
 
     bool hasKey = false;
@@ -949,8 +947,7 @@ int WalletModel::deleteKevaEntry(std::string namespaceStr, std::string keyStr)
     }
 
     if (!hasKey) {
-        //TODO: show error message.
-        return 0;
+        return KeyNotFound;
     }
 
     COutput output;
@@ -980,5 +977,5 @@ int WalletModel::deleteKevaEntry(std::string namespaceStr, std::string keyStr)
         KEVA_LOCKED_AMOUNT, false, wtx, coinControl);
 
     keyName.KeepKey();
-    return 1;
+    return 0;
 }

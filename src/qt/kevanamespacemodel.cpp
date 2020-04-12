@@ -45,7 +45,15 @@ QVariant KevaNamespaceModel::data(const QModelIndex &index, int role) const
     if(!index.isValid() || index.row() >= list.length())
         return QVariant();
 
-    if(role == Qt::DisplayRole || role == Qt::EditRole)
+    if (role == Qt::TextColorRole)
+    {
+        const NamespaceEntry *rec = &list[index.row()];
+        if (!rec->confirmed) {
+            return QVariant(QBrush (QColor(Qt::gray)));
+        }
+        return QVariant();
+    }
+    else if(role == Qt::DisplayRole || role == Qt::EditRole)
     {
         const NamespaceEntry *rec = &list[index.row()];
         switch(index.column())
@@ -105,12 +113,7 @@ bool KevaNamespaceModel::removeRows(int row, int count, const QModelIndex &paren
 
 Qt::ItemFlags KevaNamespaceModel::flags(const QModelIndex &index) const
 {
-    const NamespaceEntry *rec = &list[index.row()];
-    if (rec->confirmed) {
-        return Qt::ItemIsSelectable | Qt::ItemIsEnabled;
-    } else {
-        return Qt::ItemIsSelectable;
-    }
+    return Qt::ItemIsSelectable | Qt::ItemIsEnabled;
 }
 
 // actually add to table in GUI
