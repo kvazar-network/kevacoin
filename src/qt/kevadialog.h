@@ -50,6 +50,7 @@ public Q_SLOTS:
     void clear();
     void reject();
     void accept();
+    void onNamespaceChanged(const QString& nameSpace);
 
 protected:
     virtual void keyPressEvent(QKeyEvent *event);
@@ -71,6 +72,7 @@ private Q_SLOTS:
     void on_listNamespaces_clicked();
     void on_showValueButton_clicked();
     void on_removeButton_clicked();
+    void on_addKVButton_clicked();
     void on_kevaView_doubleClicked(const QModelIndex &index);
     void kevaView_selectionChanged();
     void updateDisplayUnit();

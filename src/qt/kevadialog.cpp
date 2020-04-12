@@ -17,6 +17,7 @@
 #include <qt/kevatablemodel.h>
 #include <qt/kevanamespacemodel.h>
 #include <qt/kevadetaildialog.h>
+#include <qt/kevaaddkeydialog.h>
 #include <qt/kevanewnamespacedialog.h>
 #include <qt/kevamynamespacesdialog.h>
 #include <qt/walletmodel.h>
@@ -44,6 +45,7 @@ KevaDialog::KevaDialog(const PlatformStyle *_platformStyle, QWidget *parent) :
         ui->receiveButton->setIcon(_platformStyle->SingleColorIcon(":/icons/address-book"));
         ui->showValueButton->setIcon(_platformStyle->SingleColorIcon(":/icons/edit"));
         ui->removeButton->setIcon(_platformStyle->SingleColorIcon(":/icons/remove"));
+        ui->addKVButton->setIcon(_platformStyle->SingleColorIcon(":/icons/add"));
     }
 
     // context menu actions
@@ -65,6 +67,8 @@ KevaDialog::KevaDialog(const PlatformStyle *_platformStyle, QWidget *parent) :
     connect(copyLabelAction, SIGNAL(triggered()), this, SLOT(copyLabel()));
     connect(copyMessageAction, SIGNAL(triggered()), this, SLOT(copyMessage()));
     connect(copyAmountAction, SIGNAL(triggered()), this, SLOT(copyAmount()));
+
+    connect(ui->nameSpace, SIGNAL(textChanged(const QString &)), this, SLOT(onNamespaceChanged(const QString &)));
 }
 
 void KevaDialog::setModel(WalletModel *_model)
@@ -138,6 +142,17 @@ void KevaDialog::on_createNamespace_clicked()
     dialog->show();
 }
 
+void KevaDialog::onNamespaceChanged(const QString& nameSpace)
+{
+    std::string namespaceStr = nameSpace.toStdString();
+    valtype nameSpaceVal;
+    if (DecodeKevaNamespace(namespaceStr, Params(), nameSpaceVal)) {
+        ui->addKVButton->setEnabled(true);
+    } else {
+        ui->addKVButton->setEnabled(false);
+    }
+}
+
 
 void KevaDialog::on_listNamespaces_clicked()
 {
@@ -187,6 +202,7 @@ void KevaDialog::kevaView_selectionChanged()
     bool enable = !ui->kevaView->selectionModel()->selectedRows().isEmpty();
     ui->showValueButton->setEnabled(enable);
     ui->removeButton->setEnabled(enable);
+    ui->addKVButton->setEnabled(enable);
 }
 
 void KevaDialog::on_showValueButton_clicked()
@@ -242,6 +258,13 @@ void KevaDialog::on_removeButton_clicked()
     // correct for selection mode ContiguousSelection
     QModelIndex firstIndex = selection.at(0);
     model->getKevaTableModel()->removeRows(firstIndex.row(), selection.length(), firstIndex.parent());
+}
+
+void KevaDialog::on_addKVButton_clicked()
+{
+    KevaAddKeyDialog *dialog = new KevaAddKeyDialog(this);
+    dialog->setAttribute(Qt::WA_DeleteOnClose);
+    dialog->show();
 }
 
 // We override the virtual resizeEvent of the QWidget to adjust tables column
