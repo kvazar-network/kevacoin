@@ -40,6 +40,8 @@
 #include <QSet>
 #include <QTimer>
 
+const int NAMESPACE_LENGTH           =  21;
+const std::string DUMMY_NAMESPACE    =  "___DUMMY_NAMESPACE___";
 
 WalletModel::WalletModel(const PlatformStyle *platformStyle, CWallet *_wallet, OptionsModel *_optionsModel, QObject *parent) :
     QObject(parent), wallet(_wallet), optionsModel(_optionsModel), addressTableModel(0),
@@ -764,9 +766,27 @@ int WalletModel::getDefaultConfirmTarget() const
 
 void WalletModel::getKevaEntries(std::vector<KevaEntry>& vKevaEntries, std::string nameSpace)
 {
+    valtype nameSpaceVal = ValtypeFromString(nameSpace);
+
+    {
+        // Get the unconfirmed namespaces and list them at the beginning.
+        LOCK (mempool.cs);
+
+        std::vector<std::tuple<valtype, valtype, valtype, uint256>> unconfirmedKeyValueList;
+        mempool.getUnconfirmedKeyValueList(unconfirmedKeyValueList, nameSpaceVal);
+
+        for (auto e : unconfirmedKeyValueList) {
+            KevaEntry entry;
+            entry.key = ValtypeToString(std::get<1>(e));
+            entry.value = ValtypeToString(std::get<2>(e));
+            entry.block = -1; // Unconfirmed.
+            entry.date = QDateTime();
+            vKevaEntries.push_back(std::move(entry));
+        }
+    }
+
     LOCK(cs_main);
 
-    valtype nameSpaceVal = ValtypeFromString(nameSpace);
     valtype key;
     CKevaData data;
     std::unique_ptr<CKevaIterator> iter(pcoinsTip->IterateKeys(nameSpaceVal));
@@ -783,6 +803,7 @@ void WalletModel::getKevaEntries(std::vector<KevaEntry>& vKevaEntries, std::stri
         }
         vKevaEntries.push_back(std::move(entry));
     }
+
 }
 
 void WalletModel::getNamespaceEntries(std::vector<NamespaceEntry>& vNamespaceEntries)
@@ -833,6 +854,23 @@ void WalletModel::getNamespaceEntries(std::vector<NamespaceEntry>& vNamespaceEnt
         }
     }
 
+    {
+        // Also get the unconfirmed namespaces and list them at the beginning.
+        LOCK (mempool.cs);
+
+        std::vector<std::tuple<valtype, valtype, uint256>> unconfirmedNamespaces;
+        mempool.getUnconfirmedNamespaceList(unconfirmedNamespaces);
+
+        for (auto ns: unconfirmedNamespaces) {
+            NamespaceEntry entry;
+            entry.id = ValtypeToString(std::get<0>(ns));
+            entry.name = ValtypeToString(std::get<1>(ns));
+            entry.confirmed = false;
+            vNamespaceEntries.push_back(std::move(entry));
+        }
+    }
+
+    // The confirmed namespaces.
     std::map<std::string, std::string>::iterator it = mapObjects.begin();
 	while (it != mapObjects.end()) {
         NamespaceEntry entry;
@@ -841,4 +879,106 @@ void WalletModel::getNamespaceEntries(std::vector<NamespaceEntry>& vNamespaceEnt
         vNamespaceEntries.push_back(std::move(entry));
 		it++;
 	}
+}
+
+
+int WalletModel::createNamespace(std::string displayNameStr, std::string& namespaceId)
+{
+    const valtype displayName = ValtypeFromString (displayNameStr);
+    if (displayName.size() > MAX_NAMESPACE_LENGTH) {
+        return 0;
+    }
+
+    CReserveKey keyName(wallet);
+    CPubKey pubKey;
+    const bool ok = keyName.GetReservedKey(pubKey, true);
+    assert(ok);
+
+    CKeyID keyId = pubKey.GetID();
+
+    // The namespace name is: Hash160("first txin")
+    // For now we don't know the first txin, so use dummy name here.
+    // It will be replaced later in CreateTransaction.
+    valtype namespaceDummy = ToByteVector(std::string(DUMMY_NAMESPACE));
+    assert(namespaceDummy.size() == NAMESPACE_LENGTH);
+
+    CScript redeemScript = GetScriptForDestination(WitnessV0KeyHash(keyId));
+    CScriptID scriptHash = CScriptID(redeemScript);
+    CScript addrName = GetScriptForDestination(scriptHash);
+    const CScript newScript = CKevaScript::buildKevaNamespace(addrName, namespaceDummy, displayName);
+
+    CCoinControl coinControl;
+    CWalletTx wtx;
+    valtype kevaNamespace;
+    SendMoneyToScript(wallet, newScript, nullptr, kevaNamespace,
+        KEVA_LOCKED_AMOUNT, false, wtx, coinControl);
+    keyName.KeepKey();
+
+    namespaceId = EncodeBase58Check(kevaNamespace);
+    return 1;
+}
+
+
+int WalletModel::deleteKevaEntry(std::string namespaceStr, std::string keyStr)
+{
+    valtype nameSpace;
+    if (!DecodeKevaNamespace(namespaceStr, Params(), nameSpace)) {
+        //TODO: show error message.
+        return 0;
+    }
+
+    const valtype key = ValtypeFromString(keyStr);
+    if (key.size() > MAX_KEY_LENGTH) {
+        //TODO: show error message.
+        return 0;
+    }
+
+    bool hasKey = false;
+    CKevaData data;
+    {
+        LOCK2(cs_main, mempool.cs);
+        std::vector<std::tuple<valtype, valtype, valtype, uint256>> unconfirmedKeyValueList;
+        valtype val;
+        if (mempool.getUnconfirmedKeyValue(nameSpace, key, val)) {
+            if (val.size() > 0) {
+                hasKey = true;
+            }
+        } else if (pcoinsTip->GetName(nameSpace, key, data)) {
+            hasKey = true;
+        }
+    }
+
+    if (!hasKey) {
+        //TODO: show error message.
+        return 0;
+    }
+
+    COutput output;
+    std::string kevaNamespce = namespaceStr;
+    if (!wallet->FindKevaCoin(output, kevaNamespce)) {
+        // TODO: This namespace can not be updated
+        return 0;
+    }
+    const COutPoint outp(output.tx->GetHash(), output.i);
+    const CTxIn txIn(outp);
+
+    CReserveKey keyName(wallet);
+    CPubKey pubKeyReserve;
+    const bool ok = keyName.GetReservedKey(pubKeyReserve, true);
+    assert(ok);
+
+    CScript redeemScript = GetScriptForDestination(WitnessV0KeyHash(pubKeyReserve.GetID()));
+    CScriptID scriptHash = CScriptID(redeemScript);
+    CScript addrName = GetScriptForDestination(scriptHash);
+
+    const CScript kevaScript = CKevaScript::buildKevaDelete(addrName, nameSpace, key);
+
+    CCoinControl coinControl;
+    CWalletTx wtx;
+    valtype empty;
+    SendMoneyToScript(wallet, kevaScript, &txIn, empty,
+        KEVA_LOCKED_AMOUNT, false, wtx, coinControl);
+
+    keyName.KeepKey();
+    return 1;
 }

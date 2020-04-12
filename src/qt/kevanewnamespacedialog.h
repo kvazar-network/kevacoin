@@ -26,6 +26,8 @@ public:
 
 public Q_SLOTS:
     void accept();
+    void reject();
+    void onNamespaceChanged(const QString & ns);
 
 private:
     Ui::KevaNewNamespaceDialog *ui;

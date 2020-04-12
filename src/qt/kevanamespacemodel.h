@@ -16,10 +16,11 @@ class CWallet;
 class NamespaceEntry
 {
 public:
-    NamespaceEntry() { }
+    NamespaceEntry():confirmed(true) { }
 
     std::string id;
     std::string name;
+    bool confirmed;
 };
 
 class NamespaceEntryLessThan

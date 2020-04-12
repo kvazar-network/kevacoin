@@ -38,12 +38,12 @@ KevaDialog::KevaDialog(const PlatformStyle *_platformStyle, QWidget *parent) :
 
     if (!_platformStyle->getImagesOnButtons()) {
         ui->receiveButton->setIcon(QIcon());
-        ui->showRequestButton->setIcon(QIcon());
-        ui->removeRequestButton->setIcon(QIcon());
+        ui->showValueButton->setIcon(QIcon());
+        ui->removeButton->setIcon(QIcon());
     } else {
         ui->receiveButton->setIcon(_platformStyle->SingleColorIcon(":/icons/address-book"));
-        ui->showRequestButton->setIcon(_platformStyle->SingleColorIcon(":/icons/edit"));
-        ui->removeRequestButton->setIcon(_platformStyle->SingleColorIcon(":/icons/remove"));
+        ui->showValueButton->setIcon(_platformStyle->SingleColorIcon(":/icons/edit"));
+        ui->removeButton->setIcon(_platformStyle->SingleColorIcon(":/icons/remove"));
     }
 
     // context menu actions
@@ -65,7 +65,6 @@ KevaDialog::KevaDialog(const PlatformStyle *_platformStyle, QWidget *parent) :
     connect(copyLabelAction, SIGNAL(triggered()), this, SLOT(copyLabel()));
     connect(copyMessageAction, SIGNAL(triggered()), this, SLOT(copyMessage()));
     connect(copyAmountAction, SIGNAL(triggered()), this, SLOT(copyAmount()));
-
 }
 
 void KevaDialog::setModel(WalletModel *_model)
@@ -87,9 +86,9 @@ void KevaDialog::setModel(WalletModel *_model)
         tableView->setColumnWidth(KevaTableModel::Key, KEY_COLUMN_WIDTH);
         tableView->setColumnWidth(KevaTableModel::Block, BLOCK_MINIMUM_COLUMN_WIDTH);
 
-        connect(tableView->selectionModel(),
-            SIGNAL(selectionChanged(QItemSelection, QItemSelection)), this,
-            SLOT(recentRequestsView_selectionChanged(QItemSelection, QItemSelection)));
+        connect(ui->kevaView->selectionModel(), SIGNAL(selectionChanged(QItemSelection,QItemSelection)),
+                this, SLOT(kevaView_selectionChanged()));
+
         // Last 2 columns are set by the columnResizingFixer, when the table geometry is ready.
         columnResizingFixer = new GUIUtil::TableViewLastColumnResizingFixer(tableView, BLOCK_MINIMUM_COLUMN_WIDTH, DATE_COLUMN_WIDTH, this);
     }
@@ -182,15 +181,15 @@ void KevaDialog::on_kevaView_doubleClicked(const QModelIndex &index)
     dialog->show();
 }
 
-void KevaDialog::kevaView_selectionChanged(const QItemSelection &selected, const QItemSelection &deselected)
+void KevaDialog::kevaView_selectionChanged()
 {
     // Enable Show/Remove buttons only if anything is selected.
     bool enable = !ui->kevaView->selectionModel()->selectedRows().isEmpty();
-    ui->showRequestButton->setEnabled(enable);
-    ui->removeRequestButton->setEnabled(enable);
+    ui->showValueButton->setEnabled(enable);
+    ui->removeButton->setEnabled(enable);
 }
 
-void KevaDialog::on_showRequestButton_clicked()
+void KevaDialog::on_showValueButton_clicked()
 {
     if(!model || !model->getKevaTableModel() || !ui->kevaView->selectionModel())
         return;
@@ -201,16 +200,33 @@ void KevaDialog::on_showRequestButton_clicked()
     }
 }
 
-void KevaDialog::on_removeRequestButton_clicked()
+void KevaDialog::on_removeButton_clicked()
 {
     if(!model || !model->getKevaTableModel() || !ui->kevaView->selectionModel())
         return;
     QModelIndexList selection = ui->kevaView->selectionModel()->selectedRows();
     if(selection.empty())
         return;
-    // correct for selection mode ContiguousSelection
-    QModelIndex firstIndex = selection.at(0);
-    model->getKevaTableModel()->removeRows(firstIndex.row(), selection.length(), firstIndex.parent());
+
+    QMessageBox::StandardButton reply;
+    QModelIndex index = selection.at(0);
+    QModelIndex keyIdx = index.sibling(index.row(), KevaTableModel::Key);
+    QString keyStr = keyIdx.data(Qt::DisplayRole).toString();
+    reply = QMessageBox::warning(this, tr("Warning"), tr("Delete the key \"%1\"?").arg(keyStr),
+                                QMessageBox::Cancel|QMessageBox::Ok);
+
+    if (reply == QMessageBox::Cancel) {
+        return;
+    }
+
+    std::string nameSpace = ui->nameSpace->text().toStdString();
+    std::string key = keyStr.toStdString();
+
+    if (this->model->deleteKevaEntry(nameSpace, key)) {
+        // correct for selection mode ContiguousSelection
+        QModelIndex firstIndex = selection.at(0);
+        model->getKevaTableModel()->removeRows(firstIndex.row(), selection.length(), firstIndex.parent());
+    }
 }
 
 // We override the virtual resizeEvent of the QWidget to adjust tables column
@@ -299,4 +315,18 @@ void KevaDialog::copyMessage()
 void KevaDialog::copyAmount()
 {
     copyColumnToClipboard(KevaTableModel::Block);
+}
+
+
+int KevaDialog::createNamespace(std::string displayName, std::string& namespaceId)
+{
+    if (!this->model) {
+        return 0;
+    }
+
+    if (!this->model->createNamespace(displayName, namespaceId)) {
+        // TODO: show error message.
+        return 1;
+    }
+    return 1;
 }

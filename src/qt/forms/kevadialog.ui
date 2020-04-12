@@ -227,7 +227,7 @@
       <item>
        <layout class="QHBoxLayout" name="horizontalLayout_2">
         <item>
-         <widget class="QPushButton" name="showRequestButton">
+         <widget class="QPushButton" name="showValueButton">
           <property name="enabled">
            <bool>false</bool>
           </property>
@@ -247,7 +247,7 @@
          </widget>
         </item>
         <item>
-         <widget class="QPushButton" name="removeRequestButton">
+         <widget class="QPushButton" name="removeButton">
           <property name="enabled">
            <bool>false</bool>
           </property>
@@ -295,15 +295,12 @@
   </customwidget>
  </customwidgets>
  <tabstops>
-  <tabstop>reqLabel</tabstop>
-  <tabstop>reqAmount</tabstop>
-  <tabstop>useBech32</tabstop>
   <tabstop>reqMessage</tabstop>
   <tabstop>receiveButton</tabstop>
   <tabstop>clearButton</tabstop>
   <tabstop>recentRequestsView</tabstop>
-  <tabstop>showRequestButton</tabstop>
-  <tabstop>removeRequestButton</tabstop>
+  <tabstop>showValueButton</tabstop>
+  <tabstop>removeButton</tabstop>
  </tabstops>
  <resources>
   <include location="../bitcoin.qrc"/>

@@ -105,9 +105,13 @@ bool KevaNamespaceModel::removeRows(int row, int count, const QModelIndex &paren
 
 Qt::ItemFlags KevaNamespaceModel::flags(const QModelIndex &index) const
 {
-    return Qt::ItemIsSelectable | Qt::ItemIsEnabled;
+    const NamespaceEntry *rec = &list[index.row()];
+    if (rec->confirmed) {
+        return Qt::ItemIsSelectable | Qt::ItemIsEnabled;
+    } else {
+        return Qt::ItemIsSelectable;
+    }
 }
-
 
 // actually add to table in GUI
 void KevaNamespaceModel::setNamespace(std::vector<NamespaceEntry> vNamespaceEntries)
