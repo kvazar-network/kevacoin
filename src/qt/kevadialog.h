@@ -75,6 +75,7 @@ private Q_SLOTS:
     void on_addKVButton_clicked();
     void on_kevaView_doubleClicked(const QModelIndex &index);
     void kevaView_selectionChanged();
+    void on_bookmarksButton_clicked();
     void updateDisplayUnit();
     void showMenu(const QPoint &point);
     void copyURI();

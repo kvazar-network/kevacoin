@@ -138,6 +138,7 @@ QT_FORMS_UI = \
   qt/forms/kevadialog.ui \
   qt/forms/kevadetaildialog.ui \
   qt/forms/kevaaddkeydialog.ui \
+  qt/forms/kevabookmarksdialog.ui \
   qt/forms/kevanewnamespacedialog.ui \
   qt/forms/kevamynamespacesdialog.ui \
   qt/forms/debugwindow.ui \
@@ -180,8 +181,10 @@ QT_MOC_CPP = \
   qt/moc_recentrequeststablemodel.cpp \
   qt/moc_kevatablemodel.cpp \
   qt/moc_kevanamespacemodel.cpp \
+  qt/moc_kevabookmarksmodel.cpp \
   qt/moc_kevadetaildialog.cpp \
   qt/moc_kevaaddkeydialog.cpp \
+  qt/moc_kevabookmarksdialog.cpp \
   qt/moc_kevanewnamespacedialog.cpp \
   qt/moc_kevamynamespacesdialog.cpp \
   qt/moc_rpcconsole.cpp \
@@ -273,8 +276,10 @@ BITCOIN_QT_H = \
   qt/kevadialog.h \
   qt/kevatablemodel.h \
   qt/kevanamespacemodel.h \
+  qt/kevabookmarksmodel.h \
   qt/kevadetaildialog.h \
   qt/kevaaddkeydialog.h \
+  qt/kevabookmarksdialog.h \
   qt/kevanewnamespacedialog.h \
   qt/kevamynamespacesdialog.h \
   qt/utilitydialog.h \
@@ -395,8 +400,10 @@ BITCOIN_QT_WALLET_CPP = \
   qt/kevadialog.cpp \
   qt/kevatablemodel.cpp \
   qt/kevanamespacemodel.cpp \
+  qt/kevabookmarksmodel.cpp \
   qt/kevadetaildialog.cpp \
   qt/kevaaddkeydialog.cpp \
+  qt/kevabookmarksdialog.cpp \
   qt/kevanewnamespacedialog.cpp \
   qt/kevamynamespacesdialog.cpp \
   qt/walletframe.cpp \

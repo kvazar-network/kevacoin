@@ -13,11 +13,12 @@
 #include <qt/bitcoinunits.h>
 #include <qt/optionsmodel.h>
 #include <qt/platformstyle.h>
-#include <qt/receiverequestdialog.h>
 #include <qt/kevatablemodel.h>
 #include <qt/kevanamespacemodel.h>
+#include <qt/kevabookmarksmodel.h>
 #include <qt/kevadetaildialog.h>
 #include <qt/kevaaddkeydialog.h>
+#include <qt/kevabookmarksdialog.h>
 #include <qt/kevanewnamespacedialog.h>
 #include <qt/kevamynamespacesdialog.h>
 #include <qt/walletmodel.h>
@@ -38,11 +39,11 @@ KevaDialog::KevaDialog(const PlatformStyle *_platformStyle, QWidget *parent) :
     ui->setupUi(this);
 
     if (!_platformStyle->getImagesOnButtons()) {
-        ui->receiveButton->setIcon(QIcon());
+        ui->bookmarksButton->setIcon(QIcon());
         ui->showValueButton->setIcon(QIcon());
         ui->removeButton->setIcon(QIcon());
     } else {
-        ui->receiveButton->setIcon(_platformStyle->SingleColorIcon(":/icons/address-book"));
+        ui->bookmarksButton->setIcon(_platformStyle->SingleColorIcon(":/icons/address-book"));
         ui->showValueButton->setIcon(_platformStyle->SingleColorIcon(":/icons/edit"));
         ui->removeButton->setIcon(_platformStyle->SingleColorIcon(":/icons/remove"));
         ui->addKVButton->setIcon(_platformStyle->SingleColorIcon(":/icons/add"));
@@ -165,6 +166,23 @@ void KevaDialog::on_listNamespaces_clicked()
     model->getNamespaceEntries(vNamespaceEntries);
     model->getKevaNamespaceModel()->setNamespace(std::move(vNamespaceEntries));
     model->getKevaNamespaceModel()->sort(KevaNamespaceModel::Name, Qt::DescendingOrder);
+
+    dialog->setModel(model);
+    dialog->setAttribute(Qt::WA_DeleteOnClose);
+    dialog->show();
+}
+
+void KevaDialog::on_bookmarksButton_clicked()
+{
+    if(!model || !model->getKevaTableModel())
+        return;
+
+    KevaBookmarksDialog *dialog = new KevaBookmarksDialog(this);
+
+    std::vector<BookmarkEntry> vBookmarkEntries;
+    model->getKevaBookmarkEntries(vBookmarkEntries);
+    model->getKevaBookmarksModel()->setBookmarks(std::move(vBookmarkEntries));
+    model->getKevaBookmarksModel()->sort(KevaBookmarksModel::Name, Qt::DescendingOrder);
 
     dialog->setModel(model);
     dialog->setAttribute(Qt::WA_DeleteOnClose);

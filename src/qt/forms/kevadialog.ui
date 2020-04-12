@@ -124,7 +124,7 @@
            </widget>
           </item>
           <item>
-           <widget class="QPushButton" name="receiveButton">
+           <widget class="QPushButton" name="bookmarksButton">
             <property name="sizePolicy">
              <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
               <horstretch>0</horstretch>

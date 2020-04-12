@@ -13,6 +13,7 @@
 #include <qt/recentrequeststablemodel.h>
 #include <qt/kevatablemodel.h>
 #include <qt/kevanamespacemodel.h>
+#include <qt/kevabookmarksmodel.h>
 #include <qt/sendcoinsdialog.h>
 #include <qt/transactiontablemodel.h>
 
@@ -49,6 +50,7 @@ WalletModel::WalletModel(const PlatformStyle *platformStyle, CWallet *_wallet, O
     recentRequestsTableModel(0),
     kevaTableModel(0),
     kevaNamespaceModel(0),
+    kevaBookmarksModel(0),
     cachedBalance(0), cachedUnconfirmedBalance(0), cachedImmatureBalance(0),
     cachedEncryptionStatus(Unencrypted),
     cachedNumBlocks(0)
@@ -61,6 +63,7 @@ WalletModel::WalletModel(const PlatformStyle *platformStyle, CWallet *_wallet, O
     recentRequestsTableModel = new RecentRequestsTableModel(wallet, this);
     kevaTableModel = new KevaTableModel(wallet, this);
     kevaNamespaceModel = new KevaNamespaceModel(wallet, this);
+    kevaBookmarksModel = new KevaBookmarksModel(wallet, this);
 
     // This timer will be fired repeatedly to update the balance
     pollTimer = new QTimer(this);
@@ -411,6 +414,11 @@ KevaTableModel *WalletModel::getKevaTableModel()
 KevaNamespaceModel *WalletModel::getKevaNamespaceModel()
 {
     return kevaNamespaceModel;
+}
+
+KevaBookmarksModel *WalletModel::getKevaBookmarksModel()
+{
+    return kevaBookmarksModel;
 }
 
 WalletModel::EncryptionStatus WalletModel::getEncryptionStatus() const
@@ -879,6 +887,14 @@ void WalletModel::getNamespaceEntries(std::vector<NamespaceEntry>& vNamespaceEnt
         vNamespaceEntries.push_back(std::move(entry));
 		it++;
 	}
+}
+
+void WalletModel::getKevaBookmarkEntries(std::vector<BookmarkEntry>& vBookmarkEntries)
+{
+    BookmarkEntry entry;
+    entry.id = "NgKBKkBAJMtzsuit85TpTpo5Xj6UQUg1wr";
+    entry.name = "Kevacoin Official Blog";
+    vBookmarkEntries.push_back(std::move(entry));
 }
 
 
