@@ -172,10 +172,19 @@ int KevaBookmarksModel::loadBookmarks()
     entry0["id"] = "NgKBKkBAJMtzsuit85TpTpo5Xj6UQUg1wr";
     entry0["name"] = "Kevacoin Official Blog";
 
-    // Other default entries ...
+    QJsonObject entry1;
+    entry1["id"] = "NV9GkLpCLMh4Nd6nZRkch8iNbuV8w9khTm";
+    entry1["name"] = "Kevacoin官方博客";
+
+    QJsonObject entry2;
+    entry2["id"] = "NfFPgVqzk3H9afHjX8FDoyhkwtwGNanjyG";
+    entry2["name"] = "Официальный блог Kevacoin";
 
     QJsonArray array;
     array.append(entry0);
+    array.append(entry1);
+    array.append(entry2);
+
     if (!saveBookmarks(array)) {
         return 0;
     }
