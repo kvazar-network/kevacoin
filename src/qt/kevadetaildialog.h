@@ -24,11 +24,17 @@ class KevaDetailDialog : public QDialog
     Q_OBJECT
 
 public:
-    explicit KevaDetailDialog(const QModelIndex &idx, QWidget *parent = 0);
+    explicit KevaDetailDialog(const QModelIndex &idx, QWidget *parent, const QString &nameSpace);
     ~KevaDetailDialog();
+
+public Q_SLOTS:
+    void onValueChanged();
+    void onSave();
 
 private:
     Ui::KevaDetailDialog *ui;
+    QString nameSpace;
+    QString key;
 };
 
 #endif // BITCOIN_QT_KEVADETAILDIALOG_H

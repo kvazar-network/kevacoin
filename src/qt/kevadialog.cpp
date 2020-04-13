@@ -207,7 +207,8 @@ void KevaDialog::on_showContent_clicked()
 
 void KevaDialog::on_kevaView_doubleClicked(const QModelIndex &index)
 {
-    KevaDetailDialog *dialog = new KevaDetailDialog(index, this);
+    QString nameSpace = ui->nameSpace->text();
+    KevaDetailDialog *dialog = new KevaDetailDialog(index, this, nameSpace);
     dialog->setAttribute(Qt::WA_DeleteOnClose);
     dialog->show();
 }
