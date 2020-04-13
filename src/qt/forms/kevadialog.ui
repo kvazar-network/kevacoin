@@ -112,7 +112,7 @@
              </sizepolicy>
             </property>
             <property name="toolTip">
-                <string>List my namepsaces</string>
+                <string>List my namespaces</string>
             </property>
             <property name="text">
              <string>&amp;My Namespaces</string>

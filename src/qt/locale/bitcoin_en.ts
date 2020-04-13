@@ -1160,6 +1160,46 @@
     </message>
 </context>
 <context>
+    <name>KevaAddKeyDialog</name>
+    <message>
+        <location filename="../forms/kevaaddkeydialog.ui" line="+20"/>
+        <source>Key</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+7"/>
+        <location line="+27"/>
+        <source>New value</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="-7"/>
+        <source>Value</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>KevaBookmarksDialog</name>
+    <message>
+        <location filename="../kevabookmarksdialog.cpp" line="+20"/>
+        <source>Show</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>KevaBookmarksModel</name>
+    <message>
+        <location filename="../kevabookmarksmodel.cpp" line="+28"/>
+        <source>Id</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+0"/>
+        <source>Name</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
     <name>KevaDetailDialog</name>
     <message>
         <location filename="../forms/kevadetaildialog.ui" line="+20"/>
@@ -1167,7 +1207,7 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../kevadetaildialog.cpp" line="+19"/>
+        <location filename="../kevadetaildialog.cpp" line="+24"/>
         <source>Value for %1</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1218,7 +1258,7 @@
     </message>
     <message>
         <location line="+17"/>
-        <source>List my namepsaces</source>
+        <source>List my namespaces</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -1252,7 +1292,17 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../kevadialog.cpp" line="+50"/>
+        <location line="+17"/>
+        <source>Add new key-value pair</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+3"/>
+        <source>Add key-value</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../kevadialog.cpp" line="+53"/>
         <source>Copy URI</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1272,7 +1322,7 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+162"/>
+        <location line="+192"/>
         <source>Warning</source>
         <translation type="unfinished">Warning</translation>
     </message>
@@ -1293,19 +1343,36 @@
     </message>
     <message>
         <location line="+3"/>
-        <location line="+114"/>
+        <location line="+122"/>
+        <location line="+28"/>
         <source>Unknown error.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="-112"/>
-        <location line="+114"/>
+        <location line="-148"/>
+        <location line="+122"/>
+        <location line="+28"/>
         <source>Error</source>
         <translation type="unfinished">Error</translation>
     </message>
     <message>
-        <location line="-5"/>
+        <location line="-33"/>
         <source>Namespace too long &quot;%1&quot;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+22"/>
+        <source>Cannot add key-value. Make sure you own this namespace.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+3"/>
+        <source>Key too long.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+3"/>
+        <source>Value too long.</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -4106,12 +4173,12 @@
 <context>
     <name>WalletModel</name>
     <message>
-        <location filename="../walletmodel.cpp" line="+301"/>
+        <location filename="../walletmodel.cpp" line="+304"/>
         <source>Send Coins</source>
         <translation type="unfinished">Send Coins</translation>
     </message>
     <message>
-        <location line="+394"/>
+        <location line="+399"/>
         <location line="+39"/>
         <location line="+6"/>
         <source>Fee bump error</source>
