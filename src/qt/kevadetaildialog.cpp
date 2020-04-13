@@ -18,7 +18,8 @@ KevaDetailDialog::KevaDetailDialog(const QModelIndex &idx, QWidget *parent) :
     QModelIndex valueIdx = idx.sibling(idx.row(), KevaTableModel::Value);
     setWindowTitle(tr("Value for %1").arg(keyIdx.data(Qt::DisplayRole).toString()));
     QString desc = valueIdx.data(Qt::DisplayRole).toString();
-    ui->detailText->setHtml(desc);
+    //ui->detailText->setHtml(desc);
+    ui->detailText->setPlainText(desc);
 }
 
 KevaDetailDialog::~KevaDetailDialog()

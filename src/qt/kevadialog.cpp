@@ -179,9 +179,7 @@ void KevaDialog::on_bookmarksButton_clicked()
 
     KevaBookmarksDialog *dialog = new KevaBookmarksDialog(this);
 
-    std::vector<BookmarkEntry> vBookmarkEntries;
-    model->getKevaBookmarkEntries(vBookmarkEntries);
-    model->getKevaBookmarksModel()->setBookmarks(std::move(vBookmarkEntries));
+    model->getKevaBookmarksModel()->loadBookmarks();
     model->getKevaBookmarksModel()->sort(KevaBookmarksModel::Name, Qt::DescendingOrder);
 
     dialog->setModel(model);

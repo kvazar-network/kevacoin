@@ -10,6 +10,10 @@
 #include <QAbstractTableModel>
 #include <QStringList>
 #include <QDateTime>
+#include <QJsonObject>
+#include <QJsonArray>
+
+#define BOOKMARK_FILE "bookmarks.dat"
 
 class CWallet;
 
@@ -65,6 +69,11 @@ public:
 
     const BookmarkEntry &entry(int row) const { return list[row]; }
     void setBookmarks(std::vector<BookmarkEntry> vBookmarkEntries);
+    void setBookmarks(QJsonArray &json);
+
+    int loadBookmarks();
+    int loadBookmarks(QJsonArray &json);
+    int saveBookmarks(QJsonArray &json);
 
 public Q_SLOTS:
     void sort(int column, Qt::SortOrder order = Qt::AscendingOrder);
@@ -74,6 +83,8 @@ private:
     QStringList columns;
     QList<BookmarkEntry> list;
     int64_t nReceiveRequestsMaxId;
+
+    QString getBookmarkFile();
 };
 
 #endif // BITCOIN_QT_KEVABOOKMARKSMODEL_H

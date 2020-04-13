@@ -238,7 +238,6 @@ public:
     // Keva
     void getKevaEntries(std::vector<KevaEntry>& vKevaEntries, std::string nameSpace);
     void getNamespaceEntries(std::vector<NamespaceEntry>& vNamespaceEntries);
-    void getKevaBookmarkEntries(std::vector<BookmarkEntry>& vBookmarkEntries);
     int createNamespace(std::string displayName, std::string& namespaceId);
     int deleteKevaEntry(std::string nameSpace, std::string key);
 

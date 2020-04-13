@@ -8,8 +8,15 @@
 #include <qt/guiutil.h>
 #include <qt/optionsmodel.h>
 
+#include <util.h>
+
 #include <clientversion.h>
 #include <streams.h>
+
+#include <QFile>
+#include <QJsonDocument>
+#include <QJsonArray>
+#include <QDir>
 
 
 KevaBookmarksModel::KevaBookmarksModel(CWallet *wallet, WalletModel *parent) :
@@ -126,10 +133,84 @@ void KevaBookmarksModel::setBookmarks(std::vector<BookmarkEntry> vBookmarEntries
     }
 }
 
+void KevaBookmarksModel::setBookmarks(QJsonArray &array)
+{
+    std::vector<BookmarkEntry> vBookmarEntries;
+    for (int i = 0; i < array.size(); ++i) {
+        QJsonObject obj = array[i].toObject();
+        BookmarkEntry entry;
+        entry.id = obj["id"].toString().toStdString();
+        entry.name = obj["name"].toString().toStdString();
+        vBookmarEntries.push_back(entry);
+    }
+    setBookmarks(std::move(vBookmarEntries));
+}
+
 void KevaBookmarksModel::sort(int column, Qt::SortOrder order)
 {
     qSort(list.begin(), list.end(), BookmarkEntryLessThan(column, order));
     Q_EMIT dataChanged(index(0, 0, QModelIndex()), index(list.size() - 1, NUMBER_OF_COLUMNS - 1, QModelIndex()));
+}
+
+
+QString KevaBookmarksModel::getBookmarkFile()
+{
+    QString dataDir = GUIUtil::boostPathToQString(GetDataDir());
+    return dataDir + QDir::separator() + QStringLiteral(BOOKMARK_FILE);
+}
+
+int KevaBookmarksModel::loadBookmarks()
+{
+    QJsonArray json;
+    if (loadBookmarks(json)) {
+        setBookmarks(json);
+        return 1;
+    }
+
+    // No bookmark file. Save and load the default ones.
+    QJsonObject entry0;
+    entry0["id"] = "NgKBKkBAJMtzsuit85TpTpo5Xj6UQUg1wr";
+    entry0["name"] = "Kevacoin Official Blog";
+
+    // Other default entries ...
+
+    QJsonArray array;
+    array.append(entry0);
+    if (!saveBookmarks(array)) {
+        return 0;
+    }
+
+    // Load the bookmarks again.
+    if (loadBookmarks(json)) {
+        setBookmarks(json);
+        return 1;
+    }
+    return 0;
+}
+
+
+int KevaBookmarksModel::loadBookmarks(QJsonArray &json)
+{
+    QFile loadFile(getBookmarkFile());
+    if (!loadFile.open(QIODevice::ReadOnly)) {
+        return 0;
+    }
+    QByteArray saveData = loadFile.readAll();
+    QJsonDocument loadDoc(QJsonDocument::fromBinaryData(saveData));
+    json = loadDoc.array();
+    return 1;
+}
+
+int KevaBookmarksModel::saveBookmarks(QJsonArray &json)
+{
+    QFile saveFile(getBookmarkFile());
+    if (!saveFile.open(QIODevice::WriteOnly)) {
+        return 0;
+    }
+
+    QJsonDocument saveDoc(json);
+    saveFile.write(saveDoc.toBinaryData());
+    return 1;
 }
 
 

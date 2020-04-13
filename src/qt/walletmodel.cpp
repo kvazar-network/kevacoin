@@ -889,15 +889,6 @@ void WalletModel::getNamespaceEntries(std::vector<NamespaceEntry>& vNamespaceEnt
 	}
 }
 
-void WalletModel::getKevaBookmarkEntries(std::vector<BookmarkEntry>& vBookmarkEntries)
-{
-    BookmarkEntry entry;
-    entry.id = "NgKBKkBAJMtzsuit85TpTpo5Xj6UQUg1wr";
-    entry.name = "Kevacoin Official Blog";
-    vBookmarkEntries.push_back(std::move(entry));
-}
-
-
 int WalletModel::createNamespace(std::string displayNameStr, std::string& namespaceId)
 {
     const valtype displayName = ValtypeFromString (displayNameStr);
