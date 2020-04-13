@@ -908,6 +908,229 @@
     </message>
 </context>
 <context>
+    <name>KevaAddKeyDialog</name>
+    <message>
+        <source>Key</source>
+        <translation>键</translation>
+    </message>
+    <message>
+        <source>New value</source>
+        <translation>新值</translation>
+    </message>
+    <message>
+        <source>Value</source>
+        <translation>值</translation>
+    </message>
+</context>
+<context>
+    <name>KevaBookmarksDialog</name>
+    <message>
+        <source>Show</source>
+        <translation>显示</translation>
+    </message>
+</context>
+<context>
+    <name>KevaBookmarksModel</name>
+    <message>
+        <source>Id</source>
+        <translation>ID</translation>
+    </message>
+    <message>
+        <source>Name</source>
+        <translation>名称</translation>
+    </message>
+</context>
+<context>
+    <name>KevaDetailDialog</name>
+    <message>
+        <source>This pane shows the value associated with a give key</source>
+        <translation>此窗格显示与给定键关联的值</translation>
+    </message>
+    <message numerus="yes">
+        <source>Value for %1</source>
+        <translation><numerusform>%1 相应值</numerusform></translation>
+    </message>
+</context>
+<context>
+    <name>KevaDialog</name>
+    <message>
+        <source>Show</source>
+        <translation>显示</translation>
+    </message>
+    <message>
+        <source>The namespace ID with a prefix &quot;N&quot;.</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Use this form to perform Keva database operations.</source>
+        <translation>使用此表单执行Keva数据库操作。</translation>
+    </message>
+    <message>
+        <source>Namespace:</source>
+        <translation>命名空间：</translation>
+    </message>
+    <message>
+        <source>Show content of the namespace.</source>
+        <translation>显示名称空间的内容。</translation>
+    </message>
+    <message>
+        <source>Create a new namespace</source>
+        <translation>创建一个新的名称空间</translation>
+    </message>
+    <message>
+        <source>&amp;Create namespace</source>
+        <translation>创建名称空间</translation>
+    </message>
+    <message>
+        <source>List my namespaces</source>
+        <translation>列出我的名称空间</translation>
+    </message>
+    <message>
+        <source>&amp;My Namespaces</source>
+        <translation>我的名称空间</translation>
+    </message>
+    <message>
+        <source>Show bookmarks</source>
+        <translation>显示书签</translation>
+    </message>
+    <message>
+        <source>&amp;Bookmarks</source>
+        <translation>书签</translation>
+    </message>
+    <message>
+        <source>Content of namespace</source>
+        <translation>命名空间的内容</translation>
+    </message>
+    <message>
+        <source>Remove the selected entries from the list</source>
+        <translation>从列表中删除所选条目</translation>
+    </message>
+    <message>
+        <source>Remove</source>
+        <translation>删除</translation>
+    </message>
+    <message>
+        <source>Add new key-value pair</source>
+        <translation>添加新的键值对</translation>
+    </message>
+    <message>
+        <source>Add key-value</source>
+        <translation>添加键值对</translation>
+    </message>
+    <message>
+        <source>Copy URI</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Copy label</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Copy message</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Copy amount</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Warning</source>
+        <translation>警告</translation>
+    </message>
+    <message numerus="yes">
+        <source>Delete the key &quot;%1&quot;?</source>
+        <translation><numerusform>删除键 &quot;%1&quot;?</numerusform></translation>
+    </message>
+    <message  numerus="yes">
+        <source>Invalid namespace &quot;%1&quot;</source>
+        <translation><numerusform>无效的名称空间 &quot;%1&quot;</numerusform></translation>
+    </message>
+    <message  numerus="yes">
+        <source>Key not found: &quot;%1&quot;.</source>
+        <translation><numerusform>找不到键: &quot;%1&quot;</numerusform></translation>
+    </message>
+    <message>
+        <source>Unknown error.</source>
+        <translation>未知错误。</translation>
+    </message>
+    <message>
+        <source>Error</source>
+        <translation>错误</translation>
+    </message>
+    <message  numerus="yes">
+        <source>Namespace too long &quot;%1&quot;</source>
+        <translation><numerusform>命名空间太长: &quot;%1&quot;</numerusform></translation>
+    </message>
+    <message>
+        <source>Cannot add key-value. Make sure you own this namespace.</source>
+        <translation>无法添加键值。确保您拥有此名称空间。</translation>
+    </message>
+    <message>
+        <source>Key too long.</source>
+        <translation>键太长</translation>
+    </message>
+    <message>
+        <source>Value too long.</source>
+        <translation>值太长。</translation>
+    </message>
+</context>
+<context>
+    <name>KevaMyNamespacesDialog</name>
+    <message>
+        <source>Show</source>
+        <translation>显示</translation>
+    </message>
+</context>
+<context>
+    <name>KevaNamespaceModel</name>
+    <message>
+        <source>Id</source>
+        <translation>Id</translation>
+    </message>
+    <message>
+        <source>Name</source>
+        <translation>名称</translation>
+    </message>
+</context>
+<context>
+    <name>KevaNewNamespaceDialog</name>
+    <message>
+        <source>The name of the namespace.</source>
+        <translation>命名空间的名称。</translation>
+    </message>
+    <message>
+        <source>Name:</source>
+        <translation>名称:</translation>
+    </message>
+    <message>
+        <source>This pane allows the creation of a new Keva namespace</source>
+        <translation>此窗格允许创建新的Keva命名空间</translation>
+    </message>
+</context>
+<context>
+    <name>KevaTableModel</name>
+    <message>
+        <source>Date</source>
+        <translation>日期</translation>
+    </message>
+    <message>
+        <source>Key</source>
+        <translation>键</translation>
+    </message>
+    <message>
+        <source>Value</source>
+        <translation>值</translation>
+    </message>
+    <message>
+        <source>Block</source>
+        <translation>区块</translation>
+    </message>
+    <message>
+        <source>Requested</source>
+        <translation>已要求</translation>
+    </message>
+</context>
+<context>
     <name>ModalOverlay</name>
     <message>
         <source>Form</source>

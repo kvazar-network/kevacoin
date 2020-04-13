@@ -135,6 +135,12 @@ QT_FORMS_UI = \
   qt/forms/overviewpage.ui \
   qt/forms/receivecoinsdialog.ui \
   qt/forms/receiverequestdialog.ui \
+  qt/forms/kevadialog.ui \
+  qt/forms/kevadetaildialog.ui \
+  qt/forms/kevaaddkeydialog.ui \
+  qt/forms/kevabookmarksdialog.ui \
+  qt/forms/kevanewnamespacedialog.ui \
+  qt/forms/kevamynamespacesdialog.ui \
   qt/forms/debugwindow.ui \
   qt/forms/sendcoinsdialog.ui \
   qt/forms/sendcoinsentry.ui \
@@ -173,6 +179,14 @@ QT_MOC_CPP = \
   qt/moc_receivecoinsdialog.cpp \
   qt/moc_receiverequestdialog.cpp \
   qt/moc_recentrequeststablemodel.cpp \
+  qt/moc_kevatablemodel.cpp \
+  qt/moc_kevanamespacemodel.cpp \
+  qt/moc_kevabookmarksmodel.cpp \
+  qt/moc_kevadetaildialog.cpp \
+  qt/moc_kevaaddkeydialog.cpp \
+  qt/moc_kevabookmarksdialog.cpp \
+  qt/moc_kevanewnamespacedialog.cpp \
+  qt/moc_kevamynamespacesdialog.cpp \
   qt/moc_rpcconsole.cpp \
   qt/moc_sendcoinsdialog.cpp \
   qt/moc_sendcoinsentry.cpp \
@@ -184,6 +198,7 @@ QT_MOC_CPP = \
   qt/moc_transactionfilterproxy.cpp \
   qt/moc_transactiontablemodel.cpp \
   qt/moc_transactionview.cpp \
+  qt/moc_kevadialog.cpp \
   qt/moc_utilitydialog.cpp \
   qt/moc_walletframe.cpp \
   qt/moc_walletmodel.cpp \
@@ -258,6 +273,15 @@ BITCOIN_QT_H = \
   qt/transactionrecord.h \
   qt/transactiontablemodel.h \
   qt/transactionview.h \
+  qt/kevadialog.h \
+  qt/kevatablemodel.h \
+  qt/kevanamespacemodel.h \
+  qt/kevabookmarksmodel.h \
+  qt/kevadetaildialog.h \
+  qt/kevaaddkeydialog.h \
+  qt/kevabookmarksdialog.h \
+  qt/kevanewnamespacedialog.h \
+  qt/kevamynamespacesdialog.h \
   qt/utilitydialog.h \
   qt/walletframe.h \
   qt/walletmodel.h \
@@ -301,6 +325,7 @@ RES_ICONS = \
   qt/res/icons/history.png \
   qt/res/icons/info.png \
   qt/res/icons/key.png \
+  qt/res/icons/keva.png \
   qt/res/icons/litecoin_splash.png \
   qt/res/icons/lock_closed.png \
   qt/res/icons/lock_open.png \
@@ -372,6 +397,15 @@ BITCOIN_QT_WALLET_CPP = \
   qt/transactionrecord.cpp \
   qt/transactiontablemodel.cpp \
   qt/transactionview.cpp \
+  qt/kevadialog.cpp \
+  qt/kevatablemodel.cpp \
+  qt/kevanamespacemodel.cpp \
+  qt/kevabookmarksmodel.cpp \
+  qt/kevadetaildialog.cpp \
+  qt/kevaaddkeydialog.cpp \
+  qt/kevabookmarksdialog.cpp \
+  qt/kevanewnamespacedialog.cpp \
+  qt/kevamynamespacesdialog.cpp \
   qt/walletframe.cpp \
   qt/walletmodel.cpp \
   qt/walletmodeltransaction.cpp \

@@ -14,6 +14,7 @@
 #include <qt/platformstyle.h>
 #include <qt/receivecoinsdialog.h>
 #include <qt/sendcoinsdialog.h>
+#include <qt/kevadialog.h>
 #include <qt/signverifymessagedialog.h>
 #include <qt/transactiontablemodel.h>
 #include <qt/transactionview.h>
@@ -53,6 +54,7 @@ WalletView::WalletView(const PlatformStyle *_platformStyle, QWidget *parent):
     vbox->addLayout(hbox_buttons);
     transactionsPage->setLayout(vbox);
 
+    kevaPage = new KevaDialog(platformStyle);
     receiveCoinsPage = new ReceiveCoinsDialog(platformStyle);
     sendCoinsPage = new SendCoinsDialog(platformStyle);
 
@@ -61,6 +63,7 @@ WalletView::WalletView(const PlatformStyle *_platformStyle, QWidget *parent):
 
     addWidget(overviewPage);
     addWidget(transactionsPage);
+    addWidget(kevaPage);
     addWidget(receiveCoinsPage);
     addWidget(sendCoinsPage);
 
@@ -100,7 +103,7 @@ void WalletView::setBitcoinGUI(BitcoinGUI *gui)
         // Pass through transaction notifications
         connect(this, SIGNAL(incomingTransaction(QString,int,CAmount,QString,QString,QString)), gui, SLOT(incomingTransaction(QString,int,CAmount,QString,QString,QString)));
 
-        // Connect HD enabled state signal 
+        // Connect HD enabled state signal
         connect(this, SIGNAL(hdEnabledStatusChanged(int)), gui, SLOT(setHDStatus(int)));
     }
 }
@@ -119,6 +122,7 @@ void WalletView::setWalletModel(WalletModel *_walletModel)
 
     // Put transaction list in tabs
     transactionView->setModel(_walletModel);
+    kevaPage->setModel(_walletModel);
     overviewPage->setWalletModel(_walletModel);
     receiveCoinsPage->setModel(_walletModel);
     sendCoinsPage->setModel(_walletModel);
@@ -177,6 +181,11 @@ void WalletView::gotoOverviewPage()
 void WalletView::gotoHistoryPage()
 {
     setCurrentWidget(transactionsPage);
+}
+
+void WalletView::gotoKevaPage()
+{
+    setCurrentWidget(kevaPage);
 }
 
 void WalletView::gotoReceiveCoinsPage()

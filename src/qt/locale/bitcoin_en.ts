@@ -85,7 +85,7 @@
     </message>
     <message>
         <location line="+4"/>
-        <source>These are your Kevacoin addresses for receiving payments. It is recommended to use a new receiving address for each transaction.</source>
+        <source>These are your Kevaoin addresses for receiving payments. It is recommended to use a new receiving address for each transaction.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -304,17 +304,17 @@
 <context>
     <name>BitcoinGUI</name>
     <message>
-        <location filename="../bitcoingui.cpp" line="+358"/>
+        <location filename="../bitcoingui.cpp" line="+367"/>
         <source>Sign &amp;message...</source>
         <translation>Sign &amp;message...</translation>
     </message>
     <message>
-        <location line="+430"/>
+        <location line="+437"/>
         <source>Synchronizing with network...</source>
         <translation>Synchronizing with network...</translation>
     </message>
     <message>
-        <location line="-508"/>
+        <location line="-524"/>
         <source>&amp;Overview</source>
         <translation>&amp;Overview</translation>
     </message>
@@ -339,7 +339,17 @@
         <translation>Browse transaction history</translation>
     </message>
     <message>
-        <location line="+23"/>
+        <location line="+6"/>
+        <source>&amp;Keva</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Keva related operations</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+25"/>
         <source>E&amp;xit</source>
         <translation>E&amp;xit</translation>
     </message>
@@ -409,7 +419,7 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+360"/>
+        <location line="+367"/>
         <source>Click to disable network activity.</source>
         <translation type="unfinished"></translation>
     </message>
@@ -434,12 +444,12 @@
         <translation>Reindexing blocks on disk...</translation>
     </message>
     <message>
-        <location line="-511"/>
+        <location line="-527"/>
         <source>Send coins to a Kevacoin address</source>
         <translation>Send coins to a Kevacoin address</translation>
     </message>
     <message>
-        <location line="+67"/>
+        <location line="+76"/>
         <source>Backup wallet to another location</source>
         <translation>Backup wallet to another location</translation>
     </message>
@@ -464,12 +474,12 @@
         <translation>&amp;Verify message...</translation>
     </message>
     <message>
-        <location line="+517"/>
+        <location line="+524"/>
         <source>Kevacoin</source>
         <translation>Kevacoin</translation>
     </message>
     <message>
-        <location line="-743"/>
+        <location line="-759"/>
         <source>Wallet</source>
         <translation>Wallet</translation>
     </message>
@@ -484,7 +494,7 @@
         <translation>&amp;Receive</translation>
     </message>
     <message>
-        <location line="+50"/>
+        <location line="+59"/>
         <source>&amp;Show / Hide</source>
         <translation>&amp;Show / Hide</translation>
     </message>
@@ -529,12 +539,12 @@
         <translation>Tabs toolbar</translation>
     </message>
     <message>
-        <location line="-158"/>
+        <location line="-167"/>
         <source>Request payments (generates QR codes and kevacoin: URIs)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+70"/>
+        <location line="+79"/>
         <source>Show the list of used sending addresses and labels</source>
         <translation type="unfinished"></translation>
     </message>
@@ -554,7 +564,7 @@
         <translation type="unfinished"></translation>
     </message>
     <message numerus="yes">
-        <location line="+357"/>
+        <location line="+364"/>
         <source>%n active connection(s) to Kevacoin network</source>
         <translation>
             <numerusform>%n active connection to Kevacoin network</numerusform>
@@ -615,17 +625,17 @@
         <translation>Up to date</translation>
     </message>
     <message>
-        <location line="-441"/>
+        <location line="-448"/>
         <source>Show the %1 help message to get a list with possible Kevacoin command-line options</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+200"/>
+        <location line="+201"/>
         <source>%1 client</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+227"/>
+        <location line="+233"/>
         <source>Connecting to peers...</source>
         <translation type="unfinished"></translation>
     </message>
@@ -635,7 +645,7 @@
         <translation>Catching up...</translation>
     </message>
     <message>
-        <location line="+150"/>
+        <location line="+151"/>
         <source>Date: %1
 </source>
         <translation type="unfinished"></translation>
@@ -1147,6 +1157,290 @@
             <numerusform>(of %n GB needed)</numerusform>
             <numerusform>(of %n GB needed)</numerusform>
         </translation>
+    </message>
+</context>
+<context>
+    <name>KevaAddKeyDialog</name>
+    <message>
+        <location filename="../forms/kevaaddkeydialog.ui" line="+20"/>
+        <source>Key</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+7"/>
+        <location line="+27"/>
+        <source>New value</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="-7"/>
+        <source>Value</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>KevaBookmarksDialog</name>
+    <message>
+        <location filename="../kevabookmarksdialog.cpp" line="+20"/>
+        <source>Show</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>KevaBookmarksModel</name>
+    <message>
+        <location filename="../kevabookmarksmodel.cpp" line="+28"/>
+        <source>Id</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+0"/>
+        <source>Name</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>KevaDetailDialog</name>
+    <message>
+        <location filename="../forms/kevadetaildialog.ui" line="+20"/>
+        <source>This pane shows the value associated with a give key</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../kevadetaildialog.cpp" line="+24"/>
+        <source>Value for %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>KevaDialog</name>
+    <message>
+        <location filename="../forms/kevadialog.ui" line="+235"/>
+        <source>Show the selected request (does the same as double clicking an entry)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="-160"/>
+        <location line="+163"/>
+        <source>Show</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="-204"/>
+        <location line="+14"/>
+        <source>The namespace ID with a prefix &quot;N&quot;.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="-7"/>
+        <source>Use this form to perform Keva database operations.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+10"/>
+        <source>Namespace:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+21"/>
+        <source>Show content of the namespace.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+23"/>
+        <source>Create a new namespace</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+3"/>
+        <source>&amp;Create namespace</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+17"/>
+        <source>List my namespaces</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+3"/>
+        <source>&amp;My Namespaces</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+17"/>
+        <source>Show bookmarks</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+3"/>
+        <source>&amp;Bookmarks</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+72"/>
+        <source>Content of namespace</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+45"/>
+        <source>Remove the selected entries from the list</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+3"/>
+        <source>Remove</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+17"/>
+        <source>Add new key-value pair</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+3"/>
+        <source>Add key-value</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../kevadialog.cpp" line="+53"/>
+        <source>Copy URI</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Copy label</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Copy message</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Copy amount</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+192"/>
+        <source>Warning</source>
+        <translation type="unfinished">Warning</translation>
+    </message>
+    <message>
+        <location line="+0"/>
+        <source>Delete the key &quot;%1&quot;?</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+15"/>
+        <source>Invalid namespace &quot;%1&quot;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+3"/>
+        <source>Key not found: &quot;%1&quot;.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+3"/>
+        <location line="+122"/>
+        <location line="+28"/>
+        <source>Unknown error.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="-148"/>
+        <location line="+122"/>
+        <location line="+28"/>
+        <source>Error</source>
+        <translation type="unfinished">Error</translation>
+    </message>
+    <message>
+        <location line="-33"/>
+        <source>Namespace too long &quot;%1&quot;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+22"/>
+        <source>Cannot add key-value. Make sure you own this namespace.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+3"/>
+        <source>Key too long.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+3"/>
+        <source>Value too long.</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>KevaMyNamespacesDialog</name>
+    <message>
+        <location filename="../kevamynamespacesdialog.cpp" line="+20"/>
+        <source>Show</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>KevaNamespaceModel</name>
+    <message>
+        <location filename="../kevanamespacemodel.cpp" line="+21"/>
+        <source>Id</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+0"/>
+        <source>Name</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>KevaNewNamespaceDialog</name>
+    <message>
+        <location filename="../forms/kevanewnamespacedialog.ui" line="+22"/>
+        <source>The name of the namespace.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+3"/>
+        <source>Name:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+13"/>
+        <source>This pane allows the creation of a new Keva namespace</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>KevaTableModel</name>
+    <message>
+        <location filename="../kevatablemodel.cpp" line="+21"/>
+        <source>Date</source>
+        <translation type="unfinished">Date</translation>
+    </message>
+    <message>
+        <location line="+0"/>
+        <source>Key</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+0"/>
+        <source>Value</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+0"/>
+        <source>Block</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+81"/>
+        <source>Requested</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -1671,7 +1965,7 @@
 <context>
     <name>PaymentServer</name>
     <message>
-        <location filename="../paymentserver.cpp" line="+326"/>
+        <location filename="../paymentserver.cpp" line="+327"/>
         <location line="+214"/>
         <location line="+42"/>
         <location line="+111"/>
@@ -1950,7 +2244,7 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../bitcoin.cpp" line="+178"/>
+        <location filename="../bitcoin.cpp" line="+171"/>
         <source>%1 didn&apos;t yet exit safely...</source>
         <translation type="unfinished"></translation>
     </message>
@@ -2623,7 +2917,7 @@
     <name>SendCoinsDialog</name>
     <message>
         <location filename="../forms/sendcoinsdialog.ui" line="+14"/>
-        <location filename="../sendcoinsdialog.cpp" line="+578"/>
+        <location filename="../sendcoinsdialog.cpp" line="+588"/>
         <source>Send Coins</source>
         <translation>Send Coins</translation>
     </message>
@@ -2754,7 +3048,7 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+185"/>
+        <location line="+175"/>
         <source>Send to multiple recipients at once</source>
         <translation>Send to multiple recipients at once</translation>
     </message>
@@ -2769,7 +3063,7 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="-833"/>
+        <location line="-823"/>
         <source>Dust:</source>
         <translation type="unfinished"></translation>
     </message>
@@ -2779,17 +3073,7 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+74"/>
-        <source>Enable Replace-By-Fee</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location line="+3"/>
-        <source>With Replace-By-Fee (BIP-125) you can increase a transaction&apos;s fee after it is sent. Without this, a higher fee may be recommended to compensate for increased transaction delay risk.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location line="+65"/>
+        <location line="+132"/>
         <source>Clear &amp;All</source>
         <translation>Clear &amp;All</translation>
     </message>
@@ -2809,7 +3093,7 @@
         <translation>S&amp;end</translation>
     </message>
     <message>
-        <location filename="../sendcoinsdialog.cpp" line="-494"/>
+        <location filename="../sendcoinsdialog.cpp" line="-504"/>
         <source>Copy quantity</source>
         <translation type="unfinished"></translation>
     </message>
@@ -2849,7 +3133,7 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+127"/>
+        <location line="+129"/>
         <location line="+5"/>
         <location line="+5"/>
         <location line="+4"/>
@@ -2877,22 +3161,12 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+4"/>
-        <source>You can increase the fee later (signals Replace-By-Fee, BIP-125).</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location line="+2"/>
-        <source>Not signalling Replace-By-Fee, BIP-125.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location line="+5"/>
+        <location line="+13"/>
         <source>Confirm send coins</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+192"/>
+        <location line="+198"/>
         <source>The recipient address is not valid. Please recheck.</source>
         <translation type="unfinished"></translation>
     </message>
@@ -2942,7 +3216,7 @@
         <translation type="unfinished"></translation>
     </message>
     <message numerus="yes">
-        <location line="+42"/>
+        <location line="+43"/>
         <source>Estimated to begin confirmation within %n block(s).</source>
         <translation>
             <numerusform>Estimated to begin confirmation within %n block.</numerusform>
@@ -3331,11 +3605,6 @@
     </message>
     <message>
         <location line="+2"/>
-        <source>%1/offline</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location line="+2"/>
         <source>0/unconfirmed, %1</source>
         <translation type="unfinished"></translation>
     </message>
@@ -3370,20 +3639,7 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+5"/>
-        <source>, has not been successfully broadcast yet</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message numerus="yes">
-        <location line="+2"/>
-        <source>, broadcast through %n node(s)</source>
-        <translation>
-            <numerusform>, broadcast through %n node</numerusform>
-            <numerusform>, broadcast through %n nodes</numerusform>
-        </translation>
-    </message>
-    <message>
-        <location line="+4"/>
+        <location line="+3"/>
         <source>Date</source>
         <translation type="unfinished">Date</translation>
     </message>
@@ -3595,11 +3851,6 @@
     </message>
     <message>
         <location line="+3"/>
-        <source>Offline</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location line="+3"/>
         <source>Unconfirmed</source>
         <translation type="unfinished"></translation>
     </message>
@@ -3626,11 +3877,6 @@
     <message>
         <location line="+3"/>
         <source>Immature (%1 confirmations, will be available after %2)</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location line="+3"/>
-        <source>This block was not received by any other nodes and will probably not be accepted!</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -3674,7 +3920,7 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+213"/>
+        <location line="+210"/>
         <source>(no label)</source>
         <translation type="unfinished"></translation>
     </message>
@@ -3927,12 +4173,12 @@
 <context>
     <name>WalletModel</name>
     <message>
-        <location filename="../walletmodel.cpp" line="+290"/>
+        <location filename="../walletmodel.cpp" line="+304"/>
         <source>Send Coins</source>
         <translation type="unfinished">Send Coins</translation>
     </message>
     <message>
-        <location line="+384"/>
+        <location line="+399"/>
         <location line="+39"/>
         <location line="+6"/>
         <source>Fee bump error</source>
@@ -3982,7 +4228,7 @@
 <context>
     <name>WalletView</name>
     <message>
-        <location filename="../walletview.cpp" line="+46"/>
+        <location filename="../walletview.cpp" line="+47"/>
         <source>&amp;Export</source>
         <translation type="unfinished">&amp;Export</translation>
     </message>
@@ -3992,7 +4238,7 @@
         <translation type="unfinished">Export the data in the current tab to a file</translation>
     </message>
     <message>
-        <location line="+201"/>
+        <location line="+209"/>
         <source>Backup Wallet</source>
         <translation type="unfinished"></translation>
     </message>
@@ -4025,7 +4271,7 @@
 <context>
     <name>bitcoin-core</name>
     <message>
-        <location filename="../bitcoinstrings.cpp" line="+349"/>
+        <location filename="../bitcoinstrings.cpp" line="+352"/>
         <source>Options:</source>
         <translation>Options:</translation>
     </message>
@@ -4035,17 +4281,17 @@
         <translation>Specify data directory</translation>
     </message>
     <message>
-        <location line="-99"/>
+        <location line="-102"/>
         <source>Connect to a node to retrieve peer addresses, and disconnect</source>
         <translation>Connect to a node to retrieve peer addresses, and disconnect</translation>
     </message>
     <message>
-        <location line="+102"/>
+        <location line="+105"/>
         <source>Specify your own public address</source>
         <translation>Specify your own public address</translation>
     </message>
     <message>
-        <location line="-116"/>
+        <location line="-119"/>
         <source>Accept command line and JSON-RPC commands</source>
         <translation>Accept command line and JSON-RPC commands</translation>
     </message>
@@ -4085,7 +4331,7 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+41"/>
+        <location line="+44"/>
         <source>Pruning blockstore...</source>
         <translation type="unfinished"></translation>
     </message>
@@ -4100,7 +4346,7 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="-395"/>
+        <location line="-398"/>
         <source>Kevacoin Core</source>
         <translation type="unfinished">Kevacoin Core</translation>
     </message>
@@ -4200,12 +4446,7 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+6"/>
-        <source>Reduce storage requirements by enabling pruning (deleting) of old blocks. This allows the pruneblockchain RPC to be called to delete specific blocks, and enables automatic pruning of old blocks if a target size in MiB is provided. This mode is incompatible with -txindex and -rescan. Warning: Reverting this setting requires re-downloading the entire blockchain. (default: 0 = disable pruning blocks, 1 = allow manual pruning via RPC, &gt;%u = automatically prune block files to stay under the specified target size in MiB)</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location line="+12"/>
+        <location line="+18"/>
         <source>Set lowest fee rate (in %s/kB) for transactions to be included in block creation. (default: %s)</source>
         <translation type="unfinished"></translation>
     </message>
@@ -4450,6 +4691,21 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <location line="+1"/>
+        <source>Input tx is not a keva operation</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Input tx is not mine</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Input tx not found in wallet</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <location line="+4"/>
         <source>Invalid amount for -%s=&lt;amount&gt;: &apos;%s&apos;</source>
         <translation type="unfinished"></translation>
@@ -4625,7 +4881,7 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="-395"/>
+        <location line="-398"/>
         <source>Allow JSON-RPC connections from specified source. Valid for &lt;ip&gt; are a single IP (e.g. 1.2.3.4), a network/netmask (e.g. 1.2.3.4/255.255.255.0) or a network/CIDR (e.g. 1.2.3.4/24). This option can be specified multiple times</source>
         <translation type="unfinished"></translation>
     </message>
@@ -4740,7 +4996,7 @@
         <translation>Information</translation>
     </message>
     <message>
-        <location line="+3"/>
+        <location line="+6"/>
         <source>Invalid -onion address or hostname: &apos;%s&apos;</source>
         <translation type="unfinished"></translation>
     </message>
@@ -4925,7 +5181,7 @@
         <translation>Password for JSON-RPC connections</translation>
     </message>
     <message>
-        <location line="-261"/>
+        <location line="-264"/>
         <source>Execute command when the best block changes (%s in cmd is replaced by block hash)</source>
         <translation>Execute command when the best block changes (%s in cmd is replaced by block hash)</translation>
     </message>
@@ -5000,7 +5256,12 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+37"/>
+        <location line="+19"/>
+        <source>Reduce storage requirements by enabling pruning (deleting) of old blocks. This allows the pruneblockchain RPC to be called to delete specific blocks, and enables automatic pruning of old blocks if a target size in MiB is provided. This mode is incompatible with -txindex and -rescan. Warning: Reverting this setting requires re-downloading the entire blockchain. (default: 0 = disable pruning blocks, 1 = allow manual pruning via RPC, &gt;=%u = automatically prune block files to stay under the specified target size in MiB)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+18"/>
         <source>Sets the serialization of raw transaction or block hex returned in non-verbose mode, non-segwit(0) or segwit(1) (default: %d)</source>
         <translation type="unfinished"></translation>
     </message>
@@ -5115,7 +5376,7 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+14"/>
+        <location line="+17"/>
         <source>Keypool ran out, please call keypoolrefill first</source>
         <translation type="unfinished"></translation>
     </message>
@@ -5260,17 +5521,17 @@
         <translation>Loading wallet...</translation>
     </message>
     <message>
-        <location line="-61"/>
+        <location line="-64"/>
         <source>Cannot downgrade wallet</source>
         <translation>Cannot downgrade wallet</translation>
     </message>
     <message>
-        <location line="+87"/>
+        <location line="+90"/>
         <source>Rescanning...</source>
         <translation>Rescanning...</translation>
     </message>
     <message>
-        <location line="-75"/>
+        <location line="-78"/>
         <source>Done loading</source>
         <translation>Done loading</translation>
     </message>

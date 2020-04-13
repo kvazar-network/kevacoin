@@ -9,6 +9,7 @@
 #include <qt/sendcoinsentry.h>
 #include <qt/transactiontablemodel.h>
 #include <qt/transactionview.h>
+#include <qt/kevadialog.h>
 #include <qt/walletmodel.h>
 #include <test/test_bitcoin.h>
 #include <validation.h>

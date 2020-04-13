@@ -9,7 +9,7 @@
 #define UNUSED
 #endif
 static const char UNUSED *bitcoin_strings[] = {
-QT_TRANSLATE_NOOP("bitcoin-core", "Bitcoin Core"),
+QT_TRANSLATE_NOOP("bitcoin-core", "Kevacoin Core"),
 QT_TRANSLATE_NOOP("bitcoin-core", "The %s developers"),
 QT_TRANSLATE_NOOP("bitcoin-core", ""
 "(1 = keep tx meta data e.g. account owner and payment request information, 2 "
@@ -156,7 +156,7 @@ QT_TRANSLATE_NOOP("bitcoin-core", ""
 "and enables automatic pruning of old blocks if a target size in MiB is "
 "provided. This mode is incompatible with -txindex and -rescan. Warning: "
 "Reverting this setting requires re-downloading the entire blockchain. "
-"(default: 0 = disable pruning blocks, 1 = allow manual pruning via RPC, >%u "
+"(default: 0 = disable pruning blocks, 1 = allow manual pruning via RPC, >=%u "
 "= automatically prune block files to stay under the specified target size in "
 "MiB)"),
 QT_TRANSLATE_NOOP("bitcoin-core", ""
@@ -320,6 +320,9 @@ QT_TRANSLATE_NOOP("bitcoin-core", "Include IP addresses in debug output (default
 QT_TRANSLATE_NOOP("bitcoin-core", "Incorrect or no genesis block found. Wrong datadir for network?"),
 QT_TRANSLATE_NOOP("bitcoin-core", "Information"),
 QT_TRANSLATE_NOOP("bitcoin-core", "Initialization sanity check failed. %s is shutting down."),
+QT_TRANSLATE_NOOP("bitcoin-core", "Input tx is not a keva operation"),
+QT_TRANSLATE_NOOP("bitcoin-core", "Input tx is not mine"),
+QT_TRANSLATE_NOOP("bitcoin-core", "Input tx not found in wallet"),
 QT_TRANSLATE_NOOP("bitcoin-core", "Insufficient funds"),
 QT_TRANSLATE_NOOP("bitcoin-core", "Invalid -onion address or hostname: '%s'"),
 QT_TRANSLATE_NOOP("bitcoin-core", "Invalid -proxy address or hostname: '%s'"),

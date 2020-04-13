@@ -21,6 +21,12 @@ class AddressTableModel;
 class OptionsModel;
 class PlatformStyle;
 class RecentRequestsTableModel;
+class KevaTableModel;
+class KevaNamespaceModel;
+class KevaBookmarksModel;
+class KevaEntry;
+class NamespaceEntry;
+class BookmarkEntry;
 class TransactionTableModel;
 class WalletModelTransaction;
 
@@ -116,7 +122,15 @@ public:
         TransactionCreationFailed, // Error returned when wallet is still locked
         TransactionCommitFailed,
         AbsurdFee,
-        PaymentRequestExpired
+        PaymentRequestExpired,
+
+        // Keva status
+        InvalidNamespace,
+        KeyTooLong,
+        NamespaceTooLong,
+        KeyNotFound,
+        ValueTooLong,
+        CannotUpdate,
     };
 
     enum EncryptionStatus
@@ -130,6 +144,9 @@ public:
     AddressTableModel *getAddressTableModel();
     TransactionTableModel *getTransactionTableModel();
     RecentRequestsTableModel *getRecentRequestsTableModel();
+    KevaTableModel *getKevaTableModel();
+    KevaNamespaceModel *getKevaNamespaceModel();
+    KevaBookmarksModel *getKevaBookmarksModel();
 
     CAmount getBalance(const CCoinControl *coinControl = nullptr) const;
     CAmount getUnconfirmedBalance() const;
@@ -220,6 +237,13 @@ public:
 
     int getDefaultConfirmTarget() const;
 
+    // Keva
+    void getKevaEntries(std::vector<KevaEntry>& vKevaEntries, std::string nameSpace);
+    void getNamespaceEntries(std::vector<NamespaceEntry>& vNamespaceEntries);
+    int createNamespace(std::string displayName, std::string& namespaceId);
+    int deleteKevaEntry(std::string nameSpace, std::string key);
+    int addKeyValue(std::string& namespaceStr, std::string& keyStr, std::string& valueStr);
+
 private:
     CWallet *wallet;
     bool fHaveWatchOnly;
@@ -232,6 +256,9 @@ private:
     AddressTableModel *addressTableModel;
     TransactionTableModel *transactionTableModel;
     RecentRequestsTableModel *recentRequestsTableModel;
+    KevaTableModel *kevaTableModel;
+    KevaNamespaceModel *kevaNamespaceModel;
+    KevaBookmarksModel *kevaBookmarksModel;
 
     // Cache some values to be able to detect changes
     CAmount cachedBalance;
