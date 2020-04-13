@@ -278,7 +278,8 @@ void KevaDialog::on_removeButton_clicked()
 
 void KevaDialog::on_addKVButton_clicked()
 {
-    KevaAddKeyDialog *dialog = new KevaAddKeyDialog(this);
+    QString ns = ui->nameSpace->text();
+    KevaAddKeyDialog *dialog = new KevaAddKeyDialog(this, ns);
     dialog->setAttribute(Qt::WA_DeleteOnClose);
     dialog->show();
 }
@@ -384,6 +385,34 @@ int KevaDialog::createNamespace(std::string displayName, std::string& namespaceI
         switch (ret) {
             case WalletModel::NamespaceTooLong:
                 msg = tr("Namespace too long \"%1\"").arg(QString::fromStdString(displayName));
+                break;
+            default:
+                msg = tr("Unknown error.");
+        }
+        QMessageBox::critical(this, tr("Error"), msg, QMessageBox::Ok);
+        return 0;
+    }
+    return 1;
+}
+
+int KevaDialog::addKeyValue(std::string& namespaceId, std::string& key, std::string& value)
+{
+    if (!this->model) {
+        return 0;
+    }
+
+    int ret = this->model->addKeyValue(namespaceId, key, value);
+    if (ret > 0) {
+        QString msg;
+        switch (ret) {
+            case WalletModel::CannotUpdate:
+                msg = tr("Cannot add key-value. Make sure you own this namespace.");
+                break;
+            case WalletModel::KeyTooLong:
+                msg = tr("Key too long.");
+                break;
+            case WalletModel::ValueTooLong:
+                msg = tr("Value too long.");
                 break;
             default:
                 msg = tr("Unknown error.");

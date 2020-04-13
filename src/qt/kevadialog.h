@@ -45,6 +45,7 @@ public:
     void setModel(WalletModel *model);
     void showNamespace(QString ns);
     int createNamespace(std::string displayName, std::string& namespaceId);
+    int addKeyValue(std::string& namespaceId, std::string& key, std::string& Value);
 
 public Q_SLOTS:
     void clear();

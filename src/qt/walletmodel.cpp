@@ -788,7 +788,7 @@ void WalletModel::getKevaEntries(std::vector<KevaEntry>& vKevaEntries, std::stri
             entry.key = ValtypeToString(std::get<1>(e));
             entry.value = ValtypeToString(std::get<2>(e));
             entry.block = -1; // Unconfirmed.
-            entry.date = QDateTime();
+            entry.date = QDateTime::currentDateTime();
             vKevaEntries.push_back(std::move(entry));
         }
     }
@@ -803,8 +803,6 @@ void WalletModel::getKevaEntries(std::vector<KevaEntry>& vKevaEntries, std::stri
         entry.key = ValtypeToString(key);
         entry.value = ValtypeToString(data.getValue());
         entry.block = data.getHeight();
-        // TODO: figure out how to get the date time from block.
-
         CBlockIndex* pblockindex = chainActive[entry.block];
         if (pblockindex) {
             entry.date.setTime_t(pblockindex->nTime);
@@ -976,6 +974,51 @@ int WalletModel::deleteKevaEntry(std::string namespaceStr, std::string keyStr)
     CScript addrName = GetScriptForDestination(scriptHash);
 
     const CScript kevaScript = CKevaScript::buildKevaDelete(addrName, nameSpace, key);
+
+    CCoinControl coinControl;
+    CWalletTx wtx;
+    valtype empty;
+    SendMoneyToScript(wallet, kevaScript, &txIn, empty,
+        KEVA_LOCKED_AMOUNT, false, wtx, coinControl);
+
+    keyName.KeepKey();
+    return 0;
+}
+
+int WalletModel::addKeyValue(std::string& namespaceStr, std::string& keyStr, std::string& valueStr)
+{
+    valtype nameSpace;
+    if (!DecodeKevaNamespace(namespaceStr, Params(), nameSpace)) {
+        return InvalidNamespace;
+    }
+
+    const valtype key = ValtypeFromString(keyStr);
+    if (keyStr.size() > MAX_KEY_LENGTH) {
+        return KeyTooLong;
+    }
+
+    const valtype value = ValtypeFromString(valueStr);
+    if (value.size() > MAX_VALUE_LENGTH) {
+        return ValueTooLong;
+    }
+
+    COutput output;
+    if (!wallet->FindKevaCoin(output, namespaceStr)) {
+        return CannotUpdate;
+    }
+    const COutPoint outp(output.tx->GetHash(), output.i);
+    const CTxIn txIn(outp);
+
+    CReserveKey keyName(wallet);
+    CPubKey pubKeyReserve;
+    const bool ok = keyName.GetReservedKey(pubKeyReserve, true);
+    assert(ok);
+    CKeyID keyId = pubKeyReserve.GetID();
+    CScript redeemScript = GetScriptForDestination(WitnessV0KeyHash(keyId));
+    CScriptID scriptHash = CScriptID(redeemScript);
+    CScript addrName = GetScriptForDestination(scriptHash);
+
+    const CScript kevaScript = CKevaScript::buildKevaPut(addrName, nameSpace, key, value);
 
     CCoinControl coinControl;
     CWalletTx wtx;

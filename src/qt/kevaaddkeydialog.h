@@ -24,16 +24,18 @@ class KevaAddKeyDialog : public QDialog
     Q_OBJECT
 
 public:
-    explicit KevaAddKeyDialog(QWidget *parent = 0);
+    explicit KevaAddKeyDialog(QWidget *parent, QString &nameSpace);
     ~KevaAddKeyDialog();
 
 private:
     Ui::KevaAddKeyDialog *ui;
+    QString nameSpace;
 
 public Q_SLOTS:
     void create();
     void cancel();
     void onKeyChanged(const QString& key);
+    void onValueChanged();
 };
 
 #endif // BITCOIN_QT_KEVAADDKEYDIALOG_H

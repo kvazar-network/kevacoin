@@ -128,7 +128,9 @@ public:
         InvalidNamespace,
         KeyTooLong,
         NamespaceTooLong,
-        KeyNotFound
+        KeyNotFound,
+        ValueTooLong,
+        CannotUpdate,
     };
 
     enum EncryptionStatus
@@ -240,6 +242,7 @@ public:
     void getNamespaceEntries(std::vector<NamespaceEntry>& vNamespaceEntries);
     int createNamespace(std::string displayName, std::string& namespaceId);
     int deleteKevaEntry(std::string nameSpace, std::string key);
+    int addKeyValue(std::string& namespaceStr, std::string& keyStr, std::string& valueStr);
 
 private:
     CWallet *wallet;
