@@ -58,6 +58,12 @@ void KevaBookmarksDialog::namespaceView_selectionChanged()
     }
 }
 
+void KevaBookmarksDialog::on_namespaceView_doubleClicked(const QModelIndex &index)
+{
+    selectedIndex = index;
+    this->apply();
+}
+
 void KevaBookmarksDialog::apply()
 {
     QModelIndex idIdx = selectedIndex.sibling(selectedIndex.row(), KevaBookmarksModel::Id);

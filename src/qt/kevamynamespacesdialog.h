@@ -41,6 +41,7 @@ public Q_SLOTS:
 
 private Q_SLOTS:
     void namespaceView_selectionChanged();
+    void on_namespaceView_doubleClicked(const QModelIndex &index);
 
 private:
     Ui::KevaMyNamespacesDialog *ui;
