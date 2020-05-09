@@ -213,6 +213,11 @@ void KevaDialog::on_kevaView_doubleClicked(const QModelIndex &index)
     dialog->show();
 }
 
+void KevaDialog::on_bookmarkNamespace_clicked()
+{
+    ui->bookmarkNamespace->setIcon(QIcon(":/icons/star"));
+}
+
 void KevaDialog::kevaView_selectionChanged()
 {
     // Enable Show/Remove buttons only if anything is selected.
