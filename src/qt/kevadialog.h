@@ -17,6 +17,7 @@
 
 class PlatformStyle;
 class WalletModel;
+class KevaBookmarksModel;
 
 namespace Ui {
     class KevaDialog;
@@ -62,6 +63,7 @@ private:
     WalletModel *model;
     QMenu *contextMenu;
     const PlatformStyle *platformStyle;
+    KevaBookmarksModel* bookmarks;
 
     QModelIndex selectedRow();
     void copyColumnToClipboard(int column);

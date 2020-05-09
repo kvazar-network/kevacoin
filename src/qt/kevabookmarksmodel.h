@@ -74,6 +74,7 @@ public:
     int loadBookmarks();
     int loadBookmarks(QJsonArray &json);
     int saveBookmarks(QJsonArray &json);
+    bool isBookmarked(std::string& ns);
 
 public Q_SLOTS:
     void sort(int column, Qt::SortOrder order = Qt::AscendingOrder);

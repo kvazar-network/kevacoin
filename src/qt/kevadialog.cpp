@@ -55,6 +55,9 @@ KevaDialog::KevaDialog(const PlatformStyle *_platformStyle, QWidget *parent) :
     QAction *copyMessageAction = new QAction(tr("Copy message"), this);
     QAction *copyAmountAction = new QAction(tr("Copy amount"), this);
 
+    bookmarks = new KevaBookmarksModel(NULL, NULL);
+    bookmarks->loadBookmarks();
+
     // context menu
     contextMenu = new QMenu(this);
     contextMenu->addAction(copyURIAction);
@@ -147,10 +150,23 @@ void KevaDialog::onNamespaceChanged(const QString& nameSpace)
 {
     std::string namespaceStr = nameSpace.toStdString();
     valtype nameSpaceVal;
+    bool isValidNamespace = false;
     if (DecodeKevaNamespace(namespaceStr, Params(), nameSpaceVal)) {
         ui->addKVButton->setEnabled(true);
+        isValidNamespace = true;
     } else {
         ui->addKVButton->setEnabled(false);
+        ui->bookmarkNamespace->setIcon(QIcon(":/icons/star_empty"));
+    }
+
+    if (!isValidNamespace) {
+        return;
+    }
+
+    if (bookmarks->isBookmarked(namespaceStr)) {
+        ui->bookmarkNamespace->setIcon(QIcon(":/icons/star"));
+    } else {
+        ui->bookmarkNamespace->setIcon(QIcon(":/icons/star_empty"));
     }
 }
 
@@ -215,7 +231,50 @@ void KevaDialog::on_kevaView_doubleClicked(const QModelIndex &index)
 
 void KevaDialog::on_bookmarkNamespace_clicked()
 {
-    ui->bookmarkNamespace->setIcon(QIcon(":/icons/star"));
+    valtype namespaceVal;
+    QString nameSpace = ui->nameSpace->text();
+    std::string namespaceStr = nameSpace.toStdString();
+    if (!DecodeKevaNamespace(namespaceStr, Params(), namespaceVal)) {
+        return;
+    }
+    QJsonArray array;
+    bookmarks->loadBookmarks(array);
+
+    int index = -1;
+    for (int i = 0; i < array.size(); ++i) {
+        QJsonObject obj = array[i].toObject();
+        BookmarkEntry entry;
+        std::string id = obj["id"].toString().toStdString();
+        if (id == namespaceStr) {
+            index = i;
+            break;
+        }
+    }
+
+    if (index >= 0) {
+        // Remove bookmark
+        array.removeAt(index);
+        ui->bookmarkNamespace->setIcon(QIcon(":/icons/star_empty"));
+    } else {
+        // Add bookmark
+        QJsonObject entry;
+        entry["id"] = namespaceStr.c_str();
+        entry["name"] = "";
+
+        std::vector<NamespaceEntry> vNamespaceEntries;
+        this->model->getNamespaceEntries(vNamespaceEntries);
+        for(auto it = vNamespaceEntries.begin(); it != vNamespaceEntries.end(); it++) {
+            if ((*it).id == namespaceStr) {
+                entry["name"] = (*it).name.c_str();
+                break;
+            }
+        }
+
+        array.prepend(entry);
+        ui->bookmarkNamespace->setIcon(QIcon(":/icons/star"));
+    }
+
+    bookmarks->saveBookmarks(array);
 }
 
 void KevaDialog::kevaView_selectionChanged()
