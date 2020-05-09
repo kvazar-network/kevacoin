@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+    <class>KevaEditBookmarkDialog</class>
+    <widget class="QDialog" name="KevaEditBookmarkDialog">
+        <property name="geometry">
+            <rect>
+                <x>0</x>
+                <y>0</y>
+                <width>400</width>
+                <height>100</height>
+            </rect>
+        </property>
+        <property name="windowTitle">
+            <string notr="true">Bookmark Name</string>
+        </property>
+        <layout class="QVBoxLayout" name="verticalLayout_2">
+            <item>
+                <layout class="QGridLayout" name="gridLayout">
+                    <item row="2" column="0">
+                        <widget class="QLabel" name="label_2">
+                            <property name="toolTip">
+                                <string>Bookmark name.</string>
+                            </property>
+                            <property name="text">
+                                <string>Name:</string>
+                            </property>
+                            <property name="alignment">
+                                <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                            </property>
+                            <property name="buddy">
+                                <cstring>bookmarkName</cstring>
+                            </property>
+                        </widget>
+                    </item>
+                    <item row="2" column="2">
+                        <widget class="QLineEdit" name="bookmarkName">
+                            <property name="toolTip">
+                                <string>This pane allows change of bookmark name</string>
+                            </property>
+                            <property name="readOnly">
+                                <bool>false</bool>
+                            </property>
+                        </widget>
+                    </item>
+                </layout>
+            </item>
+            <item>
+                <widget class="QDialogButtonBox" name="buttonBox">
+                    <property name="orientation">
+                        <enum>Qt::Horizontal</enum>
+                    </property>
+                    <property name="standardButtons">
+                        <set>QDialogButtonBox::Cancel|QDialogButtonBox::Save</set>
+                    </property>
+                </widget>
+            </item>
+        </layout>
+    </widget>
+    <resources/>
+</ui>

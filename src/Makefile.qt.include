@@ -140,6 +140,7 @@ QT_FORMS_UI = \
   qt/forms/kevaaddkeydialog.ui \
   qt/forms/kevabookmarksdialog.ui \
   qt/forms/kevanewnamespacedialog.ui \
+  qt/forms/kevaeditbookmarkdialog.ui \
   qt/forms/kevamynamespacesdialog.ui \
   qt/forms/debugwindow.ui \
   qt/forms/sendcoinsdialog.ui \
@@ -186,6 +187,7 @@ QT_MOC_CPP = \
   qt/moc_kevaaddkeydialog.cpp \
   qt/moc_kevabookmarksdialog.cpp \
   qt/moc_kevanewnamespacedialog.cpp \
+  qt/moc_kevaeditbookmarkdialog.cpp \
   qt/moc_kevamynamespacesdialog.cpp \
   qt/moc_rpcconsole.cpp \
   qt/moc_sendcoinsdialog.cpp \
@@ -281,6 +283,7 @@ BITCOIN_QT_H = \
   qt/kevaaddkeydialog.h \
   qt/kevabookmarksdialog.h \
   qt/kevanewnamespacedialog.h \
+  qt/kevaeditbookmarkdialog.h \
   qt/kevamynamespacesdialog.h \
   qt/utilitydialog.h \
   qt/walletframe.h \
@@ -405,6 +408,7 @@ BITCOIN_QT_WALLET_CPP = \
   qt/kevaaddkeydialog.cpp \
   qt/kevabookmarksdialog.cpp \
   qt/kevanewnamespacedialog.cpp \
+  qt/kevaeditbookmarkdialog.cpp \
   qt/kevamynamespacesdialog.cpp \
   qt/walletframe.cpp \
   qt/walletmodel.cpp \

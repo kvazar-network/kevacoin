@@ -146,6 +146,16 @@ void KevaBookmarksModel::setBookmarks(QJsonArray &array)
     setBookmarks(std::move(vBookmarEntries));
 }
 
+bool KevaBookmarksModel::isBookmarked(std::string& ns)
+{
+    for (int i = 0; i < list.size(); ++i) {
+        if (list.at(i).id == ns) {
+            return true;
+        }
+    }
+    return false;
+}
+
 void KevaBookmarksModel::sort(int column, Qt::SortOrder order)
 {
     qSort(list.begin(), list.end(), BookmarkEntryLessThan(column, order));

@@ -60,6 +60,12 @@ void KevaMyNamespacesDialog::namespaceView_selectionChanged()
     }
 }
 
+void KevaMyNamespacesDialog::on_namespaceView_doubleClicked(const QModelIndex &index)
+{
+    selectedIndex = ui->namespaceView->selectionModel()->currentIndex();
+    this->apply();
+}
+
 void KevaMyNamespacesDialog::apply()
 {
     QModelIndex idIdx = selectedIndex.sibling(selectedIndex.row(), KevaNamespaceModel::Id);

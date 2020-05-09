@@ -925,8 +925,12 @@
 <context>
     <name>KevaBookmarksDialog</name>
     <message>
-        <source>Show</source>
+        <source>&amp;Show</source>
         <translation>显示</translation>
+    </message>
+    <message>
+        <source>&amp;Edit</source>
+        <translation>编辑</translation>
     </message>
 </context>
 <context>
