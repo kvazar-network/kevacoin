@@ -60,6 +60,9 @@ KevaDialog::KevaDialog(const PlatformStyle *_platformStyle, QWidget *parent) :
 
     ui->kevaView->setTextElideMode(Qt::ElideRight);
     ui->kevaView->setWordWrap(false);
+    QHeaderView *verticalHeader = ui->kevaView->verticalHeader();
+    verticalHeader->setSectionResizeMode(QHeaderView::Fixed);
+    verticalHeader->setDefaultSectionSize(36);
 
     // context menu
     contextMenu = new QMenu(this);
