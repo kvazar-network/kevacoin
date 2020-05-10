@@ -38,6 +38,7 @@ public:
 public Q_SLOTS:
     void apply();
     void reject();
+    void rename();
 
 private Q_SLOTS:
     void namespaceView_selectionChanged();

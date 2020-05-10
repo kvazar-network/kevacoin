@@ -16,10 +16,12 @@ KevaBookmarksDialog::KevaBookmarksDialog(QWidget *parent) :
     ui(new Ui::KevaBookmarksDialog)
 {
     ui->setupUi(this);
-    ui->buttonBox->button(QDialogButtonBox::Apply)->setEnabled(false);
-    ui->buttonBox->button(QDialogButtonBox::Apply)->setText(tr("Show"));
+    ui->buttonBox->button(QDialogButtonBox::Ok)->setEnabled(false);
+    ui->buttonBox->button(QDialogButtonBox::Save)->setEnabled(false);
+    ui->buttonBox->button(QDialogButtonBox::Save)->setText(tr("Edit"));
     connect(ui->buttonBox->button(QDialogButtonBox::Cancel), SIGNAL(clicked()), this, SLOT(reject()));
-    connect(ui->buttonBox->button(QDialogButtonBox::Apply), SIGNAL(clicked()), this, SLOT(apply()));
+    connect(ui->buttonBox->button(QDialogButtonBox::Ok), SIGNAL(clicked()), this, SLOT(apply()));
+    connect(ui->buttonBox->button(QDialogButtonBox::Save), SIGNAL(clicked()), this, SLOT(rename()));
 }
 
 void KevaBookmarksDialog::setModel(WalletModel *_model)
@@ -48,7 +50,8 @@ void KevaBookmarksDialog::setModel(WalletModel *_model)
 void KevaBookmarksDialog::namespaceView_selectionChanged()
 {
     bool enable = !ui->namespaceView->selectionModel()->selectedRows().isEmpty();
-    ui->buttonBox->button(QDialogButtonBox::Apply)->setEnabled(enable);
+    ui->buttonBox->button(QDialogButtonBox::Ok)->setEnabled(enable);
+    ui->buttonBox->button(QDialogButtonBox::Save)->setEnabled(enable);
 
     if (enable) {
         selectedIndex = ui->namespaceView->selectionModel()->currentIndex();
@@ -71,6 +74,10 @@ void KevaBookmarksDialog::apply()
     KevaDialog* dialog = (KevaDialog*)this->parentWidget();
     dialog->showNamespace(idStr);
     QDialog::close();
+}
+
+void KevaBookmarksDialog::rename()
+{
 }
 
 void KevaBookmarksDialog::reject()
