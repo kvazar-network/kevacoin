@@ -75,6 +75,8 @@ QVariant KevaTableModel::data(const QModelIndex &index, int role) const
     {
         if (index.column() == Block)
             return (int)(Qt::AlignRight|Qt::AlignVCenter);
+        else if (index.column() == Value)
+            return (int)(Qt::AlignLeft|Qt::AlignTop);
     }
     return QVariant();
 }

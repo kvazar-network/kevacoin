@@ -58,6 +58,9 @@ KevaDialog::KevaDialog(const PlatformStyle *_platformStyle, QWidget *parent) :
     bookmarks = new KevaBookmarksModel(NULL, NULL);
     bookmarks->loadBookmarks();
 
+    ui->kevaView->setTextElideMode(Qt::ElideRight);
+    ui->kevaView->setWordWrap(false);
+
     // context menu
     contextMenu = new QMenu(this);
     contextMenu->addAction(copyURIAction);
