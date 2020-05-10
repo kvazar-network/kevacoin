@@ -1181,8 +1181,8 @@
 <context>
     <name>KevaBookmarksDialog</name>
     <message>
-        <location filename="../kevabookmarksdialog.cpp" line="+20"/>
-        <source>Show</source>
+        <location filename="../kevabookmarksdialog.cpp" line="+23"/>
+        <source>&amp;Edit</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -1215,7 +1215,7 @@
 <context>
     <name>KevaDialog</name>
     <message>
-        <location filename="../forms/kevadialog.ui" line="+235"/>
+        <location filename="../forms/kevadialog.ui" line="+267"/>
         <source>Show the selected request (does the same as double clicking an entry)</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1226,13 +1226,18 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="-204"/>
-        <location line="+14"/>
+        <location line="-234"/>
+        <location line="+44"/>
         <source>The namespace ID with a prefix &quot;N&quot;.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="-7"/>
+        <location line="-34"/>
+        <source>Bookmark this namespace</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+27"/>
         <source>Use this form to perform Keva database operations.</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1322,7 +1327,7 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+192"/>
+        <location line="+259"/>
         <source>Warning</source>
         <translation type="unfinished">Warning</translation>
     </message>
@@ -1373,6 +1378,24 @@
     <message>
         <location line="+3"/>
         <source>Value too long.</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>KevaEditBookmarkDialog</name>
+    <message>
+        <location filename="../forms/kevaeditbookmarkdialog.ui" line="+22"/>
+        <source>Bookmark name.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+3"/>
+        <source>Name:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+13"/>
+        <source>This pane allows change of bookmark name</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -1438,7 +1461,7 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+81"/>
+        <location line="+88"/>
         <source>Requested</source>
         <translation type="unfinished"></translation>
     </message>

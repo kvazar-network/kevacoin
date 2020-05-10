@@ -18,7 +18,6 @@ namespace Ui {
     class KevaBookmarksDialog;
 }
 
-
 /** Dialog showing namepsace creation. */
 class KevaBookmarksDialog : public QDialog
 {
@@ -39,6 +38,7 @@ public Q_SLOTS:
     void apply();
     void reject();
     void rename();
+    void saveName(const QString& id, const QString& name);
 
 private Q_SLOTS:
     void namespaceView_selectionChanged();
