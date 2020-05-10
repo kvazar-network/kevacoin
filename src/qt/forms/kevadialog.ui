@@ -38,6 +38,10 @@
                         <property name="maximumWidth">
                           <number>600</number>
                         </property>
+                        <property name="sizePolicy">
+                          <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+                          </sizepolicy>
+                        </property>
                       </widget>
                     </item>
                     <item>
