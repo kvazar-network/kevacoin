@@ -1181,7 +1181,12 @@
 <context>
     <name>KevaBookmarksDialog</name>
     <message>
-        <location filename="../kevabookmarksdialog.cpp" line="+23"/>
+        <location filename="../kevabookmarksdialog.cpp" line="+22"/>
+        <source>&amp;Show</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+2"/>
         <source>&amp;Edit</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1215,7 +1220,7 @@
 <context>
     <name>KevaDialog</name>
     <message>
-        <location filename="../forms/kevadialog.ui" line="+267"/>
+        <location filename="../forms/kevadialog.ui" line="+271"/>
         <source>Show the selected request (does the same as double clicking an entry)</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1226,8 +1231,8 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="-234"/>
-        <location line="+44"/>
+        <location line="-238"/>
+        <location line="+48"/>
         <source>The namespace ID with a prefix &quot;N&quot;.</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1327,7 +1332,7 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+259"/>
+        <location line="+262"/>
         <source>Warning</source>
         <translation type="unfinished">Warning</translation>
     </message>
@@ -1348,22 +1353,27 @@
     </message>
     <message>
         <location line="+3"/>
-        <location line="+122"/>
+        <location line="+125"/>
         <location line="+28"/>
         <source>Unknown error.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="-148"/>
-        <location line="+122"/>
+        <location line="-151"/>
+        <location line="+125"/>
         <location line="+28"/>
         <source>Error</source>
         <translation type="unfinished">Error</translation>
     </message>
     <message>
-        <location line="-33"/>
+        <location line="-36"/>
         <source>Namespace too long &quot;%1&quot;</source>
         <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+3"/>
+        <source>Insufficient funds</source>
+        <translation type="unfinished">Insufficient funds</translation>
     </message>
     <message>
         <location line="+22"/>
@@ -1461,7 +1471,7 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+88"/>
+        <location line="+86"/>
         <source>Requested</source>
         <translation type="unfinished"></translation>
     </message>
@@ -4196,7 +4206,7 @@
 <context>
     <name>WalletModel</name>
     <message>
-        <location filename="../walletmodel.cpp" line="+304"/>
+        <location filename="../walletmodel.cpp" line="+306"/>
         <source>Send Coins</source>
         <translation type="unfinished">Send Coins</translation>
     </message>

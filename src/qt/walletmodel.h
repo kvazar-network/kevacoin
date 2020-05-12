@@ -131,6 +131,7 @@ public:
         KeyNotFound,
         ValueTooLong,
         CannotUpdate,
+        InsufficientFund,
     };
 
     enum EncryptionStatus

@@ -457,6 +457,9 @@ int KevaDialog::createNamespace(std::string displayName, std::string& namespaceI
             case WalletModel::NamespaceTooLong:
                 msg = tr("Namespace too long \"%1\"").arg(QString::fromStdString(displayName));
                 break;
+            case WalletModel::InsufficientFund:
+                msg = tr("Insufficient funds");
+                break;
             default:
                 msg = tr("Unknown error.");
         }

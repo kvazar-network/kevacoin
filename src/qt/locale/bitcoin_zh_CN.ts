@@ -1066,6 +1066,10 @@
         <translation><numerusform>命名空间太长: &quot;%1&quot;</numerusform></translation>
     </message>
     <message>
+        <source>Insufficient funds</source>
+        <translation>存款不足</translation>
+    </message>
+    <message>
         <source>Cannot add key-value. Make sure you own this namespace.</source>
         <translation>无法添加键值。确保您拥有此名称空间。</translation>
     </message>

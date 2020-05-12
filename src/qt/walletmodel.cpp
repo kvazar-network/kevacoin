@@ -19,6 +19,8 @@
 
 #include <base58.h>
 #include <chain.h>
+#include <univalue.h>
+#include <rpc/protocol.h>
 #include <keystore.h>
 #include <keva/common.h>
 #include <keva/main.h>
@@ -915,8 +917,17 @@ int WalletModel::createNamespace(std::string displayNameStr, std::string& namesp
     CCoinControl coinControl;
     CWalletTx wtx;
     valtype kevaNamespace;
-    SendMoneyToScript(wallet, newScript, nullptr, kevaNamespace,
-        KEVA_LOCKED_AMOUNT, false, wtx, coinControl);
+    try {
+        SendMoneyToScript(wallet, newScript, nullptr, kevaNamespace,
+            KEVA_LOCKED_AMOUNT, false, wtx, coinControl);
+    } catch (const UniValue& objError) {
+        UniValue code = objError["code"];
+        if (code.get_int() == RPC_WALLET_INSUFFICIENT_FUNDS) {
+            return WalletModel::InsufficientFund;
+        }
+        return WalletModel::CannotUpdate;
+    }
+
     keyName.KeepKey();
 
     namespaceId = EncodeBase58Check(kevaNamespace);
