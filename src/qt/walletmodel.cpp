@@ -896,6 +896,11 @@ int WalletModel::createNamespace(std::string displayNameStr, std::string& namesp
         return NamespaceTooLong;
     }
 
+    WalletModel::UnlockContext ctx(requestUnlock());
+    if(!ctx.isValid()) {
+        return WalletLocked;
+    }
+
     CReserveKey keyName(wallet);
     CPubKey pubKey;
     const bool ok = keyName.GetReservedKey(pubKey, true);
@@ -929,7 +934,6 @@ int WalletModel::createNamespace(std::string displayNameStr, std::string& namesp
     }
 
     keyName.KeepKey();
-
     namespaceId = EncodeBase58Check(kevaNamespace);
     return 0;
 }
@@ -945,6 +949,11 @@ int WalletModel::deleteKevaEntry(std::string namespaceStr, std::string keyStr)
     const valtype key = ValtypeFromString(keyStr);
     if (key.size() > MAX_KEY_LENGTH) {
         return KeyTooLong;
+    }
+
+    WalletModel::UnlockContext ctx(requestUnlock());
+    if(!ctx.isValid()) {
+        return WalletLocked;
     }
 
     bool hasKey = false;
@@ -1011,6 +1020,11 @@ int WalletModel::addKeyValue(std::string& namespaceStr, std::string& keyStr, std
     const valtype value = ValtypeFromString(valueStr);
     if (value.size() > MAX_VALUE_LENGTH) {
         return ValueTooLong;
+    }
+
+    WalletModel::UnlockContext ctx(requestUnlock());
+    if(!ctx.isValid()) {
+        return WalletLocked;
     }
 
     COutput output;

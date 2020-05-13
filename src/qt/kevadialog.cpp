@@ -289,7 +289,6 @@ void KevaDialog::kevaView_selectionChanged()
     bool enable = !ui->kevaView->selectionModel()->selectedRows().isEmpty();
     ui->showValueButton->setEnabled(enable);
     ui->removeButton->setEnabled(enable);
-    ui->addKVButton->setEnabled(enable);
 }
 
 void KevaDialog::on_showValueButton_clicked()
@@ -335,6 +334,11 @@ void KevaDialog::on_removeButton_clicked()
             case WalletModel::KeyNotFound:
                 msg = tr("Key not found: \"%1\".").arg(keyStr);
                 break;
+            case WalletModel::InsufficientFund:
+                msg = tr("Insufficient funds");
+                break;
+            case WalletModel::WalletLocked:
+                return;
             default:
                 msg = tr("Unknown error.");
         }
@@ -460,6 +464,8 @@ int KevaDialog::createNamespace(std::string displayName, std::string& namespaceI
             case WalletModel::InsufficientFund:
                 msg = tr("Insufficient funds");
                 break;
+            case WalletModel::WalletLocked:
+                return 0;
             default:
                 msg = tr("Unknown error.");
         }
@@ -488,6 +494,11 @@ int KevaDialog::addKeyValue(std::string& namespaceId, std::string& key, std::str
             case WalletModel::ValueTooLong:
                 msg = tr("Value too long.");
                 break;
+            case WalletModel::InsufficientFund:
+                msg = tr("Insufficient funds");
+                break;
+            case WalletModel::WalletLocked:
+                return 0;
             default:
                 msg = tr("Unknown error.");
         }

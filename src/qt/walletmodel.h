@@ -132,6 +132,7 @@ public:
         ValueTooLong,
         CannotUpdate,
         InsufficientFund,
+        WalletLocked,
     };
 
     enum EncryptionStatus
