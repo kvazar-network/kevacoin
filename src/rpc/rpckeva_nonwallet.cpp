@@ -115,6 +115,7 @@ UniValue keva_get(const JSONRPCRequest& request)
       UniValue obj(UniValue::VOBJ);
       obj.pushKV("key", keyStr);
       obj.pushKV("value", ValtypeToString(val));
+      obj.pushKV("height", -1);
       return obj;
     }
   }
