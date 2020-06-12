@@ -25,89 +25,6 @@
 #include <univalue.h>
 #include <boost/xpressive/xpressive_dynamic.hpp>
 
-UniValue keva_get(const JSONRPCRequest& request)
-{
-  if (request.fHelp || request.params.size() != 2) {
-    throw std::runtime_error (
-        "keva_get \"namespace\" \"key\"\n"
-        "\nGet value of the given key.\n"
-        "\nArguments:\n"
-        "1. \"namespace\"            (string, required) the namespace to insert the key to\n"
-        "2. \"key\"                  (string, required) value for the key\n"
-        "\nResult:\n"
-        "\"value\"             (string) the value associated with the key\n"
-        "\nExamples:\n"
-        + HelpExampleCli ("keva_get", "\"namespace_id\", \"key\"")
-      );
-  }
-
-  RPCTypeCheck(request.params, {UniValue::VSTR, UniValue::VSTR});
-  RPCTypeCheckArgument(request.params[0], UniValue::VSTR);
-  RPCTypeCheckArgument(request.params[1], UniValue::VSTR);
-
-  ObserveSafeMode ();
-
-  const std::string namespaceStr = request.params[0].get_str ();
-  valtype nameSpace;
-  if (!DecodeKevaNamespace(namespaceStr, Params(), nameSpace)) {
-    throw JSONRPCError (RPC_INVALID_PARAMETER, "invalid namespace id");
-  }
-  if (nameSpace.size() > MAX_NAMESPACE_LENGTH)
-    throw JSONRPCError (RPC_INVALID_PARAMETER, "the namespace is too long");
-
-  const std::string keyStr = request.params[1].get_str();
-  const valtype key = ValtypeFromString(keyStr);
-  if (key.size() > MAX_KEY_LENGTH)
-    throw JSONRPCError(RPC_INVALID_PARAMETER, "the key is too long");
-
-  CKevaData data;
-  {
-    LOCK(cs_main);
-    pcoinsTip->GetName(nameSpace, key, data);
-  }
-
-  auto value = data.getValue();
-  // Also get the unconfirmed ones.
-  {
-    LOCK (mempool.cs);
-    valtype val;
-    if (mempool.getUnconfirmedKeyValue(nameSpace, key, val)) {
-      value = val;
-    }
-  }
-
-  UniValue obj(UniValue::VOBJ);
-  obj.pushKV("key", keyStr);
-  obj.pushKV("value", ValtypeToString(value));
-  return obj;
-}
-
-/**
- * Return the help string description to use for keva info objects.
- * @param indent Indentation at the line starts.
- * @param trailing Trailing string (e. g., comma for an array of these objects).
- * @return The description string.
- */
-std::string getKevaInfoHelp (const std::string& indent, const std::string& trailing)
-{
-  std::ostringstream res;
-
-  res << indent << "{" << std::endl;
-  res << indent << "  \"key\": xxxxx,           "
-      << "(string) the requested key" << std::endl;
-  res << indent << "  \"value\": xxxxx,          "
-      << "(string) the key's current value" << std::endl;
-  res << indent << "  \"txid\": xxxxx,           "
-      << "(string) the key's last update tx" << std::endl;
-  res << indent << "  \"address\": xxxxx,        "
-      << "(string) the address holding the key" << std::endl;
-  res << indent << "  \"height\": xxxxx,         "
-      << "(numeric) the key's last update height" << std::endl;
-  res << indent << "}" << trailing << std::endl;
-
-  return res.str ();
-}
-
 /**
  * Utility routine to construct a "keva info" object to return.  This is used
  * for keva_filter.
@@ -153,6 +70,95 @@ getKevaInfo(const valtype& key, const CKevaData& data)
 {
   return getKevaInfo(key, data.getValue(), data.getUpdateOutpoint(),
                       data.getAddress(), data.getHeight());
+}
+
+UniValue keva_get(const JSONRPCRequest& request)
+{
+  if (request.fHelp || request.params.size() != 2) {
+    throw std::runtime_error (
+        "keva_get \"namespace\" \"key\"\n"
+        "\nGet value of the given key.\n"
+        "\nArguments:\n"
+        "1. \"namespace\"            (string, required) the namespace to insert the key to\n"
+        "2. \"key\"                  (string, required) value for the key\n"
+        "\nResult:\n"
+        "\"value\"             (string) the value associated with the key\n"
+        "\nExamples:\n"
+        + HelpExampleCli ("keva_get", "\"namespace_id\", \"key\"")
+      );
+  }
+
+  RPCTypeCheck(request.params, {UniValue::VSTR, UniValue::VSTR});
+  RPCTypeCheckArgument(request.params[0], UniValue::VSTR);
+  RPCTypeCheckArgument(request.params[1], UniValue::VSTR);
+
+  ObserveSafeMode ();
+
+  const std::string namespaceStr = request.params[0].get_str ();
+  valtype nameSpace;
+  if (!DecodeKevaNamespace(namespaceStr, Params(), nameSpace)) {
+    throw JSONRPCError (RPC_INVALID_PARAMETER, "invalid namespace id");
+  }
+  if (nameSpace.size() > MAX_NAMESPACE_LENGTH)
+    throw JSONRPCError (RPC_INVALID_PARAMETER, "the namespace is too long");
+
+  const std::string keyStr = request.params[1].get_str();
+  const valtype key = ValtypeFromString(keyStr);
+  if (key.size() > MAX_KEY_LENGTH)
+    throw JSONRPCError(RPC_INVALID_PARAMETER, "the key is too long");
+
+  // If there is unconfirmed one, return its value.
+  {
+    LOCK (mempool.cs);
+    valtype val;
+    if (mempool.getUnconfirmedKeyValue(nameSpace, key, val)) {
+      UniValue obj(UniValue::VOBJ);
+      obj.pushKV("key", keyStr);
+      obj.pushKV("value", ValtypeToString(val));
+      return obj;
+    }
+  }
+
+  // Otherwise, return the confirmed value.
+  {
+    LOCK(cs_main);
+    CKevaData data;
+    if (pcoinsTip->GetName(nameSpace, key, data)) {
+      return getKevaInfo(key, data);
+    }
+  }
+
+  // Empty value
+  UniValue obj(UniValue::VOBJ);
+  obj.pushKV("key", keyStr);
+  obj.pushKV("value", "");
+  return obj;
+}
+
+/**
+ * Return the help string description to use for keva info objects.
+ * @param indent Indentation at the line starts.
+ * @param trailing Trailing string (e. g., comma for an array of these objects).
+ * @return The description string.
+ */
+std::string getKevaInfoHelp (const std::string& indent, const std::string& trailing)
+{
+  std::ostringstream res;
+
+  res << indent << "{" << std::endl;
+  res << indent << "  \"key\": xxxxx,           "
+      << "(string) the requested key" << std::endl;
+  res << indent << "  \"value\": xxxxx,          "
+      << "(string) the key's current value" << std::endl;
+  res << indent << "  \"txid\": xxxxx,           "
+      << "(string) the key's last update tx" << std::endl;
+  res << indent << "  \"address\": xxxxx,        "
+      << "(string) the address holding the key" << std::endl;
+  res << indent << "  \"height\": xxxxx,         "
+      << "(numeric) the key's last update height" << std::endl;
+  res << indent << "}" << trailing << std::endl;
+
+  return res.str ();
 }
 
 UniValue keva_filter(const JSONRPCRequest& request)
