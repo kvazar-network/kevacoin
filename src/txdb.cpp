@@ -26,6 +26,7 @@ static const char DB_TXINDEX = 't';
 static const char DB_BLOCK_INDEX = 'b';
 
 static const char DB_NAME = 'n';
+static const char DB_NS_ASSOC = 'a';
 
 static const char DB_BEST_BLOCK = 'B';
 static const char DB_HEAD_BLOCKS = 'H';
@@ -92,6 +93,9 @@ private:
     /* The backing LevelDB iterator.  */
     CDBIterator* iter;
 
+    /* This iterator is for namespace association search. */
+    bool isAssociation;
+
 public:
 
     ~CDbKeyIterator();
@@ -100,7 +104,7 @@ public:
      * Construct a new name iterator for the database.
      * @param db The database to create the iterator for.
      */
-    CDbKeyIterator(const CDBWrapper& db, const valtype& nameSpace);
+    CDbKeyIterator(const CDBWrapper& db, const valtype& nameSpace, bool association=false);
 
     /* Implement iterator methods.  */
     void seek(const valtype& start);
@@ -112,22 +116,24 @@ CDbKeyIterator::~CDbKeyIterator() {
     delete iter;
 }
 
-CDbKeyIterator::CDbKeyIterator(const CDBWrapper& db, const valtype& ns)
-    : CKevaIterator(ns), iter(const_cast<CDBWrapper*>(&db)->NewIterator())
+CDbKeyIterator::CDbKeyIterator(const CDBWrapper& db, const valtype& ns, bool association)
+    : CKevaIterator(ns), iter(const_cast<CDBWrapper*>(&db)->NewIterator()), isAssociation(association)
 {
     seek(valtype());
 }
 
 void CDbKeyIterator::seek(const valtype& start) {
-    iter->Seek(std::make_pair(DB_NAME, std::make_pair(nameSpace, start)));
+    auto &prefix = isAssociation ? DB_NS_ASSOC : DB_NAME;
+    iter->Seek(std::make_pair(prefix, std::make_pair(nameSpace, start)));
 }
 
 bool CDbKeyIterator::next(valtype& key, CKevaData& data) {
     if (!iter->Valid())
         return false;
 
+    auto &prefix = isAssociation ? DB_NS_ASSOC : DB_NAME;
     std::pair<char, std::pair<valtype, valtype>> curKey;
-    if (!iter->GetKey(curKey) || curKey.first != DB_NAME)
+    if (!iter->GetKey(curKey) || curKey.first != prefix)
         return false;
 
     valtype curNameSpace = std::get<0>(curKey.second);
@@ -146,6 +152,10 @@ bool CDbKeyIterator::next(valtype& key, CKevaData& data) {
 
 CKevaIterator* CCoinsViewDB::IterateKeys(const valtype& nameSpace) const {
     return new CDbKeyIterator(db, nameSpace);
+}
+
+CKevaIterator* CCoinsViewDB::IterateAssociatedNamespaces(const valtype& nameSpace) const {
+    return new CDbKeyIterator(db, nameSpace, true);
 }
 
 bool CCoinsViewDB::GetNamespace(const valtype &nameSpace, CKevaData &data) const {
@@ -322,6 +332,11 @@ void CKevaCache::writeBatch (CDBBatch& batch) const
   for (EntryMap::const_iterator i = entries.begin(); i != entries.end(); ++i) {
     std::pair<valtype, valtype> name = std::make_pair(std::get<0>(i->first), std::get<1>(i->first));
     batch.Write(std::make_pair(DB_NAME, name), i->second);
+  }
+
+  for (NamespaceMap::const_iterator i = associations.begin(); i != associations.end(); ++i) {
+    std::pair<valtype, valtype> name = std::make_pair(std::get<0>(i->first), std::get<1>(i->first));
+    batch.Write(std::make_pair(DB_NS_ASSOC, name), i->second);
   }
 
   for (std::set<NamespaceKeyType>::const_iterator i = deleted.begin(); i != deleted.end(); ++i) {

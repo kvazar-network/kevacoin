@@ -14,6 +14,7 @@ bool CCoinsView::GetNamespace(const valtype &nameSpace, CKevaData &data) const {
 bool CCoinsView::GetName(const valtype &nameSpace, const valtype &key, CKevaData &data) const { return false; }
 bool CCoinsView::GetNamesForHeight(unsigned nHeight, std::set<valtype>& names) const { return false; }
 CKevaIterator* CCoinsView::IterateKeys(const valtype& nameSpace) const { assert (false); }
+CKevaIterator* CCoinsView::IterateAssociatedNamespaces(const valtype& nameSpace) const { assert (false); }
 bool CCoinsView::BatchWrite(CCoinsMap &mapCoins, const uint256 &hashBlock, const CKevaCache &names) { return false; }
 CCoinsViewCursor *CCoinsView::Cursor() const { return nullptr; }
 bool CCoinsView::ValidateKevaDB() const {
@@ -43,6 +44,7 @@ bool CCoinsViewBacked::GetNamesForHeight(unsigned nHeight, std::set<valtype>& na
     return base->GetNamesForHeight(nHeight, names);
 }
 CKevaIterator* CCoinsViewBacked::IterateKeys(const valtype& nameSpace) const { return base->IterateKeys(nameSpace); }
+CKevaIterator* CCoinsViewBacked::IterateAssociatedNamespaces(const valtype& nameSpace) const { return base->IterateAssociatedNamespaces(nameSpace); }
 void CCoinsViewBacked::SetBackend(CCoinsView &viewIn) { base = &viewIn; }
 bool CCoinsViewBacked::BatchWrite(CCoinsMap &mapCoins, const uint256 &hashBlock, const CKevaCache &names) {
     return base->BatchWrite(mapCoins, hashBlock, names);
@@ -198,6 +200,10 @@ CKevaIterator* CCoinsViewCache::IterateKeys(const valtype& nameSpace) const {
     return cacheNames.iterateKeys(base->IterateKeys(nameSpace));
 }
 
+CKevaIterator* CCoinsViewCache::IterateAssociatedNamespaces(const valtype& nameSpace) const {
+    return cacheNames.IterateAssociatedNamespaces(base->IterateAssociatedNamespaces(nameSpace));
+}
+
 /* undo is set if the change is due to disconnecting blocks / going back in
    time.  The ordinary case (!undo) means that we update the name normally,
    going forward in time.  This is important for keeping track of the
@@ -210,6 +216,18 @@ void CCoinsViewCache::SetName(const valtype &nameSpace, const valtype &key, cons
         cacheNames.setNamespace(nameSpace, namespaceData);
     }
     cacheNames.set(nameSpace, key, data);
+
+    // Handle namespace association.
+    valtype associdateNamespace;
+    if (!cacheNames.getAssociateNamespaces(data.getValue(), associdateNamespace)) {
+        return;
+    }
+
+    CKevaData dummyData;
+    if (!GetNamespace(associdateNamespace, dummyData)) {
+        return;
+    }
+    cacheNames.associateNamespaces(nameSpace, associdateNamespace);
 }
 
 void CCoinsViewCache::DeleteName(const valtype &nameSpace, const valtype &key) {
@@ -218,6 +236,18 @@ void CCoinsViewCache::DeleteName(const valtype &nameSpace, const valtype &key) {
         assert(false);
     }
     cacheNames.remove(nameSpace, key);
+
+    // Handle namespace association.
+    valtype associdateNamespace;
+    if (!cacheNames.getAssociateNamespaces(oldData.getValue(), associdateNamespace)) {
+        return;
+    }
+
+    CKevaData dummyData;
+    if (!GetNamespace(associdateNamespace, dummyData)) {
+        return;
+    }
+    cacheNames.disassociateNamespaces(nameSpace, associdateNamespace);
 }
 
 bool CCoinsViewCache::BatchWrite(CCoinsMap &mapCoins, const uint256 &hashBlockIn, const CKevaCache &names) {

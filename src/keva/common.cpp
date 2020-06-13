@@ -7,7 +7,7 @@
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
 #include <keva/common.h>
-
+#include <base58.h>
 #include <script/keva.h>
 
 
@@ -55,6 +55,9 @@ private:
   /** Base iterator to combine with the cache.  */
   CKevaIterator* base;
 
+  /** Whether or not it is for namespace association.  */
+  bool isAssociation;
+
   /** Whether or not the base iterator has more entries.  */
   bool baseHasMore;
 
@@ -79,7 +82,7 @@ public:
    * @param c The cache object to use.
    * @param b The base iterator.
    */
-  CCacheKeyIterator(const CKevaCache& c, CKevaIterator* b);
+  CCacheKeyIterator(const CKevaCache& c, CKevaIterator* b, bool association=false);
 
   /* Destruct, this deletes also the base iterator.  */
   ~CCacheKeyIterator();
@@ -90,8 +93,8 @@ public:
 
 };
 
-CCacheKeyIterator::CCacheKeyIterator(const CKevaCache& c, CKevaIterator* b)
-  : CKevaIterator(b->getNamespace()), cache(c), base(b)
+CCacheKeyIterator::CCacheKeyIterator(const CKevaCache& c, CKevaIterator* b, bool association)
+  : CKevaIterator(b->getNamespace()), cache(c), base(b), isAssociation(association)
 {
   /* Add a seek-to-start to ensure that everything is consistent.  This call
      may be superfluous if we seek to another position afterwards anyway,
@@ -116,7 +119,8 @@ CCacheKeyIterator::advanceBaseIterator()
 void
 CCacheKeyIterator::seek(const valtype& start)
 {
-  cacheIter = cache.entries.lower_bound(std::make_tuple(nameSpace, start));
+  auto &entries = isAssociation ? cache.associations : cache.entries;
+  cacheIter = entries.lower_bound(std::make_tuple(nameSpace, start));
   base->seek(start);
 
   baseHasMore = true;
@@ -127,15 +131,15 @@ bool CCacheKeyIterator::next(valtype& key, CKevaData& data)
 {
   /* Exit early if no more data is available in either the cache
      nor the base iterator.  */
-
+  auto &entries = isAssociation ? cache.associations : cache.entries;
   bool endOfCacheNamespace = false;
-  if (cacheIter != cache.entries.end()) {
+  if (cacheIter != entries.end()) {
     valtype curNameSpace = std::get<0>(cacheIter->first);
     if (curNameSpace != nameSpace) {
       endOfCacheNamespace = true;
     }
   }
-  bool noMoreCache = (cacheIter == cache.entries.end()) || endOfCacheNamespace;
+  bool noMoreCache = (cacheIter == entries.end()) || endOfCacheNamespace;
   if (!baseHasMore && noMoreCache) {
     return false;
   }
@@ -144,7 +148,7 @@ bool CCacheKeyIterator::next(valtype& key, CKevaData& data)
   bool useBase = false;
   if (!baseHasMore) {
     useBase = false;
-  } else if (cacheIter == cache.entries.end()) {
+  } else if (cacheIter == entries.end()) {
     useBase = true;
   } else {
     if (baseKey == std::get<1>(cacheIter->first)) {
@@ -181,6 +185,8 @@ bool CCacheKeyIterator::next(valtype& key, CKevaData& data)
 
 /* ************************************************************************** */
 /* CKevaCache.  */
+
+const std::string CKevaCache::associatePrefix = "_A_";
 
 bool
 CKevaCache::get(const valtype& nameSpace, const valtype& key, CKevaData& data) const
@@ -233,10 +239,53 @@ CKevaCache::remove(const valtype& nameSpace, const valtype& key)
   deleted.insert(name);
 }
 
+/* If the value is an associated namespace (_A_N...), return the namespace */
+bool
+CKevaCache::getAssociateNamespaces(const valtype& value, valtype& nameSpace)
+{
+  std::string valueStr = ValtypeToString(value);
+  if (valueStr.rfind(associatePrefix, 0) != 0) {
+    return false;
+  }
+  valueStr.erase(0, associatePrefix.length());
+  if (!DecodeKevaNamespace(valueStr, Params(), nameSpace)) {
+    return false;
+  }
+  return true;
+}
+
+void
+CKevaCache::associateNamespaces(const valtype& nameSpace, const valtype& nameSpaceOther)
+{
+  auto name = std::make_tuple(nameSpaceOther, nameSpace);
+  const NamespaceMap::iterator ei = associations.find(name);
+  CKevaData data;
+  if (ei != entries.end())
+    ei->second = data;
+  else
+    associations.insert(std::make_pair(name, data));
+}
+
+void
+CKevaCache::disassociateNamespaces(const valtype& nameSpace, const valtype& nameSpaceOther)
+{
+  auto name = std::make_tuple(nameSpaceOther, nameSpace);
+  const NamespaceMap::iterator ei = entries.find(name);
+  if (ei != entries.end()) {
+    associations.erase(ei);
+  }
+}
+
 CKevaIterator*
 CKevaCache::iterateKeys(CKevaIterator* base) const
 {
   return new CCacheKeyIterator(*this, base);
+}
+
+CKevaIterator*
+CKevaCache::IterateAssociatedNamespaces(CKevaIterator* base) const
+{
+  return new CCacheKeyIterator(*this, base, true);
 }
 
 void
@@ -250,6 +299,10 @@ CKevaCache::updateNamesForHeight (unsigned nHeight,
 void CKevaCache::apply(const CKevaCache& cache)
 {
   for (EntryMap::const_iterator i = cache.entries.begin(); i != cache.entries.end(); ++i) {
+    set(std::get<0>(i->first), std::get<1>(i->first), i->second);
+  }
+
+  for (NamespaceMap::const_iterator i = associations.begin(); i != associations.end(); ++i) {
     set(std::get<0>(i->first), std::get<1>(i->first), i->second);
   }
 

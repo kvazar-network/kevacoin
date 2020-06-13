@@ -80,6 +80,7 @@ public:
     bool GetName(const valtype &nameSpace, const valtype &key, CKevaData &data) const override;
     bool GetNamesForHeight(unsigned nHeight, std::set<valtype>& names) const override;
     CKevaIterator* IterateKeys(const valtype& nameSpace) const override;
+    CKevaIterator* IterateAssociatedNamespaces(const valtype& nameSpace) const override;
     bool BatchWrite(CCoinsMap &mapCoins, const uint256 &hashBlock, const CKevaCache &names) override;
     CCoinsViewCursor *Cursor() const override;
 

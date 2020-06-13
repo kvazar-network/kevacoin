@@ -2,7 +2,7 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-// Copyright (c) 2018
+// Copyright (c) 2018-2020 The Kevacoin Core Developers
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -298,6 +298,8 @@ class CKevaCache
 
 private:
 
+  const static std::string associatePrefix;
+
   /**
    * Special comparator class for names that compares by length first.
    * This is used to sort the cache entry map in the same way as the
@@ -336,6 +338,8 @@ public:
 
   typedef std::tuple<valtype, valtype> NamespaceKeyType;
 
+  typedef std::map<std::tuple<valtype, valtype>, CKevaData, KeyComparator> NamespaceMap;
+
 private:
 
   /** New or updated names.  */
@@ -344,15 +348,19 @@ private:
   /** Deleted names.  */
   std::set<NamespaceKeyType> deleted;
 
+  /** Namespace association.  */
+  NamespaceMap associations;
+
   friend class CCacheKeyIterator;
 
 public:
 
   inline void
-  clear ()
+  clear()
   {
-    entries.clear ();
-    deleted.clear ();
+    entries.clear();
+    deleted.clear();
+    associations.clear();
   }
 
   /**
@@ -362,9 +370,9 @@ public:
    * @return True iff no changes are cached.
    */
   inline bool
-  empty () const
+  empty() const
   {
-    if (entries.empty() && deleted.empty()) {
+    if (entries.empty() && deleted.empty() && associations.empty()) {
       return true;
     }
 
@@ -394,10 +402,22 @@ public:
   /* Delete a name.  If it is in the "entries" set also, remove it there.  */
   void remove(const valtype& nameSpace, const valtype& key);
 
+  /* If the value is an associated namespace (_A_N...), return the namespace */
+  bool getAssociateNamespaces(const valtype& value, valtype& nameSpace);
+
+  /* Associate nameSpace with nameSpaceOther */
+  void associateNamespaces(const valtype& nameSpace, const valtype& nameSpaceOther);
+
+  /* Disassociate nameSpace with nameSpaceOther */
+  void disassociateNamespaces(const valtype& nameSpace, const valtype& nameSpaceOther);
+
   /* Return a name iterator that combines a "base" iterator with the changes
      made to it according to the cache.  The base iterator is taken
      ownership of.  */
   CKevaIterator* iterateKeys(CKevaIterator* base) const;
+
+  // Get the associated namespace iterator.
+  CKevaIterator* IterateAssociatedNamespaces(CKevaIterator* base) const;
 
   /* Query the cached changes to the expire index.  In particular,
      for a given height and a given set of names that were indexed to

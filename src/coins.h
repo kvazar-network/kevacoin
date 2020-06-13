@@ -176,6 +176,9 @@ public:
     // Get a key iterator.
     virtual CKevaIterator* IterateKeys(const valtype& nameSpace) const;
 
+    // Get the associated namespace iterator.
+    virtual CKevaIterator* IterateAssociatedNamespaces(const valtype& nameSpace) const;
+
     //! Do a bulk modification (multiple Coin changes + BestBlock change).
     //! The passed mapCoins can be modified.
     virtual bool BatchWrite(CCoinsMap &mapCoins, const uint256 &hashBlock, const CKevaCache &names);
@@ -210,6 +213,7 @@ public:
     bool GetName(const valtype& nameSpace, const valtype& key, CKevaData& data) const override;
     bool GetNamesForHeight(unsigned nHeight, std::set<valtype>& names) const override;
     CKevaIterator* IterateKeys(const valtype& nameSpace) const override;
+    virtual CKevaIterator* IterateAssociatedNamespaces(const valtype& nameSpace) const override;
     void SetBackend(CCoinsView &viewIn);
     bool BatchWrite(CCoinsMap &mapCoins, const uint256 &hashBlock, const CKevaCache &names) override;
     CCoinsViewCursor *Cursor() const override;
@@ -252,6 +256,7 @@ public:
     bool GetName(const valtype &nameSpace, const valtype &key, CKevaData& data) const override;
     bool GetNamesForHeight(unsigned nHeight, std::set<valtype>& names) const override;
     CKevaIterator* IterateKeys(const valtype& nameSpace) const override;
+    CKevaIterator* IterateAssociatedNamespaces(const valtype& nameSpace) const override;
     bool BatchWrite(CCoinsMap &mapCoins, const uint256 &hashBlock, const CKevaCache &names) override;
     CCoinsViewCursor* Cursor() const override {
         throw std::logic_error("CCoinsViewCache cursor iteration not supported.");
