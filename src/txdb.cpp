@@ -343,6 +343,11 @@ void CKevaCache::writeBatch (CDBBatch& batch) const
     std::pair<valtype, valtype> name = std::make_pair(std::get<0>(*i), std::get<1>(*i));
     batch.Erase(std::make_pair(DB_NAME, name));
   }
+
+  for (std::set<NamespaceKeyType>::const_iterator i = disassociations.begin(); i != disassociations.end(); ++i) {
+    std::pair<valtype, valtype> name = std::make_pair(std::get<0>(*i), std::get<1>(*i));
+    batch.Erase(std::make_pair(DB_NS_ASSOC, name));
+  }
 }
 
 bool CBlockTreeDB::ReadTxIndex(const uint256 &txid, CDiskTxPos &pos) {

@@ -219,7 +219,7 @@ void CCoinsViewCache::SetName(const valtype &nameSpace, const valtype &key, cons
 
     // Handle namespace association.
     valtype associdateNamespace;
-    if (!cacheNames.getAssociateNamespaces(data.getValue(), associdateNamespace)) {
+    if (!cacheNames.getAssociateNamespaces(key, associdateNamespace)) {
         return;
     }
 
@@ -227,7 +227,7 @@ void CCoinsViewCache::SetName(const valtype &nameSpace, const valtype &key, cons
     if (!GetNamespace(associdateNamespace, dummyData)) {
         return;
     }
-    cacheNames.associateNamespaces(nameSpace, associdateNamespace);
+    cacheNames.associateNamespaces(nameSpace, associdateNamespace, data);
 }
 
 void CCoinsViewCache::DeleteName(const valtype &nameSpace, const valtype &key) {
@@ -239,7 +239,7 @@ void CCoinsViewCache::DeleteName(const valtype &nameSpace, const valtype &key) {
 
     // Handle namespace association.
     valtype associdateNamespace;
-    if (!cacheNames.getAssociateNamespaces(oldData.getValue(), associdateNamespace)) {
+    if (!cacheNames.getAssociateNamespaces(key, associdateNamespace)) {
         return;
     }
 

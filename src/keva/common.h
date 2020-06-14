@@ -351,6 +351,9 @@ private:
   /** Namespace association.  */
   NamespaceMap associations;
 
+  /** Namespace disassociations.  */
+  std::set<NamespaceKeyType> disassociations;
+
   friend class CCacheKeyIterator;
 
 public:
@@ -361,6 +364,7 @@ public:
     entries.clear();
     deleted.clear();
     associations.clear();
+    disassociations.clear();
   }
 
   /**
@@ -406,7 +410,7 @@ public:
   bool getAssociateNamespaces(const valtype& value, valtype& nameSpace);
 
   /* Associate nameSpace with nameSpaceOther */
-  void associateNamespaces(const valtype& nameSpace, const valtype& nameSpaceOther);
+  void associateNamespaces(const valtype& nameSpace, const valtype& nameSpaceOther, const CKevaData& data);
 
   /* Disassociate nameSpace with nameSpaceOther */
   void disassociateNamespaces(const valtype& nameSpace, const valtype& nameSpaceOther);
