@@ -376,7 +376,7 @@ public:
   inline bool
   empty() const
   {
-    if (entries.empty() && deleted.empty() && associations.empty()) {
+    if (entries.empty() && deleted.empty() && associations.empty() && disassociations.empty()) {
       return true;
     }
 
@@ -385,10 +385,18 @@ public:
 
   /* See if the given name is marked as deleted.  */
   inline bool
-  isDeleted (const valtype& nameSpace, const valtype& key) const
+  isDeleted(const valtype& nameSpace, const valtype& key) const
   {
     auto name = std::make_tuple(nameSpace, key);
     return (deleted.count(name) > 0);
+  }
+
+  /* See if the given namespaces are disassociated.  */
+  inline bool
+  isDisassociated(const valtype& nameSpace, const valtype& nameSpaceOther) const
+  {
+    auto name = std::make_tuple(nameSpace, nameSpaceOther);
+    return (disassociations.count(name) > 0);
   }
 
   /* Try to get a name's associated data.  This looks only

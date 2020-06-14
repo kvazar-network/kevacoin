@@ -111,9 +111,15 @@ void
 CCacheKeyIterator::advanceBaseIterator()
 {
   assert (baseHasMore);
-  do {
-    baseHasMore = base->next(baseKey, baseData);
-  } while (baseHasMore && cache.isDeleted(nameSpace, baseKey));
+  if (isAssociation) {
+    do {
+      baseHasMore = base->next(baseKey, baseData);
+    } while (baseHasMore && cache.isDisassociated(nameSpace, baseKey));
+  } else {
+    do {
+      baseHasMore = base->next(baseKey, baseData);
+    } while (baseHasMore && cache.isDeleted(nameSpace, baseKey));
+  }
 }
 
 void
@@ -186,7 +192,7 @@ bool CCacheKeyIterator::next(valtype& key, CKevaData& data)
 /* ************************************************************************** */
 /* CKevaCache.  */
 
-const std::string CKevaCache::associatePrefix = "_f:";
+const std::string CKevaCache::associatePrefix = "_g:";
 
 bool
 CKevaCache::get(const valtype& nameSpace, const valtype& key, CKevaData& data) const
@@ -215,8 +221,6 @@ void
 CKevaCache::set(const valtype& nameSpace, const valtype& key, const CKevaData& data)
 {
   auto name = std::make_tuple(nameSpace, key);
-  printf("set name is: %s\n", (EncodeBase58Check(nameSpace) + ValtypeToString(key)).c_str());
-  printf("set, this is: %p, data value is: %s\n", this, ValtypeToString(data.getValue()).c_str());
   const std::set<NamespaceKeyType>::iterator di = deleted.find(name);
   if (di != deleted.end()) {
     deleted.erase(di);
@@ -260,9 +264,6 @@ void
 CKevaCache::associateNamespaces(const valtype& nameSpace, const valtype& nameSpaceOther, const CKevaData& data)
 {
   auto name = std::make_tuple(nameSpaceOther, nameSpace);
-  printf("associateNamespaces, name is: %s\n", (EncodeBase58Check(nameSpaceOther) + EncodeBase58Check(nameSpace)).c_str());
-  printf("associateNamespaces, this is: %p, data value is: %s\n", this, ValtypeToString(data.getValue()).c_str());
-
   const std::set<NamespaceKeyType>::iterator di = disassociations.find(name);
   if (di != disassociations.end()) {
     disassociations.erase(di);
@@ -270,10 +271,8 @@ CKevaCache::associateNamespaces(const valtype& nameSpace, const valtype& nameSpa
 
   const NamespaceMap::iterator ei = associations.find(name);
   if (ei != associations.end()) {
-    printf("CKevaCache::associateNamespaces, REPLACE !!!\n");
     ei->second = data;
   } else {
-    printf("CKevaCache::associateNamespaces, INSERT !!!\n");
     associations.insert(std::make_pair(name, data));
   }
 }
@@ -283,9 +282,7 @@ CKevaCache::disassociateNamespaces(const valtype& nameSpace, const valtype& name
 {
   auto name = std::make_tuple(nameSpaceOther, nameSpace);
   const NamespaceMap::iterator ei = associations.find(name);
-  printf("CKevaCache::disassociateNamespaces, name is: %s\n", (EncodeBase58Check(nameSpaceOther) + EncodeBase58Check(nameSpace)).c_str());
   if (ei != associations.end()) {
-    printf("CKevaCache::disassociateNamespaces, erase!!!\n");
     associations.erase(ei);
   }
 
@@ -314,13 +311,12 @@ CKevaCache::updateNamesForHeight (unsigned nHeight,
 
 void CKevaCache::apply(const CKevaCache& cache)
 {
-  printf("CKevaCache::apply!!!!\n");
   for (EntryMap::const_iterator i = cache.entries.begin(); i != cache.entries.end(); ++i) {
     set(std::get<0>(i->first), std::get<1>(i->first), i->second);
   }
 
-  for (NamespaceMap::const_iterator i = associations.begin(); i != associations.end(); ++i) {
-    associateNamespaces(std::get<0>(i->first), std::get<1>(i->first), i->second);
+  for (NamespaceMap::const_iterator i = cache.associations.begin(); i != cache.associations.end(); ++i) {
+    associateNamespaces(std::get<1>(i->first), std::get<0>(i->first), i->second);
   }
 
   for (std::set<NamespaceKeyType>::const_iterator i = cache.deleted.begin(); i != cache.deleted.end(); ++i) {
@@ -328,6 +324,6 @@ void CKevaCache::apply(const CKevaCache& cache)
   }
 
   for (std::set<NamespaceKeyType>::const_iterator i = cache.disassociations.begin(); i != cache.disassociations.end(); ++i) {
-    disassociateNamespaces(std::get<0>(*i), std::get<1>(*i));
+    disassociateNamespaces(std::get<1>(*i), std::get<0>(*i));
   }
 }
