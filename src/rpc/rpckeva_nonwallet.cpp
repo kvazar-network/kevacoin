@@ -184,7 +184,7 @@ void getNamespaceGroup(const valtype& nameSpace, std::set<valtype>& namespaces, 
 
 UniValue keva_group_get(const JSONRPCRequest& request)
 {
-  if (request.fHelp || request.params.size() != 2) {
+  if (request.fHelp || request.params.size() < 2) {
     throw std::runtime_error (
         "keva_group_get \"namespace\" \"key\" \"initiator\"\n"
         "\nGet value of the given key from the namespace and other namespaces in the same group.\n"
