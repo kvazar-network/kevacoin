@@ -418,6 +418,7 @@ UniValue keva_show_group(const JSONRPCRequest& request)
   valtype nsDisplayKey = ValtypeFromString(CKevaScript::KEVA_DISPLAY_NAME_KEY);
   std::unique_ptr<CKevaIterator> iter(pcoinsTip->IterateAssociatedNamespaces(nameSpace));
 
+  // Find the namespace connection initialized by others.
   while (iter->next(ns, data)) {
     const int age = chainActive.Height() - data.getHeight();
     assert(age >= 0);
@@ -449,6 +450,55 @@ UniValue keva_show_group(const JSONRPCRequest& request)
         break;
     }
   }
+
+  // Find the namespace connection initialized by us.
+  std::unique_ptr<CKevaIterator> iterKeys(pcoinsTip->IterateKeys(nameSpace));
+  valtype targetNS;
+  valtype key;
+  while (iterKeys->next(key, data)) {
+
+    // Find the value with the format _g:NamespaceId
+    std::string keyStr = ValtypeToString(key);
+    if (keyStr.rfind(CKevaData::ASSOCIATE_PREFIX, 0) != 0) {
+      continue;
+    }
+    keyStr.erase(0, CKevaData::ASSOCIATE_PREFIX.length());
+    if (!DecodeKevaNamespace(keyStr, Params(), targetNS)) {
+      continue;
+    }
+
+    const int age = chainActive.Height() - data.getHeight();
+    assert(age >= 0);
+    if (maxage != 0 && age >= maxage) {
+      continue;
+    }
+
+    if (from > 0) {
+      --from;
+      continue;
+    }
+    assert(from == 0);
+
+    if (stats) {
+      ++count;
+    }
+    else {
+      CKevaData nsData;
+      valtype nsName;
+      if (pcoinsTip->GetName(targetNS, nsDisplayKey, nsData)) {
+        nsName = nsData.getValue();
+      }
+      namespaces.push_back(getNamespaceInfo(targetNS, nsName, data.getUpdateOutpoint(),
+                      data.getAddress(), data.getHeight(), false));
+    }
+
+    if (nb > 0) {
+      --nb;
+      if (nb == 0)
+        break;
+    }
+  }
+
 
   if (stats) {
     UniValue res(UniValue::VOBJ);

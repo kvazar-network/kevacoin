@@ -14,6 +14,8 @@
 /* ************************************************************************** */
 /* CKevaData.  */
 
+const std::string CKevaData::ASSOCIATE_PREFIX = "_g:";
+
 void
 CKevaData::fromScript (unsigned h, const COutPoint& out,
                        const CKevaScript& script)
@@ -192,8 +194,6 @@ bool CCacheKeyIterator::next(valtype& key, CKevaData& data)
 /* ************************************************************************** */
 /* CKevaCache.  */
 
-const std::string CKevaCache::associatePrefix = "_g:";
-
 bool
 CKevaCache::get(const valtype& nameSpace, const valtype& key, CKevaData& data) const
 {
@@ -250,10 +250,10 @@ bool
 CKevaCache::getAssociateNamespaces(const valtype& value, valtype& nameSpace)
 {
   std::string valueStr = ValtypeToString(value);
-  if (valueStr.rfind(associatePrefix, 0) != 0) {
+  if (valueStr.rfind(CKevaData::ASSOCIATE_PREFIX, 0) != 0) {
     return false;
   }
-  valueStr.erase(0, associatePrefix.length());
+  valueStr.erase(0, CKevaData::ASSOCIATE_PREFIX.length());
   if (!DecodeKevaNamespace(valueStr, Params(), nameSpace)) {
     return false;
   }

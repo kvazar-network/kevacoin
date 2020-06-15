@@ -56,6 +56,8 @@ ValtypeToString (const valtype& val)
  */
 class CKevaData
 {
+public:
+  const static std::string ASSOCIATE_PREFIX;
 
 private:
 
@@ -297,8 +299,6 @@ class CKevaCache
 {
 
 private:
-
-  const static std::string associatePrefix;
 
   /**
    * Special comparator class for names that compares by length first.
