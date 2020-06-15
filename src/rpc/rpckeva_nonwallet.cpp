@@ -38,7 +38,7 @@
  */
 UniValue
 getKevaInfo(const valtype& key, const valtype& value, const COutPoint& outp,
-             const CScript& addr, int height)
+             const CScript& addr, int height, const valtype& nameSpace)
 {
   UniValue obj(UniValue::VOBJ);
   obj.pushKV("key", ValtypeToString(key));
@@ -56,6 +56,9 @@ getKevaInfo(const valtype& key, const valtype& value, const COutPoint& outp,
     addrStr = "<nonstandard>";
   obj.pushKV("address", addrStr);
   obj.pushKV("height", height);
+  if (nameSpace.size() > 0) {
+    obj.pushKV("namespace", EncodeBase58Check(nameSpace));
+  }
 
   return obj;
 }
@@ -67,10 +70,10 @@ getKevaInfo(const valtype& key, const valtype& value, const COutPoint& outp,
  * @return A JSON object to return.
  */
 UniValue
-getKevaInfo(const valtype& key, const CKevaData& data)
+getKevaInfo(const valtype& key, const CKevaData& data, const valtype& nameSpace=valtype())
 {
   return getKevaInfo(key, data.getValue(), data.getUpdateOutpoint(),
-                      data.getAddress(), data.getHeight());
+                      data.getAddress(), data.getHeight(), nameSpace);
 }
 
 UniValue keva_get(const JSONRPCRequest& request)
@@ -80,7 +83,7 @@ UniValue keva_get(const JSONRPCRequest& request)
         "keva_get \"namespace\" \"key\"\n"
         "\nGet value of the given key.\n"
         "\nArguments:\n"
-        "1. \"namespace\"            (string, required) the namespace to insert the key to\n"
+        "1. \"namespace\"            (string, required) the namespace to get the value of the key \n"
         "2. \"key\"                  (string, required) value for the key\n"
         "\nResult:\n"
         "\"value\"             (string) the value associated with the key\n"
@@ -134,6 +137,155 @@ UniValue keva_get(const JSONRPCRequest& request)
   UniValue obj(UniValue::VOBJ);
   obj.pushKV("key", keyStr);
   obj.pushKV("value", "");
+  return obj;
+}
+
+enum InitiatorType : int
+{
+    INITIATOR_TYPE_ALL,
+    INITIATOR_TYPE_SELF,
+    INITIATOR_TYPE_OTHER
+};
+
+void getNamespaceGroup(const valtype& nameSpace, std::set<valtype>& namespaces, const InitiatorType type)
+{
+  CKevaData data;
+  // Find the namespace connection initialized by others.
+  if (type == INITIATOR_TYPE_ALL || type == INITIATOR_TYPE_OTHER) {
+    valtype ns;
+    std::unique_ptr<CKevaIterator> iter(pcoinsTip->IterateAssociatedNamespaces(nameSpace));
+    while (iter->next(ns, data)) {
+      namespaces.insert(ns);
+    }
+  }
+
+  if (type == INITIATOR_TYPE_OTHER) {
+    return;
+  }
+
+  // Find the namespace connection initialized by us.
+  std::unique_ptr<CKevaIterator> iterKeys(pcoinsTip->IterateKeys(nameSpace));
+  valtype targetNS;
+  valtype key;
+  while (iterKeys->next(key, data)) {
+
+    // Find the value with the format _g:NamespaceId
+    std::string keyStr = ValtypeToString(key);
+    if (keyStr.rfind(CKevaData::ASSOCIATE_PREFIX, 0) != 0) {
+      continue;
+    }
+    keyStr.erase(0, CKevaData::ASSOCIATE_PREFIX.length());
+    if (!DecodeKevaNamespace(keyStr, Params(), targetNS)) {
+      continue;
+    }
+    namespaces.insert(targetNS);
+  }
+}
+
+UniValue keva_group_get(const JSONRPCRequest& request)
+{
+  if (request.fHelp || request.params.size() != 2) {
+    throw std::runtime_error (
+        "keva_group_get \"namespace\" \"key\" \"initiator\"\n"
+        "\nGet value of the given key from the namespace and other namespaces in the same group.\n"
+        "\nArguments:\n"
+        "1. \"namespace\"            (string, required) the namespace to get the value of the key\n"
+        "2. \"key\"                  (string, required) value for the key\n"
+        "3. \"initiator\"            (string, optional) Options are \"all\", \"self\" and \"other\", default is \"all\". \"all\": all the namespaces, whose participation in the group is initiated by this namespace or other namespaces. \"self\": only the namespace whose participation is initiated by this namespace. \"other\": only the namespace whose participation is initiated by other namespaces.\n"
+        "\nResult:\n"
+        "\"value\"             (string) the value associated with the key\n"
+        "\nExamples:\n"
+        + HelpExampleCli ("keva_get", "\"namespace_id\", \"key\"")
+        + HelpExampleCli ("keva_get", "\"namespace_id\", \"key\", \"self\"")
+      );
+  }
+
+  RPCTypeCheck(request.params, {UniValue::VSTR, UniValue::VSTR, UniValue::VSTR});
+
+  InitiatorType initiatorType = INITIATOR_TYPE_ALL;
+  if (request.params.size() == 3) {
+    const std::string initiator = request.params[2].get_str();
+    if (initiator == "all") {
+      initiatorType = INITIATOR_TYPE_ALL;
+    } else if (initiator == "self") {
+      initiatorType = INITIATOR_TYPE_SELF;
+    } else if (initiator == "other") {
+      initiatorType = INITIATOR_TYPE_SELF;
+    } else {
+      throw JSONRPCError (RPC_INVALID_PARAMETER, "invalid initiator type");
+    }
+  }
+
+  ObserveSafeMode();
+
+  const std::string namespaceStr = request.params[0].get_str ();
+  valtype nameSpace;
+  if (!DecodeKevaNamespace(namespaceStr, Params(), nameSpace)) {
+    throw JSONRPCError (RPC_INVALID_PARAMETER, "invalid namespace id");
+  }
+  if (nameSpace.size() > MAX_NAMESPACE_LENGTH)
+    throw JSONRPCError (RPC_INVALID_PARAMETER, "the namespace is too long");
+
+  const std::string keyStr = request.params[1].get_str();
+  const valtype key = ValtypeFromString(keyStr);
+  if (key.size() > MAX_KEY_LENGTH)
+    throw JSONRPCError(RPC_INVALID_PARAMETER, "the key is too long");
+
+  std::set<valtype> namespaces;
+  {
+    LOCK (mempool.cs);
+    namespaces.insert(nameSpace);
+    getNamespaceGroup(nameSpace, namespaces, initiatorType);
+  }
+
+  // If there is unconfirmed one, return its value.
+  {
+    LOCK (mempool.cs);
+    valtype val;
+    for (auto iter = namespaces.begin(); iter != namespaces.end(); ++iter) {
+      if (mempool.getUnconfirmedKeyValue(*iter, key, val)) {
+        // Return the first unconfirmed one.
+        UniValue obj(UniValue::VOBJ);
+        obj.pushKV("key", keyStr);
+        obj.pushKV("value", ValtypeToString(val));
+        obj.pushKV("height", -1);
+        obj.pushKV("namespace", EncodeBase58Check(*iter));
+        return obj;
+      }
+    }
+  }
+
+  // Otherwise, return the confirmed value.
+  {
+    LOCK(cs_main);
+    unsigned currentHeight = 0;
+    CKevaData data;
+    CKevaData currentData;
+    valtype ns;
+    for (auto iter = namespaces.begin(); iter != namespaces.end(); ++iter) {
+      if (pcoinsTip->GetName(*iter, key, currentData)) {
+        if (currentData.getHeight() > currentHeight) {
+          currentHeight = currentData.getHeight();
+          data = currentData;
+          ns = *iter;
+        }
+      }
+    }
+    if (currentHeight > 0) {
+      return getKevaInfo(key, data, ns);
+    }
+  }
+
+  // Empty value
+  UniValue obj(UniValue::VOBJ);
+  obj.pushKV("key", keyStr);
+  obj.pushKV("value", "");
+  return obj;
+}
+
+UniValue keva_group_filter(const JSONRPCRequest& request)
+{
+  UniValue obj(UniValue::VOBJ);
   return obj;
 }
 
@@ -515,7 +667,9 @@ static const CRPCCommand commands[] =
   //  --------------------- ------------------------  -----------------------  ----------
     { "kevacoin",           "keva_get",              &keva_get,              {"namespace", "key"} },
     { "kevacoin",           "keva_filter",           &keva_filter,           {"namespace", "regexp", "from", "nb", "stat"} },
-    { "kevacoin",           "keva_show_group",       &keva_show_group,       {"namespace", "from", "nb", "stat"} }
+    { "kevacoin",           "keva_show_group",       &keva_show_group,       {"namespace", "from", "nb", "stat"} },
+    { "kevacoin",           "keva_group_get",        &keva_group_get,        {"namespace", "key", "initiator"} },
+    { "kevacoin",           "keva_group_filter",     &keva_group_filter,     {"namespace", "initiator", "regexp", "from", "nb", "stat"} }
 };
 
 void RegisterKevaRPCCommands(CRPCTable &t)
