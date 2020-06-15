@@ -11,6 +11,7 @@
 #include "init.h"
 #include "keva/common.h"
 #include "keva/main.h"
+#include "script/keva.h"
 #include "primitives/transaction.h"
 #include "random.h"
 #include "rpc/mining.h"
@@ -300,32 +301,65 @@ UniValue keva_filter(const JSONRPCRequest& request)
   return keys;
 }
 
-UniValue keva_group(const JSONRPCRequest& request)
+/**
+ * Utility routine to construct a "namespace info" object to return.  This is used
+ * for keva_group.
+ * @param namespaceId The namespace Id.
+ * @param name The display name of the namespace.
+ * @param outp The last update's outpoint.
+ * @param addr The namespace's address script.
+ * @param height The height at which the namespace joins the group.
+ * @param initiator If true, the namespace connection is initiated by this namespace.
+ * @return A JSON object to return.
+ */
+UniValue
+getNamespaceInfo(const valtype& namespaceId, const valtype& name, const COutPoint& outp,
+             const CScript& addr, int height, bool initiator)
+{
+  UniValue obj(UniValue::VOBJ);
+  obj.pushKV("namespaceId", EncodeBase58Check(namespaceId));
+  obj.pushKV("display_name", ValtypeToString(name));
+  obj.pushKV("txid", outp.hash.GetHex());
+
+  // Try to extract the address. May fail if we can't parse the script as a "standard" script.
+  CTxDestination dest;
+  std::string addrStr;
+  if (ExtractDestination(addr, dest)) {
+    addrStr = EncodeDestination(dest);
+  } else {
+    addrStr = "<nonstandard>";
+  }
+  obj.pushKV("address", addrStr);
+  obj.pushKV("height", height);
+  obj.pushKV("initiator", initiator);
+
+  return obj;
+}
+
+UniValue keva_show_group(const JSONRPCRequest& request)
 {
   if (request.fHelp || request.params.size() > 6 || request.params.size() == 0)
     throw std::runtime_error(
-        "keva_filter (\"namespaceId\" (\"regexp\" (\"from\" (\"nb\" (\"stat\")))))\n"
-        "\nScan and list keys matching a regular expression.\n"
+        "keva_show_group (\"namespaceId\" (\"regexp\" (\"from\" (\"nb\" (\"stat\")))))\n"
+        "\nList namespaces that are in the same group as the given namespace.\n"
         "\nArguments:\n"
         "1. \"namespace\"   (string) namespace Id\n"
-        "2. \"regexp\"      (string, optional) filter keys with this regexp\n"
-        "3. \"maxage\"      (numeric, optional, default=96000) only consider names updated in the last \"maxage\" blocks; 0 means all names\n"
-        "4. \"from\"        (numeric, optional, default=0) return from this position onward; index starts at 0\n"
-        "5. \"nb\"          (numeric, optional, default=0) return only \"nb\" entries; 0 means all\n"
-        "6. \"stat\"        (string, optional) if set to the string \"stat\", print statistics instead of returning the names\n"
+        "2. \"maxage\"      (numeric, optional, default=96000) only consider namespaces updated in the last \"maxage\" blocks; 0 means all namespaces\n"
+        "3. \"from\"        (numeric, optional, default=0) return from this position onward; index starts at 0\n"
+        "4. \"nb\"          (numeric, optional, default=0) return only \"nb\" entries; 0 means all\n"
+        "5. \"stat\"        (string, optional) if set to the string \"stat\", print statistics instead of returning the names\n"
         "\nResult:\n"
         "[\n"
         + getKevaInfoHelp ("  ", ",") +
         "  ...\n"
         "]\n"
         "\nExamples:\n"
-        + HelpExampleCli ("keva_filter", "\"^id/\"")
-        + HelpExampleCli ("keva_filter", "\"^id/\" 96000 0 0 \"stat\"")
-        + HelpExampleRpc ("keva_filter", "\"^d/\"")
+        + HelpExampleCli ("keva_show_group", "NamespaceId")
+        + HelpExampleCli ("keva_show_group", "NamespaceId 96000 0 0 \"stat\"")
       );
 
   RPCTypeCheck(request.params, {
-                  UniValue::VSTR, UniValue::VSTR, UniValue::VNUM,
+                  UniValue::VSTR, UniValue::VNUM,
                   UniValue::VNUM, UniValue::VNUM, UniValue::VSTR
                });
 
@@ -336,12 +370,7 @@ UniValue keva_group(const JSONRPCRequest& request)
 
   ObserveSafeMode();
 
-  /* ********************** */
-  /* Interpret parameters.  */
-
-  bool haveRegexp(false);
-  boost::xpressive::sregex regexp;
-
+  // Interpret parameters.
   valtype nameSpace;
   int maxage(96000), from(0), nb(0);
   bool stats(false);
@@ -353,58 +382,47 @@ UniValue keva_group(const JSONRPCRequest& request)
     }
   }
 
-  if (request.params.size() >= 2) {
-    haveRegexp = true;
-    regexp = boost::xpressive::sregex::compile (request.params[1].get_str());
-  }
-
-  if (request.params.size() >= 3)
-    maxage = request.params[2].get_int();
+  if (request.params.size() >= 2)
+    maxage = request.params[1].get_int();
   if (maxage < 0)
     throw JSONRPCError(RPC_INVALID_PARAMETER,
                         "'maxage' should be non-negative");
 
-  if (request.params.size() >= 4)
+  if (request.params.size() >= 3)
     from = request.params[3].get_int ();
 
   if (from < 0)
     throw JSONRPCError (RPC_INVALID_PARAMETER, "'from' should be non-negative");
 
-  if (request.params.size() >= 5)
-    nb = request.params[4].get_int ();
+  if (request.params.size() >= 4)
+    nb = request.params[3].get_int ();
 
   if (nb < 0)
     throw JSONRPCError (RPC_INVALID_PARAMETER, "'nb' should be non-negative");
 
-  if (request.params.size() >= 6) {
-    if (request.params[5].get_str() != "stat")
+  if (request.params.size() >= 5) {
+    if (request.params[4].get_str() != "stat")
       throw JSONRPCError (RPC_INVALID_PARAMETER,
                           "fifth argument must be the literal string 'stat'");
     stats = true;
   }
 
-  /* ******************************************* */
-  /* Iterate over names to build up the result.  */
-
-  UniValue keys(UniValue::VARR);
+  // Iterate over names to build up the result.
+  UniValue namespaces(UniValue::VARR);
   unsigned count(0);
 
   LOCK (cs_main);
 
-  valtype key;
+  valtype ns;
   CKevaData data;
+  valtype nsDisplayKey = ValtypeFromString(CKevaScript::KEVA_DISPLAY_NAME_KEY);
   std::unique_ptr<CKevaIterator> iter(pcoinsTip->IterateAssociatedNamespaces(nameSpace));
-  while (iter->next(key, data)) {
+
+  while (iter->next(ns, data)) {
     const int age = chainActive.Height() - data.getHeight();
     assert(age >= 0);
-    if (maxage != 0 && age >= maxage)
+    if (maxage != 0 && age >= maxage) {
       continue;
-
-    if (haveRegexp) {
-      const std::string keyStr = ValtypeToString(key);
-      boost::xpressive::smatch matches;
-      if (!boost::xpressive::regex_search(keyStr, matches, regexp))
-        continue;
     }
 
     if (from > 0) {
@@ -416,7 +434,13 @@ UniValue keva_group(const JSONRPCRequest& request)
     if (stats) {
       ++count;
     } else {
-      keys.push_back(getKevaInfo(ValtypeFromString(EncodeBase58Check(key)), data));
+      CKevaData nsData;
+      valtype nsName;
+      if (pcoinsTip->GetName(ns, nsDisplayKey, nsData)) {
+        nsName = nsData.getValue();
+      }
+      namespaces.push_back(getNamespaceInfo(ns, nsName, data.getUpdateOutpoint(),
+                      data.getAddress(), data.getHeight(), true));
     }
 
     if (nb > 0) {
@@ -426,9 +450,6 @@ UniValue keva_group(const JSONRPCRequest& request)
     }
   }
 
-  /* ********************************************************** */
-  /* Return the correct result (take stats mode into account).  */
-
   if (stats) {
     UniValue res(UniValue::VOBJ);
     res.pushKV("blocks", chainActive.Height());
@@ -436,7 +457,7 @@ UniValue keva_group(const JSONRPCRequest& request)
     return res;
   }
 
-  return keys;
+  return namespaces;
 }
 
 static const CRPCCommand commands[] =
@@ -444,7 +465,7 @@ static const CRPCCommand commands[] =
   //  --------------------- ------------------------  -----------------------  ----------
     { "kevacoin",           "keva_get",              &keva_get,              {"namespace", "key"} },
     { "kevacoin",           "keva_filter",           &keva_filter,           {"namespace", "regexp", "from", "nb", "stat"} },
-    { "kevacoin",           "keva_group",            &keva_group,            {"namespace", "regexp", "from", "nb", "stat"} }
+    { "kevacoin",           "keva_show_group",       &keva_show_group,       {"namespace", "from", "nb", "stat"} }
 };
 
 void RegisterKevaRPCCommands(CRPCTable &t)

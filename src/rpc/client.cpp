@@ -149,6 +149,10 @@ static const CRPCConvertParam vRPCConvertParams[] =
     { "keva_filter", 2, "maxage"},
     { "keva_filter", 3, "from"},
     { "keva_filter", 4, "nb"},
+
+    { "keva_show_group", 1, "maxage"},
+    { "keva_show_group", 2, "from"},
+    { "keva_show_group", 3, "nb"},
 };
 
 class CRPCConvertTable
