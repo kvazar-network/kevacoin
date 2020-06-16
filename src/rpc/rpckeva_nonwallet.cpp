@@ -233,14 +233,14 @@ UniValue keva_group_get(const JSONRPCRequest& request)
 
   std::set<valtype> namespaces;
   {
-    LOCK (mempool.cs);
+    LOCK(cs_main);
     namespaces.insert(nameSpace);
     getNamespaceGroup(nameSpace, namespaces, initiatorType);
   }
 
   // If there is unconfirmed one, return its value.
   {
-    LOCK (mempool.cs);
+    LOCK(mempool.cs);
     valtype val;
     for (auto iter = namespaces.begin(); iter != namespaces.end(); ++iter) {
       if (mempool.getUnconfirmedKeyValue(*iter, key, val)) {
@@ -283,12 +283,6 @@ UniValue keva_group_get(const JSONRPCRequest& request)
   return obj;
 }
 
-UniValue keva_group_filter(const JSONRPCRequest& request)
-{
-  UniValue obj(UniValue::VOBJ);
-  return obj;
-}
-
 /**
  * Return the help string description to use for keva info objects.
  * @param indent Indentation at the line starts.
@@ -314,6 +308,167 @@ std::string getKevaInfoHelp (const std::string& indent, const std::string& trail
 
   return res.str ();
 }
+
+UniValue keva_group_filter(const JSONRPCRequest& request)
+{
+  if (request.fHelp || request.params.size() > 6 || request.params.size() == 0)
+    throw std::runtime_error(
+        "keva_group_filter (\"namespaceId\" (\"initiator\" \"regexp\" (\"from\" (\"nb\" (\"stat\")))))\n"
+        "\nScan and list keys matching a regular expression.\n"
+        "\nArguments:\n"
+        "1. \"namespace\"   (string) namespace Id\n"
+        "2. \"initiator\"   (string, optional) Options are \"all\", \"self\" and \"other\", default is \"all\". \"all\": all the namespaces, whose participation in the group is initiated by this namespace or other namespaces. \"self\": only the namespace whose participation is initiated by this namespace. \"other\": only the namespace whose participation is initiated by other namespaces.\n"
+        "3. \"regexp\"      (string, optional) filter keys with this regexp\n"
+        "4. \"maxage\"      (numeric, optional, default=96000) only consider names updated in the last \"maxage\" blocks; 0 means all names\n"
+        "5. \"from\"        (numeric, optional, default=0) return from this position onward; index starts at 0\n"
+        "6. \"nb\"          (numeric, optional, default=0) return only \"nb\" entries; 0 means all\n"
+        "7. \"stat\"        (string, optional) if set to the string \"stat\", print statistics instead of returning the names\n"
+        "\nResult:\n"
+        "[\n"
+        + getKevaInfoHelp ("  ", ",") +
+        "  ...\n"
+        "]\n"
+        "\nExamples:\n"
+        + HelpExampleCli ("keva_filter", "\"namespaceId\" \"all\"")
+        + HelpExampleCli ("keva_filter", "\"namespaceId\" \"self\" 96000 0 0 \"stat\"")
+        + HelpExampleRpc ("keva_filter", "\"namespaceId\"")
+      );
+
+  RPCTypeCheck(request.params, {
+                  UniValue::VSTR, UniValue::VSTR, UniValue::VSTR, UniValue::VNUM,
+                  UniValue::VNUM, UniValue::VNUM, UniValue::VSTR
+               });
+
+  if (IsInitialBlockDownload()) {
+    throw JSONRPCError(RPC_CLIENT_IN_INITIAL_DOWNLOAD,
+                       "Kevacoin is downloading blocks...");
+  }
+
+  ObserveSafeMode();
+
+  bool haveRegexp(false);
+  boost::xpressive::sregex regexp;
+
+  valtype nameSpace;
+  int maxage(96000), from(0), nb(0);
+  bool stats(false);
+  InitiatorType initiatorType = INITIATOR_TYPE_ALL;
+
+  if (request.params.size() >= 1) {
+    const std::string namespaceStr = request.params[0].get_str();
+    if (!DecodeKevaNamespace(namespaceStr, Params(), nameSpace)) {
+      throw JSONRPCError (RPC_INVALID_PARAMETER, "invalid namespace id");
+    }
+  }
+
+  if (request.params.size() >= 2) {
+    const std::string initiator = request.params[1].get_str();
+    if (initiator == "all") {
+      initiatorType = INITIATOR_TYPE_ALL;
+    } else if (initiator == "self") {
+      initiatorType = INITIATOR_TYPE_SELF;
+    } else if (initiator == "other") {
+      initiatorType = INITIATOR_TYPE_OTHER;
+    } else {
+      throw JSONRPCError (RPC_INVALID_PARAMETER, "invalid initiator");
+    }
+  }
+
+  if (request.params.size() >= 3) {
+    haveRegexp = true;
+    regexp = boost::xpressive::sregex::compile (request.params[2].get_str());
+  }
+
+  if (request.params.size() >= 4)
+    maxage = request.params[3].get_int();
+  if (maxage < 0)
+    throw JSONRPCError(RPC_INVALID_PARAMETER,
+                        "'maxage' should be non-negative");
+
+  if (request.params.size() >= 5)
+    from = request.params[4].get_int ();
+
+  if (from < 0)
+    throw JSONRPCError (RPC_INVALID_PARAMETER, "'from' should be non-negative");
+
+  if (request.params.size() >= 6)
+    nb = request.params[5].get_int ();
+
+  if (nb < 0)
+    throw JSONRPCError (RPC_INVALID_PARAMETER, "'nb' should be non-negative");
+
+  if (request.params.size() >= 7) {
+    if (request.params[6].get_str() != "stat")
+      throw JSONRPCError (RPC_INVALID_PARAMETER,
+                          "fifth argument must be the literal string 'stat'");
+    stats = true;
+  }
+
+  UniValue uniKeys(UniValue::VARR);
+  unsigned count(0);
+  std::map<valtype, std::tuple<CKevaData, valtype>> keys;
+
+  LOCK (cs_main);
+  std::set<valtype> namespaces;
+  namespaces.insert(nameSpace);
+  getNamespaceGroup(nameSpace, namespaces, initiatorType);
+
+  valtype key;
+  CKevaData data;
+  for (auto iterNS = namespaces.begin(); iterNS != namespaces.end(); ++iterNS) {
+    std::unique_ptr<CKevaIterator> iter(pcoinsTip->IterateKeys(*iterNS));
+    while (iter->next(key, data)) {
+      const int age = chainActive.Height() - data.getHeight();
+      assert(age >= 0);
+      if (maxage != 0 && age >= maxage)
+        continue;
+
+      if (haveRegexp) {
+        const std::string keyStr = ValtypeToString(key);
+        boost::xpressive::smatch matches;
+        if (!boost::xpressive::regex_search(keyStr, matches, regexp))
+          continue;
+      }
+
+      if (from > 0) {
+        --from;
+        continue;
+      }
+      assert(from == 0);
+
+      if (stats) {
+        ++count;
+      } else {
+        auto it = keys.find(key);
+        if (it == keys.end()) {
+          keys.insert(std::make_pair(key, std::make_tuple(data, *iterNS)));
+        } else if (data.getHeight() > std::get<0>(it->second).getHeight()) {
+          it->second = std::make_tuple(data, *iterNS);
+        }
+      }
+
+      if (nb > 0) {
+        --nb;
+        if (nb == 0)
+          break;
+      }
+    }
+  }
+
+  if (stats) {
+    UniValue res(UniValue::VOBJ);
+    res.pushKV("blocks", chainActive.Height());
+    res.pushKV("count", static_cast<int>(count));
+    return res;
+  }
+
+  for (auto e = keys.begin(); e != keys.end(); ++e) {
+    uniKeys.push_back(getKevaInfo(e->first, std::get<0>(e->second), std::get<1>(e->second)));
+  }
+
+  return uniKeys;
+}
+
 
 UniValue keva_filter(const JSONRPCRequest& request)
 {
