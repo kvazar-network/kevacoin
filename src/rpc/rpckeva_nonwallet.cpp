@@ -415,13 +415,18 @@ UniValue keva_group_filter(const JSONRPCRequest& request)
 
   valtype key;
   CKevaData data;
+  valtype displayKey = ValtypeFromString(CKevaScript::KEVA_DISPLAY_NAME_KEY);
   for (auto iterNS = namespaces.begin(); iterNS != namespaces.end(); ++iterNS) {
     std::unique_ptr<CKevaIterator> iter(pcoinsTip->IterateKeys(*iterNS));
     while (iter->next(key, data)) {
+      if (key == displayKey) {
+        continue;
+      }
       const int age = chainActive.Height() - data.getHeight();
       assert(age >= 0);
-      if (maxage != 0 && age >= maxage)
+      if (maxage != 0 && age >= maxage) {
         continue;
+      }
 
       if (haveRegexp) {
         const std::string keyStr = ValtypeToString(key);
@@ -643,11 +648,11 @@ getNamespaceInfo(const valtype& namespaceId, const valtype& name, const COutPoin
   return obj;
 }
 
-UniValue keva_show_group(const JSONRPCRequest& request)
+UniValue keva_group_show(const JSONRPCRequest& request)
 {
   if (request.fHelp || request.params.size() > 6 || request.params.size() == 0)
     throw std::runtime_error(
-        "keva_show_group (\"namespaceId\" (\"regexp\" (\"from\" (\"nb\" (\"stat\")))))\n"
+        "keva_group_show (\"namespaceId\" (\"regexp\" (\"from\" (\"nb\" (\"stat\")))))\n"
         "\nList namespaces that are in the same group as the given namespace.\n"
         "\nArguments:\n"
         "1. \"namespace\"   (string) namespace Id\n"
@@ -661,8 +666,8 @@ UniValue keva_show_group(const JSONRPCRequest& request)
         "  ...\n"
         "]\n"
         "\nExamples:\n"
-        + HelpExampleCli ("keva_show_group", "NamespaceId")
-        + HelpExampleCli ("keva_show_group", "NamespaceId 96000 0 0 \"stat\"")
+        + HelpExampleCli ("keva_group_show", "NamespaceId")
+        + HelpExampleCli ("keva_group_show", "NamespaceId 96000 0 0 \"stat\"")
       );
 
   RPCTypeCheck(request.params, {
@@ -822,7 +827,7 @@ static const CRPCCommand commands[] =
   //  --------------------- ------------------------  -----------------------  ----------
     { "kevacoin",           "keva_get",              &keva_get,              {"namespace", "key"} },
     { "kevacoin",           "keva_filter",           &keva_filter,           {"namespace", "regexp", "from", "nb", "stat"} },
-    { "kevacoin",           "keva_show_group",       &keva_show_group,       {"namespace", "from", "nb", "stat"} },
+    { "kevacoin",           "keva_group_show",       &keva_group_show,       {"namespace", "from", "nb", "stat"} },
     { "kevacoin",           "keva_group_get",        &keva_group_get,        {"namespace", "key", "initiator"} },
     { "kevacoin",           "keva_group_filter",     &keva_group_filter,     {"namespace", "initiator", "regexp", "from", "nb", "stat"} }
 };
