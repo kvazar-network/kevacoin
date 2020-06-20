@@ -789,6 +789,9 @@ UniValue keva_group_show(const JSONRPCRequest& request)
       if (!isNamespaceGroup(key, targetNS)) {
         continue;
       }
+      if (nsList.find(targetNS) != nsList.end()) {
+        continue;
+      }
       valtype val;
       if (mempool.getUnconfirmedKeyValue(nameSpace, key, val) && val.size() > 0) {
         CKevaData nsData;
@@ -802,6 +805,7 @@ UniValue keva_group_show(const JSONRPCRequest& request)
         obj.pushKV("height", -1);
         obj.pushKV("initiator", false);
         namespaces.push_back(obj);
+        nsList.insert(targetNS);
       }
     }
   }
