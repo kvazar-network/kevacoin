@@ -627,6 +627,10 @@ class FullBlockTest(ComparisonTestFramework):
         b44.nBits = 0x207fffff
         b44.vtx.append(coinbase)
         b44.hashMerkleRoot = b44.calc_merkle_root()
+        b44.merkle_root = uint256_from_str(bytes.fromhex("3cf6c3b6da3f4058853ee70369ee43d473aca91ae8fc8f44a645beb21c392d80"))
+        b44.nNonce = height
+        b44.major_version = 10 # CN variant 4
+        b44.timestamp = b44.nTime
         b44.solve()
         self.tip = b44
         self.block_heights[b44.sha256] = height
@@ -642,6 +646,10 @@ class FullBlockTest(ComparisonTestFramework):
         b45.nBits = 0x207fffff
         b45.vtx.append(non_coinbase)
         b45.hashMerkleRoot = b45.calc_merkle_root()
+        b45.merkle_root = uint256_from_str(bytes.fromhex("3cf6c3b6da3f4058853ee70369ee43d473aca91ae8fc8f44a645beb21c392d80"))
+        b45.nNonce = height
+        b45.major_version = 10 # CN variant 4
+        b45.timestamp = b45.nTime
         b45.calc_sha256()
         b45.solve()
         self.block_heights[b45.sha256] = self.block_heights[self.tip.sha256]+1
@@ -658,6 +666,10 @@ class FullBlockTest(ComparisonTestFramework):
         b46.nBits = 0x207fffff
         b46.vtx = []
         b46.hashMerkleRoot = 0
+        b46.merkle_root = uint256_from_str(bytes.fromhex("3cf6c3b6da3f4058853ee70369ee43d473aca91ae8fc8f44a645beb21c392d80"))
+        b46.nNonce = height
+        b46.major_version = 10 # CN variant 4
+        b46.timestamp = b45.nTime
         b46.solve()
         self.block_heights[b46.sha256] = self.block_heights[b44.sha256]+1
         self.tip = b46
