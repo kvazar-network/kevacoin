@@ -471,7 +471,7 @@ UniValue keva_group_join(const JSONRPCRequest& request)
   if (request.fHelp || request.params.size() != 2) {
     throw std::runtime_error (
         "keva_group_join \"my_namespace\" \"other_namespace\"\n"
-        "\nInsert or update a key value pair in the given namespace.\n"
+        "\nJoin the other namespace, so that the data in both namespaces can be combined. See keva_group_leave.\n"
         + HelpRequiringPassphrase (pwallet) +
         "\nArguments:\n"
         "1. \"my_namespace\"         (string, required) the namespace to join to <other_namespace>\n"
@@ -501,7 +501,14 @@ UniValue keva_group_join(const JSONRPCRequest& request)
     throw JSONRPCError (RPC_INVALID_PARAMETER, "invalid namespace id for other_namespace");
   }
 
-  //TODO: check other_namespace exists.
+  // Check other_namespace exists.
+  {
+    LOCK(cs_main);
+    CKevaData data;
+    if (!pcoinsTip->GetName(otherNamespace, ValtypeFromString(CKevaScript::KEVA_DISPLAY_NAME_KEY), data)) {
+      throw JSONRPCError (RPC_INVALID_PARAMETER, "other_namespace does not exist");
+    }
+  }
 
   EnsureWalletIsUnlocked(pwallet);
 
@@ -524,6 +531,89 @@ UniValue keva_group_join(const JSONRPCRequest& request)
   valtype dummy = ValtypeFromString(std::string("1"));
   valtype key = ValtypeFromString(CKevaData::ASSOCIATE_PREFIX + otherNamespaceStr);
   const CScript kevaScript = CKevaScript::buildKevaPut(addrName, myNamespace, key, dummy);
+
+  CCoinControl coinControl;
+  CWalletTx wtx;
+  valtype empty;
+  SendMoneyToScript(pwallet, kevaScript, &txIn, empty,
+                     KEVA_LOCKED_AMOUNT, false, wtx, coinControl);
+
+  keyName.KeepKey();
+  UniValue obj(UniValue::VOBJ);
+  obj.pushKV("txid", wtx.GetHash().GetHex());
+  return obj;
+}
+
+UniValue keva_group_leave(const JSONRPCRequest& request)
+{
+  CWallet* const pwallet = GetWalletForJSONRPCRequest(request);
+  if (!EnsureWalletIsAvailable (pwallet, request.fHelp)) {
+    return NullUniValue;
+  }
+
+  if (request.fHelp || request.params.size() != 2) {
+    throw std::runtime_error (
+        "keva_group_leave \"my_namespace\" \"other_namespace\"\n"
+        "\nLeave the other namespace so that the data are not to be combined with it. See keva_group_join.\n"
+        + HelpRequiringPassphrase (pwallet) +
+        "\nArguments:\n"
+        "1. \"my_namespace\"         (string, required) the namespace to leave <other_namespace>\n"
+        "2. \"other_namespace\"      (string, required) the target namespace to leave\n"
+        "\nResult:\n"
+        "\"txid\"             (string) the keva_put's txid\n"
+        "\nExamples:\n"
+        + HelpExampleCli ("keva_group_leave", "\"my_namespace\", \"other_namespace\"")
+      );
+  }
+
+  RPCTypeCheck(request.params, {UniValue::VSTR, UniValue::VSTR});
+  RPCTypeCheckArgument(request.params[0], UniValue::VSTR);
+  RPCTypeCheckArgument(request.params[1], UniValue::VSTR);
+
+  ObserveSafeMode ();
+
+  const std::string myNamespaceStr = request.params[0].get_str();
+  valtype myNamespace;
+  if (!DecodeKevaNamespace(myNamespaceStr, Params(), myNamespace)) {
+    throw JSONRPCError (RPC_INVALID_PARAMETER, "invalid namespace id for my_namespace");
+  }
+
+  const std::string otherNamespaceStr = request.params[1].get_str();
+  valtype otherNamespace;
+  if (!DecodeKevaNamespace(otherNamespaceStr, Params(), otherNamespace)) {
+    throw JSONRPCError (RPC_INVALID_PARAMETER, "invalid namespace id for other_namespace");
+  }
+
+  // Check other_namespace exists.
+  {
+    LOCK(cs_main);
+    CKevaData data;
+    if (!pcoinsTip->GetName(otherNamespace, ValtypeFromString(CKevaScript::KEVA_DISPLAY_NAME_KEY), data)) {
+      throw JSONRPCError (RPC_INVALID_PARAMETER, "other_namespace does not exist");
+    }
+  }
+
+  EnsureWalletIsUnlocked(pwallet);
+
+  COutput output;
+  if (!pwallet->FindKevaCoin(output, myNamespaceStr)) {
+    throw JSONRPCError (RPC_TRANSACTION_ERROR, "this namespace can not be updated");
+  }
+  const COutPoint outp(output.tx->GetHash(), output.i);
+  const CTxIn txIn(outp);
+
+  CReserveKey keyName(pwallet);
+  CPubKey pubKeyReserve;
+  const bool ok = keyName.GetReservedKey(pubKeyReserve, true);
+  assert(ok);
+  CKeyID keyId = pubKeyReserve.GetID();
+
+  CScript redeemScript = GetScriptForDestination(WitnessV0KeyHash(pubKeyReserve.GetID()));
+  CScriptID scriptHash = CScriptID(redeemScript);
+  CScript addrName = GetScriptForDestination(scriptHash);
+
+  valtype key = ValtypeFromString(CKevaData::ASSOCIATE_PREFIX + otherNamespaceStr);
+  const CScript kevaScript = CKevaScript::buildKevaDelete(addrName, myNamespace, key);
 
   CCoinControl coinControl;
   CWalletTx wtx;
