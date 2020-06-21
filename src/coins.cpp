@@ -211,10 +211,13 @@ CKevaIterator* CCoinsViewCache::IterateAssociatedNamespaces(const valtype& nameS
 void CCoinsViewCache::SetName(const valtype &nameSpace, const valtype &key, const CKevaData& data, bool undo)
 {
     CKevaData namespaceData;
+#if 0
     if (GetNamespace(nameSpace, namespaceData)) {
+        // This is a bug - no need to update the tx for the namespace.
         namespaceData.setUpdateOutpoint(data.getUpdateOutpoint());
         cacheNames.setNamespace(nameSpace, namespaceData);
     }
+#endif
     cacheNames.set(nameSpace, key, data);
 
     // Handle namespace association.

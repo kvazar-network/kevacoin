@@ -872,6 +872,86 @@ UniValue keva_group_show(const JSONRPCRequest& request)
   return namespaces;
 }
 
+UniValue keva_ns_to_code(const JSONRPCRequest& request)
+{
+  if (request.fHelp || request.params.size() > 6 || request.params.size() == 0)
+    throw std::runtime_error(
+        "keva_ns_to_code (\"namespace\")\n"
+        "\nConvert namespace Id to a short code.\n"
+        "\nArguments:\n"
+        "1. \"namespace\"    (string) namespace Id\n"
+        "\nResult:\n"
+        "\"shortcode\"       (string) A short code representing the namespace\n"
+        "\nExamples:\n"
+        + HelpExampleCli ("keva_ns_to_code", "NdHNSRB7CbPdsqGhpMtnhRqTvJbioa96Ck")
+      );
+
+  RPCTypeCheck(request.params, {UniValue::VSTR});
+
+  if (IsInitialBlockDownload()) {
+    throw JSONRPCError(RPC_CLIENT_IN_INITIAL_DOWNLOAD,
+                       "Kevacoin is downloading blocks...");
+  }
+
+  const std::string namespaceStr = request.params[0].get_str();
+  valtype nameSpace;
+  if (!DecodeKevaNamespace(namespaceStr, Params(), nameSpace)) {
+    throw JSONRPCError(RPC_INVALID_PARAMETER, "invalid namespace id");
+  }
+  ObserveSafeMode();
+
+  LOCK(cs_main);
+  valtype nsName = ValtypeFromString(CKevaScript::KEVA_DISPLAY_NAME_KEY);
+  CKevaData data;
+  if (!pcoinsTip->GetName(nameSpace, nsName, data)) {
+    throw JSONRPCError(RPC_INVALID_PARAMETER, "namespace not found");
+  }
+
+  int height = data.getHeight();
+  CBlockIndex* pblockindex = chainActive[height];
+  CBlock block;
+  if (!ReadBlockFromDisk(block, pblockindex, Params().GetConsensus())) {
+    throw JSONRPCError(RPC_MISC_ERROR, "Block not found on disk");
+  }
+
+  auto nsTx = data.getUpdateOutpoint().hash;
+  int index = 0;
+  for(const auto& tx : block.vtx) {
+    if (tx->GetHash() == nsTx) {
+      return std::to_string(height) + "@" + std::to_string(index);
+    }
+    index ++;
+  }
+  return "";
+}
+
+UniValue keva_code_to_ns(const JSONRPCRequest& request)
+{
+  if (request.fHelp || request.params.size() > 6 || request.params.size() == 0)
+    throw std::runtime_error(
+        "keva_code_to_ns (\"shortcode\")\n"
+        "\nConvert short code to namespace Id.\n"
+        "\nArguments:\n"
+        "1. \"shortcode\"    (string) A namespace short code\n"
+        "\nResult:\n"
+        "\"namespace\"       (string) The namespace Id corresponding to the short code.\n"
+        "\nExamples:\n"
+        + HelpExampleCli ("keva_code_to_ns", "57123@0")
+      );
+
+  RPCTypeCheck(request.params, {
+                  UniValue::VSTR, UniValue::VNUM,
+                  UniValue::VNUM, UniValue::VNUM, UniValue::VSTR
+               });
+
+  if (IsInitialBlockDownload()) {
+    throw JSONRPCError(RPC_CLIENT_IN_INITIAL_DOWNLOAD,
+                       "Kevacoin is downloading blocks...");
+  }
+
+  ObserveSafeMode();
+}
+
 static const CRPCCommand commands[] =
 { //  category              name                      actor (function)         argNames
   //  --------------------- ------------------------  -----------------------  ----------
@@ -879,7 +959,9 @@ static const CRPCCommand commands[] =
     { "kevacoin",           "keva_filter",           &keva_filter,           {"namespace", "regexp", "from", "nb", "stat"} },
     { "kevacoin",           "keva_group_show",       &keva_group_show,       {"namespace", "from", "nb", "stat"} },
     { "kevacoin",           "keva_group_get",        &keva_group_get,        {"namespace", "key", "initiator"} },
-    { "kevacoin",           "keva_group_filter",     &keva_group_filter,     {"namespace", "initiator", "regexp", "from", "nb", "stat"} }
+    { "kevacoin",           "keva_group_filter",     &keva_group_filter,     {"namespace", "initiator", "regexp", "from", "nb", "stat"} },
+    { "kevacoin",           "keva_ns_to_code",       &keva_ns_to_code,       {"namespace"} },
+    { "kevacoin",           "keva_code_to_ns",       &keva_code_to_ns,       {"shortcode"} }
 };
 
 void RegisterKevaRPCCommands(CRPCTable &t)
