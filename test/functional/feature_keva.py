@@ -14,6 +14,12 @@ import re
 
 
 class KevaTest(BitcoinTestFramework):
+
+    def sync_generate(self):
+        self.sync_all()
+        self.nodes[0].generate(1)
+        self.sync_all()
+
     def set_test_params(self):
         self.num_nodes = 2
 
@@ -114,6 +120,81 @@ class KevaTest(BitcoinTestFramework):
                 found = True
         assert(not found)
 
+    def run_group_commands(self):
+        response = self.nodes[0].keva_namespace('Alice')
+        aliceNamespace = response['namespaceId']
+
+        response = self.nodes[1].keva_namespace('Bob')
+        bobNamespace = response['namespaceId']
+
+        response = self.nodes[1].keva_namespace('Charlie')
+        charlieNamespace = response['namespaceId']
+
+        self.sync_generate()
+
+        self.nodes[0].keva_group_join(aliceNamespace, bobNamespace)
+        self.nodes[0].keva_group_join(aliceNamespace, charlieNamespace)
+
+        self.sync_generate()
+
+        response = self.nodes[0].keva_group_show(aliceNamespace)
+        assert(response[0]["display_name"] == "Bob" or response[0]["display_name"] == "Charlie")
+        assert(response[1]["display_name"] == "Bob" or response[1]["display_name"] == "Charlie")
+        assert(response[0]["display_name"] != response[1]["display_name"])
+        assert(response[0]["initiator"] == 0)
+        assert(response[1]["initiator"] == 0)
+
+        response = self.nodes[0].keva_group_show(bobNamespace)
+        assert(response[0]["display_name"] == "Alice")
+        assert(response[0]["initiator"] == 1)
+        assert(len(response) == 1)
+
+        self.nodes[0].keva_group_leave(aliceNamespace, bobNamespace)
+        response = self.nodes[0].keva_group_show(aliceNamespace)
+        assert(len(response) == 1)
+        assert(response[0]["display_name"] == "Charlie")
+
+        self.sync_generate()
+        self.nodes[1].keva_put(charlieNamespace, "keyCharlie", "valueCharlie")
+        self.sync_generate()
+        response = self.nodes[0].keva_group_get(aliceNamespace, "keyCharlie")
+        assert(response["value"] == "valueCharlie")
+
+        response = self.nodes[0].keva_put(aliceNamespace, "keyCharlie", "valueCharlieAlice")
+        self.sync_generate()
+        response = self.nodes[1].keva_group_get(charlieNamespace, "keyCharlie")
+        assert(response["value"] == "valueCharlieAlice")
+
+        response = self.nodes[1].keva_put(bobNamespace, "keyBob", "valueBob")
+        self.sync_generate()
+        response = self.nodes[0].keva_group_get(aliceNamespace, "keyBob")
+        assert(response["value"] == "")
+
+        self.nodes[0].keva_put(aliceNamespace, "keyAlice", "valueAlice")
+        self.sync_generate()
+        response = self.nodes[0].keva_group_filter(aliceNamespace)
+        assert(len(response) == 3)
+
+        response = self.nodes[1].keva_namespace("Daisy")
+        daisyNamespace = response['namespaceId']
+        self.sync_generate()
+        self.nodes[0].keva_group_join(aliceNamespace, daisyNamespace)
+        self.sync_generate()
+
+        response = self.nodes[0].keva_group_show(aliceNamespace)
+        assert(len(response) == 2)
+
+        tip = self.nodes[0].getbestblockhash()
+        self.nodes[0].invalidateblock(tip)
+        self.nodes[1].invalidateblock(tip)
+        # This will remove the Daisy's namespace.
+        response = self.nodes[0].keva_group_show(aliceNamespace)
+        assert(len(response) == 1)
+
+        self.sync_generate()
+        response = self.nodes[0].keva_group_show(aliceNamespace)
+        # This will put the Daisy's namespace back from the mempool.
+        assert(len(response) == 2)
 
     def run_test(self):
         # Start with a 200 block chain
@@ -203,6 +284,9 @@ class KevaTest(BitcoinTestFramework):
 
         self.log.info("Test disconnecting blocks")
         self.run_test_disconnect_block()
+
+        self.log.info("Test namespace grouping")
+        self.run_group_commands()
 
 
 if __name__ == '__main__':
