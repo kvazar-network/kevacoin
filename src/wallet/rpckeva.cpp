@@ -327,6 +327,10 @@ UniValue keva_delete(const JSONRPCRequest& request)
     throw JSONRPCError (RPC_INVALID_PARAMETER, "the key is too long");
   }
 
+  if (keyStr == CKevaScript::KEVA_DISPLAY_NAME_KEY) {
+    throw JSONRPCError (RPC_INVALID_PARAMETER, "_KEVA_NS_ cannot be deleted");
+  }
+
   bool hasKey = false;
   CKevaData data;
   {

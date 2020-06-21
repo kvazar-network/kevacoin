@@ -282,6 +282,13 @@ class KevaTest(BitcoinTestFramework):
         response = self.nodes[0].keva_get(namespaceId, keyToDelete)
         assert(response['value'] == newValue)
 
+        try:
+            self.nodes[0].keva_delete(namespaceId, "_KEVA_NS_")
+        except JSONRPCException:
+            pass
+        else:
+            raise Exception("Should not be able to delete _KEVA_NS_")
+
         self.log.info("Test disconnecting blocks")
         self.run_test_disconnect_block()
 
