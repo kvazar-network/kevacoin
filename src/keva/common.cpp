@@ -31,7 +31,7 @@ CKevaData::fromScript (unsigned h, const COutPoint& out,
   }
   nHeight = h;
   prevout = out;
-  addr = script.getAddress();
+  //addr = script.getAddress();
 }
 
 /* ************************************************************************** */

@@ -210,11 +210,6 @@ CKevaIterator* CCoinsViewCache::IterateAssociatedNamespaces(const valtype& nameS
    name history.  */
 void CCoinsViewCache::SetName(const valtype &nameSpace, const valtype &key, const CKevaData& data, bool undo)
 {
-    CKevaData namespaceData;
-    if (GetNamespace(nameSpace, namespaceData)) {
-        namespaceData.setUpdateOutpoint(data.getUpdateOutpoint());
-        cacheNames.setNamespace(nameSpace, namespaceData);
-    }
     cacheNames.set(nameSpace, key, data);
 
     // Handle namespace association.
