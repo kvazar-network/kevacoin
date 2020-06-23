@@ -177,12 +177,42 @@ class KevaTest(BitcoinTestFramework):
 
         response = self.nodes[1].keva_namespace("Daisy")
         daisyNamespace = response['namespaceId']
+        self.nodes[1].keva_put(daisyNamespace, "keyDaisy", "valueDaisy")
         self.sync_generate()
         self.nodes[0].keva_group_join(aliceNamespace, daisyNamespace)
-        self.sync_generate()
-
+        # Daisy namespace should show up even the joining is not confirmed.
         response = self.nodes[0].keva_group_show(aliceNamespace)
         assert(len(response) == 2)
+        # Key-value in Daisy's namespace should show up even the joining is not confirmed.
+        response = self.nodes[0].keva_group_filter(aliceNamespace)
+        assert(len(response) == 4)
+        found = False
+        for e in response:
+            if e.get("key") == "keyDaisy" and e.get("value") == "valueDaisy":
+                found = True
+        assert(found)
+
+        self.sync_generate()
+        # After confirmation, should have the same result as pre-confirmation.
+        response = self.nodes[0].keva_group_show(aliceNamespace)
+        assert(len(response) == 2)
+        response = self.nodes[0].keva_group_filter(aliceNamespace)
+        # After confirmation, the _g:N... is also in the result. So total is 5.
+        assert(len(response) == 5)
+        found = False
+        for e in response:
+            if e.get("key") == "keyDaisy" and e.get("value") == "valueDaisy":
+                found = True
+        assert(found)
+
+        # Remove Diasy namespace. Its key-value pairs should not show up.
+        self.nodes[0].keva_group_leave(aliceNamespace, daisyNamespace)
+        response = self.nodes[0].keva_group_filter(aliceNamespace)
+        found = False
+        for e in response:
+            if e.get("key") == "keyDaisy" and e.get("value") == "valueDaisy":
+                found = True
+        assert(not found)
 
         tip = self.nodes[0].getbestblockhash()
         self.nodes[0].invalidateblock(tip)

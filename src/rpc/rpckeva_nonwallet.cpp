@@ -168,6 +168,34 @@ void getNamespaceGroup(const valtype& nameSpace, std::set<valtype>& namespaces, 
     return;
   }
 
+  // Find the namespace connection initialized by us, and not confirmed yet.
+  {
+    LOCK (mempool.cs);
+    std::vector<std::tuple<valtype, valtype, valtype, uint256>> unconfirmedKeyValueList;
+    mempool.getUnconfirmedKeyValueList(unconfirmedKeyValueList, nameSpace);
+    std::set<valtype> nsList;
+    valtype targetNS;
+    for (auto entry: unconfirmedKeyValueList) {
+      const valtype ns = std::get<0>(entry);
+      if (ns != nameSpace) {
+        continue;
+      }
+      const valtype key = std::get<1>(entry);
+      // Find the value with the format _g:NamespaceId
+      if (!isNamespaceGroup(key, targetNS)) {
+        continue;
+      }
+      if (nsList.find(targetNS) != nsList.end()) {
+        continue;
+      }
+      valtype val;
+      if (mempool.getUnconfirmedKeyValue(nameSpace, key, val) && val.size() > 0) {
+        namespaces.insert(targetNS);
+        nsList.insert(targetNS);
+      }
+    }
+  }
+
   // Find the namespace connection initialized by us.
   std::unique_ptr<CKevaIterator> iterKeys(pcoinsTip->IterateKeys(nameSpace));
   valtype key;
@@ -175,9 +203,18 @@ void getNamespaceGroup(const valtype& nameSpace, std::set<valtype>& namespaces, 
     valtype targetNS;
     // Find the value with the format _g:NamespaceId
     if (isNamespaceGroup(key, targetNS)) {
+      // If it has been removed but not yet confirmed, skip it anyway.
+      {
+        LOCK (mempool.cs);
+        valtype val;
+        if (mempool.getUnconfirmedKeyValue(nameSpace, key, val) && val.size() == 0) {
+          continue;
+        }
+      }
       namespaces.insert(targetNS);
     }
   }
+
 }
 
 UniValue keva_group_get(const JSONRPCRequest& request)
