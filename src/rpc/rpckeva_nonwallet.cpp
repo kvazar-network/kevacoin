@@ -32,29 +32,18 @@
  * @param key The key.
  * @param value The key's value.
  * @param outp The last update's outpoint.
- * @param addr The key's address script.
  * @param height The key's last update height.
  * @return A JSON object to return.
  */
 UniValue
 getKevaInfo(const valtype& key, const valtype& value, const COutPoint& outp,
-             const CScript& addr, int height, const valtype& nameSpace)
+             int height, const valtype& nameSpace)
 {
   UniValue obj(UniValue::VOBJ);
   obj.pushKV("key", ValtypeToString(key));
   obj.pushKV("value", ValtypeToString(value));
   obj.pushKV("txid", outp.hash.GetHex());
   obj.pushKV("vout", static_cast<int>(outp.n));
-
-  /* Try to extract the address.  May fail if we can't parse the script
-     as a "standard" script.  */
-  CTxDestination dest;
-  std::string addrStr;
-  if (ExtractDestination(addr, dest))
-    addrStr = EncodeDestination(dest);
-  else
-    addrStr = "<nonstandard>";
-  obj.pushKV("address", addrStr);
   obj.pushKV("height", height);
   if (nameSpace.size() > 0) {
     obj.pushKV("namespace", EncodeBase58Check(nameSpace));
@@ -73,7 +62,7 @@ UniValue
 getKevaInfo(const valtype& key, const CKevaData& data, const valtype& nameSpace=valtype())
 {
   return getKevaInfo(key, data.getValue(), data.getUpdateOutpoint(),
-                      data.getAddress(), data.getHeight(), nameSpace);
+                      data.getHeight(), nameSpace);
 }
 
 UniValue keva_get(const JSONRPCRequest& request)
@@ -309,8 +298,6 @@ std::string getKevaInfoHelp (const std::string& indent, const std::string& trail
       << "(string) the key's current value" << std::endl;
   res << indent << "  \"txid\": xxxxx,           "
       << "(string) the key's last update tx" << std::endl;
-  res << indent << "  \"address\": xxxxx,        "
-      << "(string) the address holding the key" << std::endl;
   res << indent << "  \"height\": xxxxx,         "
       << "(numeric) the key's last update height" << std::endl;
   res << indent << "}" << trailing << std::endl;
@@ -628,29 +615,18 @@ UniValue keva_filter(const JSONRPCRequest& request)
  * @param namespaceId The namespace Id.
  * @param name The display name of the namespace.
  * @param outp The last update's outpoint.
- * @param addr The namespace's address script.
  * @param height The height at which the namespace joins the group.
  * @param initiator If true, the namespace connection is initiated by this namespace.
  * @return A JSON object to return.
  */
 UniValue
 getNamespaceInfo(const valtype& namespaceId, const valtype& name, const COutPoint& outp,
-             const CScript& addr, int height, bool initiator)
+             int height, bool initiator)
 {
   UniValue obj(UniValue::VOBJ);
   obj.pushKV("namespaceId", EncodeBase58Check(namespaceId));
   obj.pushKV("display_name", ValtypeToString(name));
   obj.pushKV("txid", outp.hash.GetHex());
-
-  // Try to extract the address. May fail if we can't parse the script as a "standard" script.
-  CTxDestination dest;
-  std::string addrStr;
-  if (ExtractDestination(addr, dest)) {
-    addrStr = EncodeDestination(dest);
-  } else {
-    addrStr = "<nonstandard>";
-  }
-  obj.pushKV("address", addrStr);
   obj.pushKV("height", height);
   obj.pushKV("initiator", initiator);
 
@@ -762,7 +738,7 @@ UniValue keva_group_show(const JSONRPCRequest& request)
         nsName = nsData.getValue();
       }
       namespaces.push_back(getNamespaceInfo(ns, nsName, data.getUpdateOutpoint(),
-                      data.getAddress(), data.getHeight(), true));
+                      data.getHeight(), true));
     }
 
     if (nb > 0) {
@@ -852,7 +828,7 @@ UniValue keva_group_show(const JSONRPCRequest& request)
         nsName = nsData.getValue();
       }
       namespaces.push_back(getNamespaceInfo(targetNS, nsName, data.getUpdateOutpoint(),
-                      data.getAddress(), data.getHeight(), false));
+                      data.getHeight(), false));
     }
 
     if (nb > 0) {
