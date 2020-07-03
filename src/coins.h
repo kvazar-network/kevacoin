@@ -263,8 +263,8 @@ public:
     }
 
     /* Changes to the name database.  */
-    void SetName(const valtype &nameSpace, const valtype &key, const CKevaData &data, bool undo);
-    void DeleteName(const valtype &nameSpace, const valtype &key);
+    void SetKeyValue(const valtype &nameSpace, const valtype &key, const CKevaData &data, bool undo);
+    void DeleteKey(const valtype &nameSpace, const valtype &key);
 
     /**
      * Check if we have the given utxo already loaded in this cache.

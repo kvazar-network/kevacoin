@@ -39,10 +39,10 @@ void
 CKevaTxUndo::apply(CCoinsViewCache& view) const
 {
   if (isNew) {
-    view.DeleteName(nameSpace, key);
+    view.DeleteKey(nameSpace, key);
   }
   else {
-    view.SetName(nameSpace, key, oldData, true);
+    view.SetKeyValue(nameSpace, key, oldData, true);
   }
 }
 
@@ -403,7 +403,7 @@ void ApplyKevaTransaction(const CTransaction& tx, const CBlockIndex& pindex,
 
       CKevaData data;
       data.fromScript(nHeight, COutPoint(tx.GetHash(), i), op);
-      view.SetName(nameSpace, key, data, false);
+      view.SetKeyValue(nameSpace, key, data, false);
       notifier.KevaNamespaceCreated(tx, pindex, EncodeBase58Check(nameSpace));
     } else if (op.isAnyUpdate()) {
       const valtype& nameSpace = op.getOpNamespace();
@@ -419,12 +419,12 @@ void ApplyKevaTransaction(const CTransaction& tx, const CBlockIndex& pindex,
       if (op.isDelete()) {
         CKevaData oldData;
         if (view.GetName(nameSpace, key, oldData)) {
-          view.DeleteName(nameSpace, key);
+          view.DeleteKey(nameSpace, key);
           notifier.KevaDeleted(tx, pindex, EncodeBase58Check(nameSpace), ValtypeToString(key));
         }
       } else {
         data.fromScript(nHeight, COutPoint(tx.GetHash(), i), op);
-        view.SetName(nameSpace, key, data, false);
+        view.SetKeyValue(nameSpace, key, data, false);
         notifier.KevaUpdated(tx, pindex, EncodeBase58Check(nameSpace), ValtypeToString(key), ValtypeToString(data.getValue()));
       }
     }

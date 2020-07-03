@@ -690,17 +690,17 @@ static bool AcceptToMemoryPoolWorker(const CChainParams& chainparams, CTxMemPool
                 CKevaData data;
                 // Make sure namespace info is in cache.
                 if (view.GetNamespace(nameSpace, data)) {
-                    view.SetName(nameSpace, ValtypeFromString(CKevaScript::KEVA_DISPLAY_NAME_KEY), data, false);
+                    view.SetKeyValue(nameSpace, ValtypeFromString(CKevaScript::KEVA_DISPLAY_NAME_KEY), data, false);
                 }
                 if (view.GetName(nameSpace, key, data)) {
-                    view.SetName(nameSpace, key, data, false);
+                    view.SetKeyValue(nameSpace, key, data, false);
                 }
             } else if (kevaOp.isNamespaceRegistration()) {
                 const valtype& nameSpace = kevaOp.getOpNamespace();
                 const valtype& key = ValtypeFromString(CKevaScript::KEVA_DISPLAY_NAME_KEY);
                 CKevaData data;
                 if (view.GetName(nameSpace, key, data)) {
-                    view.SetName(nameSpace, key, data, false);
+                    view.SetKeyValue(nameSpace, key, data, false);
                 }
             } else {
                 assert(false);

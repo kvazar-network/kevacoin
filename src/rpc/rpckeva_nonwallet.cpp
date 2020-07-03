@@ -362,9 +362,9 @@ UniValue keva_group_filter(const JSONRPCRequest& request)
         "  ...\n"
         "]\n"
         "\nExamples:\n"
-        + HelpExampleCli ("keva_filter", "\"namespaceId\" \"all\"")
-        + HelpExampleCli ("keva_filter", "\"namespaceId\" \"self\" 96000 0 0 \"stat\"")
-        + HelpExampleRpc ("keva_filter", "\"namespaceId\"")
+        + HelpExampleCli ("keva_group_filter", "\"namespaceId\" \"all\"")
+        + HelpExampleCli ("keva_group_filter", "\"namespaceId\" \"self\" 96000 0 0 \"stat\"")
+        + HelpExampleRpc ("keva_group_filter", "\"namespaceId\"")
       );
 
   RPCTypeCheck(request.params, {

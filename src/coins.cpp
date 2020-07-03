@@ -208,7 +208,7 @@ CKevaIterator* CCoinsViewCache::IterateAssociatedNamespaces(const valtype& nameS
    time.  The ordinary case (!undo) means that we update the name normally,
    going forward in time.  This is important for keeping track of the
    name history.  */
-void CCoinsViewCache::SetName(const valtype &nameSpace, const valtype &key, const CKevaData& data, bool undo)
+void CCoinsViewCache::SetKeyValue(const valtype &nameSpace, const valtype &key, const CKevaData& data, bool undo)
 {
     cacheNames.set(nameSpace, key, data);
 
@@ -225,7 +225,7 @@ void CCoinsViewCache::SetName(const valtype &nameSpace, const valtype &key, cons
     cacheNames.associateNamespaces(nameSpace, associdateNamespace, data);
 }
 
-void CCoinsViewCache::DeleteName(const valtype &nameSpace, const valtype &key) {
+void CCoinsViewCache::DeleteKey(const valtype &nameSpace, const valtype &key) {
     CKevaData oldData;
     if (!GetName(nameSpace, key, oldData)) {
         assert(false);

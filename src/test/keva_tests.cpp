@@ -124,7 +124,7 @@ BOOST_AUTO_TEST_CASE (name_database)
   BOOST_CHECK (setRet == setExpected);
 
   BOOST_CHECK (!view.GetName (name1, data2));
-  view.SetName (name1, dataHeight2, false);
+  view.SetKeyValue (name1, dataHeight2, false);
   BOOST_CHECK (view.GetName (name1, data2));
   BOOST_CHECK (dataHeight2 == data2);
 
@@ -138,12 +138,12 @@ BOOST_AUTO_TEST_CASE (name_database)
   BOOST_CHECK (view.GetName (name1, data2));
   BOOST_CHECK (dataHeight2 == data2);
 
-  view.SetName (name2, dataHeight2, false);
+  view.SetKeyValue (name2, dataHeight2, false);
   BOOST_CHECK (view.GetNamesForHeight (height2, setRet));
   setExpected.insert (name2);
   BOOST_CHECK (setRet == setExpected);
 
-  view.DeleteName (name1);
+  view.DeleteKey (name1);
   BOOST_CHECK (!view.GetName (name1, data2));
   BOOST_CHECK (view.Flush());
   BOOST_CHECK (!view.GetName (name1, data2));
@@ -152,9 +152,9 @@ BOOST_AUTO_TEST_CASE (name_database)
   setExpected.erase (name1);
   BOOST_CHECK (setRet == setExpected);
 
-  view.SetName (name2, dataHeight1, false);
+  view.SetKeyValue (name2, dataHeight1, false);
   BOOST_CHECK (view.Flush());
-  view.SetName (name1, dataHeight1, false);
+  view.SetKeyValue (name1, dataHeight1, false);
 
   BOOST_CHECK (view.GetNamesForHeight (height2, setRet));
   setExpected.clear();
@@ -420,8 +420,8 @@ NameIterationTester::add (const std::string& n)
 
   assert (data.count (name) == 0);
   data[name] = testData;
-  hybrid.SetName (name, testData, false);
-  cache.SetName (name, testData, false);
+  hybrid.SetKeyValue (name, testData, false);
+  cache.SetKeyValue (name, testData, false);
   verify();
 }
 
@@ -433,8 +433,8 @@ NameIterationTester::update (const std::string& n)
 
   assert (data.count (name) == 1);
   data[name] = testData;
-  hybrid.SetName (name, testData, false);
-  cache.SetName (name, testData, false);
+  hybrid.SetKeyValue (name, testData, false);
+  cache.SetKeyValue (name, testData, false);
   verify();
 }
 
@@ -445,8 +445,8 @@ NameIterationTester::remove (const std::string& n)
 
   assert (data.count (name) == 1);
   data.erase (name);
-  hybrid.DeleteName (name);
-  cache.DeleteName (name);
+  hybrid.DeleteKey (name);
+  cache.DeleteKey (name);
   verify();
 }
 
@@ -538,7 +538,7 @@ BOOST_AUTO_TEST_CASE (name_tx_verification)
 
   CNameData data1;
   data1.fromScript (100000, inFirst, CNameScript (scrFirst));
-  view.SetName (name1, data1, false);
+  view.SetKeyValue (name1, data1, false);
 
   /* ****************************************************** */
   /* Try out the Namecoin / non-Namecoin tx version check.  */
@@ -604,7 +604,7 @@ BOOST_AUTO_TEST_CASE (name_tx_verification)
   CCoinsViewCache viewFirst(&view);
   CCoinsViewCache viewUpd(&view);
   data1.fromScript (100000, inUpdate, CNameScript (scrUpdate));
-  viewUpd.SetName (name1, data1, false);
+  viewUpd.SetKeyValue (name1, data1, false);
 
   /* Check update of UPDATE output, plus expiry.  */
   mtx = CMutableTransaction (baseTx);
@@ -647,14 +647,14 @@ BOOST_AUTO_TEST_CASE (name_tx_verification)
   mtx.vout.push_back (CTxOut (COIN, scrUpdate));
   mtx.vin.push_back (CTxIn (inNew));
   CCoinsViewCache viewNew(&view);
-  viewNew.DeleteName (name1);
+  viewNew.DeleteKey (name1);
   BOOST_CHECK (!CheckNameTransaction (mtx, 110000, viewNew, state, 0));
 
   /* ********************************** */
   /* Test NAME_FIRSTUPDATE validation.  */
 
   CCoinsViewCache viewClean(&view);
-  viewClean.DeleteName (name1);
+  viewClean.DeleteKey (name1);
 
   /* Basic valid transaction.  */
   mtx = CMutableTransaction (baseTx);
@@ -869,7 +869,7 @@ BOOST_AUTO_TEST_CASE(keva_mempool)
   const CKevaScript nameOp(upd1);
   CKevaData data;
   data.fromScript(100, COutPoint (uint256(), 0), nameOp);
-  view.SetName(nameUpd, data, false);
+  view.SetKeyValue(nameUpd, data, false);
   mempool.checkNames(&view);
 #endif
 
