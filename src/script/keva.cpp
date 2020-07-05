@@ -7,7 +7,9 @@
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
 #include <script/keva.h>
+#include <keva/common.h>
 #include <hash.h>
+#include <validation.h>
 
 const std::string CKevaScript::KEVA_DISPLAY_NAME_KEY = "_KEVA_NS_";
 
@@ -103,7 +105,20 @@ CScript CKevaScript::buildKevaNamespace(const CScript& addr, const valtype& name
   return prefix + addr;
 }
 
-CScript CKevaScript::replaceKevaNamespace(const CScript& oldScript, const uint256& txId, valtype& kaveNamespace, const CChainParams& params)
+void CKevaScript::generateNamespace(const uint256& txId, int n, valtype& kevaNamespace, const CChainParams& params, bool nsFixEnabled)
+{
+  auto vin = ToByteVector(txId);
+  if (nsFixEnabled) {
+    // The UXTO is vin and the number. This is the correct way to generate unique namespace.
+    auto nVal = ValtypeFromString(std::to_string(n));
+    vin.insert(vin.end(), nVal.begin(), nVal.end());
+  }
+  kevaNamespace = ToByteVector(Hash160(vin));
+  const std::vector<unsigned char>& ns_prefix = params.Base58Prefix(CChainParams::KEVA_NAMESPACE);
+  kevaNamespace.insert(kevaNamespace.begin(), ns_prefix.begin(), ns_prefix.end());
+}
+
+CScript CKevaScript::replaceKevaNamespace(const CScript& oldScript, const uint256& txId, int n, valtype& kaveNamespace, const CChainParams& params, bool nsFixEnabled)
 {
   CKevaScript kevaOp(oldScript);
   if (!kevaOp.isNamespaceRegistration()) {
@@ -112,10 +127,6 @@ CScript CKevaScript::replaceKevaNamespace(const CScript& oldScript, const uint25
   }
 
   const valtype& displayName = kevaOp.getOpNamespaceDisplayName();
-  kaveNamespace = ToByteVector(Hash160(ToByteVector(txId)));
-
-  const std::vector<unsigned char>& ns_prefix = params.Base58Prefix(CChainParams::KEVA_NAMESPACE);
-  kaveNamespace.insert(kaveNamespace.begin(), ns_prefix.begin(), ns_prefix.end());
+  CKevaScript::generateNamespace(txId, n, kaveNamespace, params, nsFixEnabled);
   return CKevaScript::buildKevaNamespace(kevaOp.getAddress(), kaveNamespace, displayName);
 }
-

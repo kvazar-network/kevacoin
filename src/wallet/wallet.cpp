@@ -2952,7 +2952,8 @@ bool CWallet::CreateTransaction(const std::vector<CRecipient>& vecSend,
                             CScript dummyScript = iter->scriptPubKey;
                             CKevaScript kevaOp(dummyScript);
                             if (kevaOp.isKevaOp() && kevaOp.isNamespaceRegistration()) {
-                                iter->scriptPubKey = CKevaScript::replaceKevaNamespace(dummyScript, coin.outpoint.hash, kevaNamespace, Params());
+                                bool nsFixEnabled = IsNsFixEnabled(chainActive.Tip(), Params().GetConsensus());
+                                iter->scriptPubKey = CKevaScript::replaceKevaNamespace(dummyScript, coin.outpoint.hash, coin.outpoint.n, kevaNamespace, Params(), nsFixEnabled);
                                 kevaDummyReplaced = true;
                                 break;
                             }

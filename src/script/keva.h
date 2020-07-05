@@ -273,8 +273,9 @@ public:
    */
   static CScript buildKevaDelete(const CScript& addr, const valtype& nameSpace, const valtype& key);
 
+  static void generateNamespace(const uint256& txId, int n, valtype& kaveNamespace, const CChainParams& params, bool nsFixEnabled);
 
-  static CScript replaceKevaNamespace(const CScript& oldScript, const uint256& txId, valtype& kaveNamespace, const CChainParams& params);
+  static CScript replaceKevaNamespace(const CScript& oldScript, const uint256& txId, int n, valtype& kaveNamespace, const CChainParams& params, bool nsFixEnabled);
 
 };
 
