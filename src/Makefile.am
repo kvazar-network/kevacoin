@@ -359,7 +359,7 @@ libbitcoin_common_a_SOURCES = \
   $(BITCOIN_CORE_H)
 
 # cnutils: shared between bitcoind, and bitcoin-qt and non-server tools
-libbitcoin_cnutils_a_CPPFLAGS = $(AM_CPPFLAGS) $(SSL_CFLAGS) -I$(srcdir)/cn_utils -I$(srcdir)/cn_utils/randomx -I$(srcdir)/cn_utils/contrib -I$(srcdir)/cn_utils/external/easylogging++ -I$(srcdir)/cn_utils/contrib/epee/include
+libbitcoin_cnutils_a_CPPFLAGS = $(AM_CPPFLAGS) $(BOOST_CPPFLAGS) $(SSL_CFLAGS) -I$(srcdir)/cn_utils -I$(srcdir)/cn_utils/randomx -I$(srcdir)/cn_utils/contrib -I$(srcdir)/cn_utils/external/easylogging++ -I$(srcdir)/cn_utils/contrib/epee/include
 libbitcoin_cnutils_a_CXXFLAGS = $(AM_CXXFLAGS) $(PIE_FLAGS) $(PIC_FLAGS)
 libbitcoin_cnutils_a_CFLAGS = $(PIC_FLAGS)
 libbitcoin_cnutils_a_SOURCES = \
@@ -431,7 +431,7 @@ libbitcoin_cnutils_a_SOURCES = \
   cn_utils/randomx/vm_compiled.cpp \
   cn_utils/randomx/vm_compiled_light.cpp \
   cn_utils/randomx/vm_interpreted.cpp \
-  cn_utils/randomx/vm_interpreted_light.cpp  
+  cn_utils/randomx/vm_interpreted_light.cpp
 
 # util: shared between all executables.
 # This library *must* be included to make sure that the glibc
