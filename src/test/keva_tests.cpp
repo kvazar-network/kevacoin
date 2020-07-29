@@ -66,13 +66,19 @@ BOOST_AUTO_TEST_CASE(keva_scripts)
 
   const uint256 txId = uint256S("0x78f49add562dc33e4cd61aa45c54012509ed4a53308908dd07f5634437939273");
   valtype actualNamespace;
-  script = CKevaScript::replaceKevaNamespace(script, txId, actualNamespace, Params());
+  int n = 99999;
+  script = CKevaScript::replaceKevaNamespace(script, txId, n, actualNamespace, Params(), true);
   const CKevaScript opReplace(script);
   BOOST_CHECK(opReplace.isKevaOp());
   BOOST_CHECK(opReplace.getAddress() == addr);
   BOOST_CHECK(!opReplace.isAnyUpdate());
   BOOST_CHECK(opReplace.getKevaOp() == OP_KEVA_NAMESPACE);
-  valtype expectedNamespace = ToByteVector(Hash160(ToByteVector(txId)));
+
+  auto vin = ToByteVector(txId);
+  auto nVal = ValtypeFromString(std::to_string(n));
+  vin.insert(vin.end(), nVal.begin(), nVal.end());
+
+  valtype expectedNamespace = ToByteVector(Hash160(ToByteVector(vin)));
   const std::vector<unsigned char>& ns_prefix = Params().Base58Prefix(CChainParams::KEVA_NAMESPACE);
   expectedNamespace.insert(expectedNamespace.begin(), ns_prefix.begin(), ns_prefix.end());
   BOOST_CHECK(opReplace.getOpNamespace() == expectedNamespace);

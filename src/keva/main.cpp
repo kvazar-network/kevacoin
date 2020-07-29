@@ -144,9 +144,9 @@ bool CKevaMemPool::validateNamespace(const CTransaction& tx, const valtype& name
   if (tx.vin.size() == 0) {
     return false;
   }
-  valtype kevaNamespace = ToByteVector(Hash160(ToByteVector(tx.vin[0].prevout.hash)));
-  const std::vector<unsigned char>& ns_prefix = Params().Base58Prefix(CChainParams::KEVA_NAMESPACE);
-  kevaNamespace.insert(kevaNamespace.begin(), ns_prefix.begin(), ns_prefix.end());
+  valtype kevaNamespace;
+  bool nsFixEnabled = IsNsFixEnabled(chainActive.Tip(), Params().GetConsensus());
+  CKevaScript::generateNamespace(tx.vin[0].prevout.hash, tx.vin[0].prevout.n, kevaNamespace, Params(), nsFixEnabled);
   return kevaNamespace == nameSpace;
 }
 
@@ -336,7 +336,17 @@ CheckKevaTransaction (const CTransaction& tx, unsigned nHeight,
     if (nameOpOut.getOpNamespaceDisplayName().size () > MAX_VALUE_LENGTH) {
       return state.Invalid (error ("CheckKevaTransaction: display name value too long"));
     }
-    return true;
+
+    LOCK(cs_main);
+    bool nsFixEnabled = IsNsFixEnabled(chainActive.Tip(), Params().GetConsensus());
+    if (!nsFixEnabled) {
+      // This is a historic bug.
+      return true;
+    }
+    // Make sure the namespace Id is correctly derived from vin[0].
+    valtype expectedNamespace;
+    CKevaScript::generateNamespace(tx.vin[0].prevout.hash, tx.vin[0].prevout.n, expectedNamespace, Params(), true);
+    return expectedNamespace == nameOpOut.getOpNamespace();
   }
 
   assert(nameOpOut.isAnyUpdate());
