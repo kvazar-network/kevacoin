@@ -131,7 +131,7 @@ UniValue keva_list_namespaces(const JSONRPCRequest& request)
 
   ObserveSafeMode ();
 
-  std::map<std::string, std::string> mapObjects;
+  std::map<std::string, std::tuple<int, bool, std::string>> mapObjects;
   {
     LOCK2 (cs_main, pwallet->cs_wallet);
     for (const auto& item : pwallet->mapWallet) {
@@ -170,21 +170,35 @@ UniValue keva_list_namespaces(const JSONRPCRequest& request)
         continue;
       }
 
-      const bool mine = IsMine(*pwallet, kevaOp.getAddress());
       CKevaData data;
-      if (mine && pcoinsTip->GetNamespace(nameSpace, data)) {
-        std::string displayName = ValtypeToString(data.getValue());
-        mapObjects[nameSpaceStr] = displayName;
+      if (pcoinsTip->GetNamespace(nameSpace, data)) {
+        const bool mine = IsMine(*pwallet, kevaOp.getAddress());
+        auto nsIter = mapObjects.find(nameSpaceStr);
+        if (nsIter == mapObjects.end() ) {
+          std::string displayName = ValtypeToString(data.getValue());
+          mapObjects[nameSpaceStr] = std::make_tuple(depth, mine, displayName);
+        } else {
+          // Always use the lastest one. The address may have been
+          // transferred to a different wallet.
+          const int curDepth = std::get<0>(nsIter->second);
+          if (depth < curDepth) {
+            std::string displayName = ValtypeToString(data.getValue());
+            mapObjects[nameSpaceStr] = std::make_tuple(depth, mine, displayName);
+          }
+        }
       }
     }
   }
 
   UniValue res(UniValue::VARR);
   for (const auto& item : mapObjects) {
-    UniValue obj(UniValue::VOBJ);
-    obj.pushKV("namespaceId", item.first);
-    obj.pushKV("displayName", item.second);
-    res.push_back(obj);
+    if (std::get<1>(item.second)) {
+      // Only show our namespaces.
+      UniValue obj(UniValue::VOBJ);
+      obj.pushKV("namespaceId", item.first);
+      obj.pushKV("displayName", std::get<2>(item.second));
+      res.push_back(obj);
+    }
   }
 
   {
