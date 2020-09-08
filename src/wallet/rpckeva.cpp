@@ -210,15 +210,16 @@ UniValue keva_put(const JSONRPCRequest& request)
     return NullUniValue;
   }
 
-  if (request.fHelp || request.params.size() != 3) {
+  if (request.fHelp || request.params.size() < 3 || request.params.size() > 4) {
     throw std::runtime_error (
-        "keva_put \"namespace\" \"key\" \"value\"\n"
+        "keva_put \"namespace\" \"key\" \"value\" \"address\" \n"
         "\nInsert or update a key value pair in the given namespace.\n"
         + HelpRequiringPassphrase (pwallet) +
         "\nArguments:\n"
         "1. \"namespace\"            (string, required) the namespace to insert the key to\n"
         "2. \"key\"                  (string, required) value for the key\n"
         "3. \"value\"                (string, required) value for the name\n"
+        "4. \"address\"              (string, optional) transfer the namespace to the given address\n"
         "\nResult:\n"
         "\"txid\"             (string) the keva_put's txid\n"
         "\nExamples:\n"
@@ -230,6 +231,12 @@ UniValue keva_put(const JSONRPCRequest& request)
   RPCTypeCheckArgument(request.params[0], UniValue::VSTR);
   RPCTypeCheckArgument(request.params[1], UniValue::VSTR);
   RPCTypeCheckArgument(request.params[2], UniValue::VSTR);
+
+  bool hasAddress = false;
+  if (request.params.size() == 4) {
+    RPCTypeCheckArgument(request.params[3], UniValue::VSTR);
+    hasAddress = true;
+  }
 
   ObserveSafeMode ();
 
@@ -262,13 +269,22 @@ UniValue keva_put(const JSONRPCRequest& request)
   const CTxIn txIn(outp);
 
   CReserveKey keyName(pwallet);
-  CPubKey pubKeyReserve;
-  const bool ok = keyName.GetReservedKey(pubKeyReserve, true);
-  assert(ok);
-  CKeyID keyId = pubKeyReserve.GetID();
-  CScript redeemScript = GetScriptForDestination(WitnessV0KeyHash(keyId));
-  CScriptID scriptHash = CScriptID(redeemScript);
-  CScript addrName = GetScriptForDestination(scriptHash);
+  CScript addrName;
+  if (hasAddress) {
+    CTxDestination dest = DecodeDestination(request.params[3].get_str());
+    if (!IsValidDestination(dest)) {
+        throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Invalid address");
+    }
+    addrName = GetScriptForDestination(dest);
+  } else {
+    CPubKey pubKeyReserve;
+    const bool ok = keyName.GetReservedKey(pubKeyReserve, true);
+    assert(ok);
+    CKeyID keyId = pubKeyReserve.GetID();
+    CScript redeemScript = GetScriptForDestination(WitnessV0KeyHash(keyId));
+    CScriptID scriptHash = CScriptID(redeemScript);
+    addrName = GetScriptForDestination(scriptHash);
+  }
 
   const CScript kevaScript = CKevaScript::buildKevaPut(addrName, nameSpace, key, value);
 
@@ -278,7 +294,9 @@ UniValue keva_put(const JSONRPCRequest& request)
   SendMoneyToScript(pwallet, kevaScript, &txIn, empty,
                      KEVA_LOCKED_AMOUNT, false, wtx, coinControl);
 
-  keyName.KeepKey();
+  if (!hasAddress) {
+    keyName.KeepKey();
+  }
   UniValue obj(UniValue::VOBJ);
   obj.pushKV("txid", wtx.GetHash().GetHex());
   return obj;
