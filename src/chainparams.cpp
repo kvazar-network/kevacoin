@@ -144,7 +144,7 @@ public:
         consensus.vDeployments[Consensus::DEPLOYMENT_NSFIX].nTimeout = 1598745600; // 08/30/2020 @ 12:00am
 
         // The best chain should have at least this much work.
-        consensus.nMinimumChainWork  = uint256S("0x00000000000000000000000000000000000000000000000000000999a6a433f7");
+        consensus.nMinimumChainWork  = uint256S("0x00000000000000000000000000000000000000000000000000004f5ee7a39422");
 
         // By default assume that the signatures in ancestors of this block are valid.
         consensus.defaultAssumeValid = uint256S("0x00");
