@@ -121,3 +121,5 @@ contrib/devtools/split-debug.sh
 
 */.vscode/*
 .vscode
+
+cov-int
