@@ -130,10 +130,6 @@ namespace crypto {
     friend bool derive_subaddress_public_key(const public_key &, const key_derivation &, std::size_t, public_key &);
     static void generate_key_image(const public_key &, const secret_key &, key_image &);
     friend void generate_key_image(const public_key &, const secret_key &, key_image &);
-    static void generate_ring_signature(const hash &, const key_image &,
-      const public_key *const *, std::size_t, const secret_key &, std::size_t, signature *);
-    friend void generate_ring_signature(const hash &, const key_image &,
-      const public_key *const *, std::size_t, const secret_key &, std::size_t, signature *);
   };
 
   void generate_random_bytes_thread_safe(size_t N, uint8_t *bytes);
@@ -203,21 +199,6 @@ namespace crypto {
    */
   inline void generate_key_image(const public_key &pub, const secret_key &sec, key_image &image) {
     crypto_ops::generate_key_image(pub, sec, image);
-  }
-  inline void generate_ring_signature(const hash &prefix_hash, const key_image &image,
-    const public_key *const *pubs, std::size_t pubs_count,
-    const secret_key &sec, std::size_t sec_index,
-    signature *sig) {
-    crypto_ops::generate_ring_signature(prefix_hash, image, pubs, pubs_count, sec, sec_index, sig);
-  }
-
-  /* Variants with vector<const public_key *> parameters.
-   */
-  inline void generate_ring_signature(const hash &prefix_hash, const key_image &image,
-    const std::vector<const public_key *> &pubs,
-    const secret_key &sec, std::size_t sec_index,
-    signature *sig) {
-    generate_ring_signature(prefix_hash, image, pubs.data(), pubs.size(), sec, sec_index, sig);
   }
 
   inline std::ostream &operator <<(std::ostream &o, const crypto::public_key &v) {
