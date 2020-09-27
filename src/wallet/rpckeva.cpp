@@ -131,74 +131,45 @@ UniValue keva_list_namespaces(const JSONRPCRequest& request)
 
   ObserveSafeMode ();
 
-  std::map<std::string, std::tuple<int, bool, std::string>> mapObjects;
+  std::map<std::string, std::string> mapObjects;
   {
     LOCK2 (cs_main, pwallet->cs_wallet);
-    for (const auto& item : pwallet->mapWallet) {
-      const CWalletTx& tx = item.second;
-      if (!tx.tx->IsKevacoin()) {
+    std::set<CTxDestination> destinations;
+    std::vector<COutput> vecOutputs;
+    bool include_unsafe = true;
+    CAmount nMinimumAmount = 0;
+    CAmount nMaximumAmount = MAX_MONEY;
+    CAmount nMinimumSumAmount = MAX_MONEY;
+    uint64_t nMaximumCount = 0;
+    int nMinDepth = 1;
+    int nMaxDepth = 99999999;
+    pwallet->AvailableCoins(vecOutputs, !include_unsafe, nullptr, nMinimumAmount, nMaximumAmount, nMinimumSumAmount, nMaximumCount, nMinDepth, nMaxDepth);
+    for (const COutput& out : vecOutputs) {
+      CTxDestination address;
+      const CScript& scriptPubKey = out.tx->tx->vout[out.i].scriptPubKey;
+      const CKevaScript kevaOp(scriptPubKey);
+      if (!kevaOp.isKevaOp()) {
         continue;
       }
-
-      CKevaScript kevaOp;
-      int nOut = -1;
-      for (unsigned i = 0; i < tx.tx->vout.size(); ++i) {
-        const CKevaScript cur(tx.tx->vout[i].scriptPubKey);
-        if (cur.isKevaOp()) {
-          if (nOut != -1) {
-            LogPrintf ("ERROR: wallet contains tx with multiple name outputs");
-          } else {
-            kevaOp = cur;
-            nOut = i;
-          }
-        }
-      }
-
-      if (nOut == -1) {
-        continue;
-      }
-
       if (!kevaOp.isNamespaceRegistration() && !kevaOp.isAnyUpdate()) {
         continue;
       }
-
       const valtype nameSpace = kevaOp.getOpNamespace();
       const std::string nameSpaceStr = EncodeBase58Check(nameSpace);
-      const CBlockIndex* pindex;
-      const int depth = tx.GetDepthInMainChain(pindex);
-      if (depth <= 0) {
-        continue;
-      }
-
       CKevaData data;
       if (pcoinsTip->GetNamespace(nameSpace, data)) {
-        const bool mine = IsMine(*pwallet, kevaOp.getAddress());
-        auto nsIter = mapObjects.find(nameSpaceStr);
-        if (nsIter == mapObjects.end() ) {
-          std::string displayName = ValtypeToString(data.getValue());
-          mapObjects[nameSpaceStr] = std::make_tuple(depth, mine, displayName);
-        } else {
-          // Always use the lastest one. The address may have been
-          // transferred to a different wallet.
-          const int curDepth = std::get<0>(nsIter->second);
-          if (depth < curDepth) {
-            std::string displayName = ValtypeToString(data.getValue());
-            mapObjects[nameSpaceStr] = std::make_tuple(depth, mine, displayName);
-          }
-        }
+        std::string displayName = ValtypeToString(data.getValue());
+        mapObjects[nameSpaceStr] = displayName;
       }
     }
   }
 
   UniValue res(UniValue::VARR);
   for (const auto& item : mapObjects) {
-    if (std::get<1>(item.second)) {
-      // Only show our namespaces.
-      UniValue obj(UniValue::VOBJ);
-      obj.pushKV("namespaceId", item.first);
-      obj.pushKV("displayName", std::get<2>(item.second));
-      res.push_back(obj);
-    }
+    UniValue obj(UniValue::VOBJ);
+    obj.pushKV("namespaceId", item.first);
+    obj.pushKV("displayName", item.second);
+    res.push_back(obj);
   }
 
   {
