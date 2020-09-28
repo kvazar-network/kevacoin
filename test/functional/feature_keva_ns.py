@@ -95,5 +95,22 @@ class KevaTest(BitcoinTestFramework):
         assert((self.nodes[0].keva_filter(ns3))[0]["value"] == 'NS 3')
         assert((self.nodes[0].keva_filter(ns4))[0]["value"] == 'NS 4')
 
+        # Transfer namespace "NS 3" from node 1 to node 2.
+        assert(len(self.nodes[1].keva_list_namespaces()) == 2)
+        addrNode2 = self.nodes[2].getnewaddress()
+        self.nodes[1].keva_put(ns3, 'key', 'vaue 1', addrNode2)
+        assert(len(self.nodes[1].keva_list_namespaces()) == 1)
+        assert(self.nodes[1].keva_list_namespaces()[0]['displayName'] == 'NS 1')
+
+        # Transfer namespace "NS 1" from node 1 to node 2.
+        addrNode22 = self.nodes[2].getnewaddress()
+        self.nodes[1].keva_put(ns1, 'key', 'vaue 1', addrNode22)
+        assert(len(self.nodes[1].keva_list_namespaces()) == 0)
+
+        # Node 2 should have 4 namespaces.
+        self.sync_generate(self.nodes[0], 1)
+        assert(len(self.nodes[2].keva_list_namespaces()) == 4)
+
+
 if __name__ == '__main__':
     KevaTest().main()
