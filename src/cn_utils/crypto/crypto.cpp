@@ -218,33 +218,6 @@ namespace crypto {
     return true;
   }
 
-  void crypto_ops::derive_secret_key(const key_derivation &derivation, size_t output_index,
-    const secret_key &base, secret_key &derived_key) {
-    ec_scalar scalar;
-    assert(sc_check(&base) == 0);
-    derivation_to_scalar(derivation, output_index, scalar);
-    sc_add(&unwrap(derived_key), &unwrap(base), &scalar);
-  }
-
-  bool crypto_ops::derive_subaddress_public_key(const public_key &out_key, const key_derivation &derivation, std::size_t output_index, public_key &derived_key) {
-    ec_scalar scalar;
-    ge_p3 point1;
-    ge_p3 point2;
-    ge_cached point3;
-    ge_p1p1 point4;
-    ge_p2 point5;
-    if (ge_frombytes_vartime(&point1, &out_key) != 0) {
-      return false;
-    }
-    derivation_to_scalar(derivation, output_index, scalar);
-    ge_scalarmult_base(&point2, &scalar);
-    ge_p3_to_cached(&point3, &point2);
-    ge_sub(&point4, &point1, &point3);
-    ge_p1p1_to_p2(&point5, &point4);
-    ge_tobytes(&derived_key, &point5);
-    return true;
-  }
-
   struct s_comm {
     hash h;
     ec_point key;

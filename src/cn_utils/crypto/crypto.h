@@ -124,10 +124,6 @@ namespace crypto {
     friend void derivation_to_scalar(const key_derivation &derivation, size_t output_index, ec_scalar &res);
     static bool derive_public_key(const key_derivation &, std::size_t, const public_key &, public_key &);
     friend bool derive_public_key(const key_derivation &, std::size_t, const public_key &, public_key &);
-    static void derive_secret_key(const key_derivation &, std::size_t, const secret_key &, secret_key &);
-    friend void derive_secret_key(const key_derivation &, std::size_t, const secret_key &, secret_key &);
-    static bool derive_subaddress_public_key(const public_key &, const key_derivation &, std::size_t, public_key &);
-    friend bool derive_subaddress_public_key(const public_key &, const key_derivation &, std::size_t, public_key &);
     static void generate_key_image(const public_key &, const secret_key &, key_image &);
     friend void generate_key_image(const public_key &, const secret_key &, key_image &);
   };
@@ -182,13 +178,6 @@ namespace crypto {
   }
   inline void derivation_to_scalar(const key_derivation &derivation, size_t output_index, ec_scalar &res) {
     return crypto_ops::derivation_to_scalar(derivation, output_index, res);
-  }
-  inline void derive_secret_key(const key_derivation &derivation, std::size_t output_index,
-    const secret_key &base, secret_key &derived_key) {
-    crypto_ops::derive_secret_key(derivation, output_index, base, derived_key);
-  }
-  inline bool derive_subaddress_public_key(const public_key &out_key, const key_derivation &derivation, std::size_t output_index, public_key &result) {
-    return crypto_ops::derive_subaddress_public_key(out_key, derivation, output_index, result);
   }
 
   /* To send money to a key:

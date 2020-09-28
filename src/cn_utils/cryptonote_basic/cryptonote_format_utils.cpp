@@ -215,92 +215,6 @@ namespace cryptonote
     return true;
   }
   //---------------------------------------------------------------
-  bool generate_key_image_helper(const account_keys& ack, const std::unordered_map<crypto::public_key, subaddress_index>& subaddresses, const crypto::public_key& out_key, const crypto::public_key& tx_public_key, const std::vector<crypto::public_key>& additional_tx_public_keys, size_t real_output_index, keypair& in_ephemeral, crypto::key_image& ki, hw::device &hwdev)
-  {
-    crypto::key_derivation recv_derivation = AUTO_VAL_INIT(recv_derivation);
-    bool r = hwdev.generate_key_derivation(tx_public_key, ack.m_view_secret_key, recv_derivation);
-    if (!r)
-    {
-      MWARNING("key image helper: failed to generate_key_derivation(" << tx_public_key << ", " << ack.m_view_secret_key << ")");
-      memcpy(&recv_derivation, rct::identity().bytes, sizeof(recv_derivation));
-    }
-
-    std::vector<crypto::key_derivation> additional_recv_derivations;
-    for (size_t i = 0; i < additional_tx_public_keys.size(); ++i)
-    {
-      crypto::key_derivation additional_recv_derivation = AUTO_VAL_INIT(additional_recv_derivation);
-      r = hwdev.generate_key_derivation(additional_tx_public_keys[i], ack.m_view_secret_key, additional_recv_derivation);
-      if (!r)
-      {
-        MWARNING("key image helper: failed to generate_key_derivation(" << additional_tx_public_keys[i] << ", " << ack.m_view_secret_key << ")");
-      }
-      else
-      {
-        additional_recv_derivations.push_back(additional_recv_derivation);
-      }
-    }
-
-    boost::optional<subaddress_receive_info> subaddr_recv_info = is_out_to_acc_precomp(subaddresses, out_key, recv_derivation, additional_recv_derivations, real_output_index,hwdev);
-    CHECK_AND_ASSERT_MES(subaddr_recv_info, false, "key image helper: given output pubkey doesn't seem to belong to this address");
-
-    return generate_key_image_helper_precomp(ack, out_key, subaddr_recv_info->derivation, real_output_index, subaddr_recv_info->index, in_ephemeral, ki, hwdev);
-  }
-  //---------------------------------------------------------------
-  bool generate_key_image_helper_precomp(const account_keys& ack, const crypto::public_key& out_key, const crypto::key_derivation& recv_derivation, size_t real_output_index, const subaddress_index& received_index, keypair& in_ephemeral, crypto::key_image& ki, hw::device &hwdev)
-  {
-    if (ack.m_spend_secret_key == crypto::null_skey)
-    {
-      // for watch-only wallet, simply copy the known output pubkey
-      in_ephemeral.pub = out_key;
-      in_ephemeral.sec = crypto::null_skey;
-    }
-    else
-    {
-      // derive secret key with subaddress - step 1: original CN derivation
-      crypto::secret_key scalar_step1;
-      hwdev.derive_secret_key(recv_derivation, real_output_index, ack.m_spend_secret_key, scalar_step1); // computes Hs(a*R || idx) + b
-
-      // step 2: add Hs(a || index_major || index_minor)
-      crypto::secret_key subaddr_sk;
-      crypto::secret_key scalar_step2;
-      if (received_index.is_zero())
-      {
-        scalar_step2 = scalar_step1;    // treat index=(0,0) as a special case representing the main address
-      }
-      else
-      {
-        subaddr_sk = hwdev.get_subaddress_secret_key(ack.m_view_secret_key, received_index);
-        hwdev.sc_secret_add(scalar_step2, scalar_step1,subaddr_sk);
-      }
-
-      in_ephemeral.sec = scalar_step2;
-
-      if (ack.m_multisig_keys.empty())
-      {
-        // when not in multisig, we know the full spend secret key, so the output pubkey can be obtained by scalarmultBase
-        CHECK_AND_ASSERT_MES(hwdev.secret_key_to_public_key(in_ephemeral.sec, in_ephemeral.pub), false, "Failed to derive public key");
-      }
-      else
-      {
-        // when in multisig, we only know the partial spend secret key. but we do know the full spend public key, so the output pubkey can be obtained by using the standard CN key derivation
-        CHECK_AND_ASSERT_MES(hwdev.derive_public_key(recv_derivation, real_output_index, ack.m_account_address.m_spend_public_key, in_ephemeral.pub), false, "Failed to derive public key");
-        // and don't forget to add the contribution from the subaddress part
-        if (!received_index.is_zero())
-        {
-          crypto::public_key subaddr_pk;
-          CHECK_AND_ASSERT_MES(hwdev.secret_key_to_public_key(subaddr_sk, subaddr_pk), false, "Failed to derive public key");
-          add_public_key(in_ephemeral.pub, in_ephemeral.pub, subaddr_pk);
-        }
-      }
-
-      CHECK_AND_ASSERT_MES(in_ephemeral.pub == out_key,
-           false, "key image helper precomp: given output pubkey doesn't match the derived one");
-    }
-
-    hwdev.generate_key_image(in_ephemeral.pub, in_ephemeral.sec, ki);
-    return true;
-  }
-  //---------------------------------------------------------------
   uint64_t power_integral(uint64_t a, uint64_t b)
   {
     if(b == 0)
@@ -735,26 +649,6 @@ namespace cryptonote
       return pk == out_key.key;
     }
     return false;
-  }
-  //---------------------------------------------------------------
-  boost::optional<subaddress_receive_info> is_out_to_acc_precomp(const std::unordered_map<crypto::public_key, subaddress_index>& subaddresses, const crypto::public_key& out_key, const crypto::key_derivation& derivation, const std::vector<crypto::key_derivation>& additional_derivations, size_t output_index, hw::device &hwdev)
-  {
-    // try the shared tx pubkey
-    crypto::public_key subaddress_spendkey;
-    hwdev.derive_subaddress_public_key(out_key, derivation, output_index, subaddress_spendkey);
-    auto found = subaddresses.find(subaddress_spendkey);
-    if (found != subaddresses.end())
-      return subaddress_receive_info{ found->second, derivation };
-    // try additional tx pubkeys if available
-    if (!additional_derivations.empty())
-    {
-      CHECK_AND_ASSERT_MES(output_index < additional_derivations.size(), boost::none, "wrong number of additional derivations");
-      hwdev.derive_subaddress_public_key(out_key, additional_derivations[output_index], output_index, subaddress_spendkey);
-      found = subaddresses.find(subaddress_spendkey);
-      if (found != subaddresses.end())
-        return subaddress_receive_info{ found->second, additional_derivations[output_index] };
-    }
-    return boost::none;
   }
   //---------------------------------------------------------------
   bool lookup_acc_outs(const account_keys& acc, const transaction& tx, std::vector<size_t>& outs, uint64_t& money_transfered)
