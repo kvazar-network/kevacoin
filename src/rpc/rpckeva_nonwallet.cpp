@@ -516,7 +516,7 @@ UniValue keva_filter(const JSONRPCRequest& request)
         "\nScan and list keys matching a regular expression.\n"
         "\nArguments:\n"
         "1. \"namespace\"   (string) namespace Id\n"
-        "2. \"regexp\"      (string, optional) filter keys with this regexp\n"
+        "2. \"regexp\"      (string, optional) filter keys with this regexp, use Perl regexp syntax\n"
         "3. \"maxage\"      (numeric, optional, default=96000) only consider names updated in the last \"maxage\" blocks; 0 means all names\n"
         "4. \"from\"        (numeric, optional, default=0) return from this position onward; index starts at 0\n"
         "5. \"nb\"          (numeric, optional, default=0) return only \"nb\" entries; 0 means all\n"
