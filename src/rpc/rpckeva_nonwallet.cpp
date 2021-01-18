@@ -25,6 +25,30 @@
 
 #include <univalue.h>
 #include <boost/xpressive/xpressive_dynamic.hpp>
+#include "../univalue/lib/univalue_utffilter.h"
+
+/**
+ * Check if the input str is a valid UTF8 string. That is,
+ * if all the characters are valid UTF8 characters.
+ */
+static bool isUTF8String(const valtype& str) {
+  std::string valStr;
+  JSONUTF8StringFilter writer(valStr);
+  for (auto x : str) {
+    writer.push_back(x);
+  }
+  return writer.finalize();
+}
+
+static std::string ValtypeToHex(const valtype& str) {
+  std::string hexStr;
+  for (auto x : str) {
+    std::ostringstream oss;
+    oss << std::hex << std::setw(2) << std::setfill('0') << (unsigned)x;
+    hexStr += oss.str();
+  }
+  return hexStr;
+}
 
 /**
  * Utility routine to construct a "keva info" object to return.  This is used
@@ -40,8 +64,22 @@ getKevaInfo(const valtype& key, const valtype& value, const COutPoint& outp,
              int height, const valtype& nameSpace)
 {
   UniValue obj(UniValue::VOBJ);
-  obj.pushKV("key", ValtypeToString(key));
-  obj.pushKV("value", ValtypeToString(value));
+  if (!isUTF8String(key)) {
+    obj.pushKV("key", ValtypeToHex(key));
+    obj.pushKV("key_encode", "hex");
+  } else {
+    obj.pushKV("key", ValtypeToString(key));
+    obj.pushKV("key_encode", "utf8");
+  }
+
+  if (!isUTF8String(value)) {
+    obj.pushKV("value", ValtypeToHex(value));
+    obj.pushKV("value_encode", "hex");
+  } else {
+    obj.pushKV("value", ValtypeToString(value));
+    obj.pushKV("value_encode", "utf8");
+  }
+
   obj.pushKV("txid", outp.hash.GetHex());
   obj.pushKV("vout", static_cast<int>(outp.n));
   obj.pushKV("height", height);
