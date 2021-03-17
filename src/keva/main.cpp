@@ -39,9 +39,11 @@ void
 CKevaTxUndo::apply(CCoinsViewCache& view) const
 {
   if (isNew) {
-    view.DeleteKey(nameSpace, key);
-  }
-  else {
+    CKevaData oldData;
+    if (view.GetName(nameSpace, key, oldData)) {
+      view.DeleteKey(nameSpace, key);
+    }
+  } else {
     view.SetKeyValue(nameSpace, key, oldData, true);
   }
 }
