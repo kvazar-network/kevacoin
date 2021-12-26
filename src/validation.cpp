@@ -3202,6 +3202,10 @@ static bool ContextualCheckBlockHeader(const CBlockHeader& block, CValidationSta
     assert(pindexPrev != nullptr);
     const int nHeight = pindexPrev->nHeight + 1;
 
+    // Kevacoin: the nNonce should be the current height.
+    if ((int32_t)block.nNonce != nHeight)
+        return state.Invalid(false, REJECT_INVALID, "nonce-not-height", "nNonce not equal height");
+
     // Check proof of work
     const Consensus::Params& consensusParams = params.GetConsensus();
     if (block.nBits != GetNextWorkRequired(pindexPrev, &block, consensusParams))
