@@ -179,8 +179,8 @@ int KevaBookmarksModel::loadBookmarks()
 
     // No bookmark file. Save and load the default ones.
     QJsonObject entry0;
-    entry0["id"] = "NgKBKkBAJMtzsuit85TpTpo5Xj6UQUg1wr";
-    entry0["name"] = "Kevacoin Official Blog";
+    entry0["id"] = "Nfw2WYkGoSKve74cCfEum67x8bFgpHygxg";
+    entry0["name"] = "Kevacoin Official Account";
 
     QJsonObject entry1;
     entry1["id"] = "NV9GkLpCLMh4Nd6nZRkch8iNbuV8w9khTm";
