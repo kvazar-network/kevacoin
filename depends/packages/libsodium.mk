@@ -2,7 +2,7 @@ package=libsodium
 $(package)_version=1.0.18
 $(package)_download_path=https://download.libsodium.org/libsodium/releases/
 $(package)_file_name=$(package)-$($(package)_version)-stable.tar.gz
-$(package)_sha256_hash=f9f2114ef2460c80d97db07a3fe6fcd058cdb4ffb5ca84f4b4c61f81b2907289
+$(package)_sha256_hash=9de063e03cf9316b5e0e8188bb4991027c88f82462146a5e49bb47f19d0cf6f7
 
 define $(package)_set_vars
 $(package)_config_opts_mingw32+=CFLAGS="-Ofast -fomit-frame-pointer -march=pentium3 -mtune=westmere"
