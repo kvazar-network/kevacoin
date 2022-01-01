@@ -20,13 +20,16 @@ extern "C" void cn_fast_hash(const void *data, size_t length, char *hash);
 static void cn_get_block_hash_by_height(uint64_t seed_height, char cnHash[32])
 {
     CBlockIndex* pblockindex = chainActive[seed_height];
-    if (pblockindex == NULL) {
+    if (pblockindex == nullptr) {
         // This will happen during initial block downloading, or when we
         // are out of sync by more than at least SEEDHASH_EPOCH_BLOCKS blocks.
         LOCK(cs_main);
-        pblockindex = mapBlockSeedHeight.find(seed_height)->second;
+        std::map<uint64_t, CBlockIndex*>::iterator iter = mapBlockSeedHeight.find(seed_height);
+        if (iter != mapBlockSeedHeight.end()) {
+            pblockindex = iter->second;
+        }
     }
-    if (pblockindex == NULL) {
+    if (pblockindex == nullptr) {
         return;
     }
     uint256 blockHash = pblockindex->GetBlockHash();

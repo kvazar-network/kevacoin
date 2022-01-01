@@ -280,7 +280,7 @@ AX_CHECK_COMPILE_FLAG([-maes],[[AES_CFLAGS="-maes"]],[[AES_CFLAGS="no"]],[[$CXXF
 if  test x$AES_CFLAGS = xno; then
   AC_MSG_ERROR("Compiler does not support -maes which is required by Cryptonight.")
 fi
-CFLAGS="$CXXFLAGS $AES_CFLAGS"
+CFLAGS="$CFLAGS $AES_CFLAGS"
 
 TEMP_CXXFLAGS="$CXXFLAGS"
 CXXFLAGS="$CXXFLAGS $SSE42_CXXFLAGS"
