@@ -527,10 +527,13 @@ std::string HelpMessage(HelpMessageMode mode)
 
 std::string LicenseInfo()
 {
+    const std::string URL_KVAZAR_CODE = "<https://github.com/kvazar-network/kevacoin>";
     const std::string URL_SOURCE_CODE = "<https://github.com/kevacoin-project/kevacoin>";
     const std::string URL_WEBSITE = "<https://kevacoin.org>";
 
-    return CopyrightHolders(strprintf(_("Copyright (C) %i-%i"), 2011, COPYRIGHT_YEAR) + " ") + "\n" +
+    return _("Copyright (C) 2024 The kvazar-network developers") +
+           "\n" +
+           CopyrightHolders(strprintf(_("Copyright (C) %i-%i"), 2011, COPYRIGHT_YEAR) + " ") + "\n" +
            "\n" +
            strprintf(_("Please contribute if you find %s useful. "
                        "Visit %s for further information about the software."),
@@ -538,6 +541,8 @@ std::string LicenseInfo()
            "\n" +
            strprintf(_("The source code is available from %s."),
                URL_SOURCE_CODE) +
+           strprintf(_("Wallet version by %s."),
+               URL_KVAZAR_CODE) +
            "\n" +
            "\n" +
            _("This is experimental software.") + "\n" +
