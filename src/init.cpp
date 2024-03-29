@@ -539,8 +539,10 @@ std::string LicenseInfo()
                        "Visit %s for further information about the software."),
                PACKAGE_NAME, URL_WEBSITE) +
            "\n" +
+           "\n" +
            strprintf(_("The source code is available from %s."),
                URL_SOURCE_CODE) +
+            "\n" +
            strprintf(_("Wallet version by %s."),
                URL_KVAZAR_CODE) +
            "\n" +
