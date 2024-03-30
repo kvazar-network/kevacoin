@@ -49,12 +49,16 @@ void KevaAddKeyDialog::cancel()
 
 void KevaAddKeyDialog::onKeyChanged(const QString& key)
 {
-    bool enabled = key.length() > 0 && ui->valueText->toPlainText().length() > 0;
+    bool enabled = key.length() > 0    && ui->valueText->toPlainText().length() > 0 &&
+                   key.length() <= 255 && ui->valueText->toPlainText().length() < MAX_SCRIPT_ELEMENT_SIZE + 1;
+
     ui->buttonBox->button(QDialogButtonBox::Save)->setEnabled(enabled);
 }
 
 void KevaAddKeyDialog::onValueChanged()
 {
-    bool enabled = ui->valueText->toPlainText().length() > 0 && ui->keyText->text().length() > 0;
+    bool enabled = ui->keyText->text().length() > 0    && ui->valueText->toPlainText().length() > 0 &&
+                   ui->keyText->text().length() <= 255 && ui->valueText->toPlainText().length() < MAX_SCRIPT_ELEMENT_SIZE + 1;
+
     ui->buttonBox->button(QDialogButtonBox::Save)->setEnabled(enabled);
 }
