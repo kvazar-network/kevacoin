@@ -2,7 +2,7 @@
 
 This project created to keep going [Kevacoin Core](https://github.com/kevacoin-project/kevacoin) ecosystem.
 
-Contains QT and Boost updates, minor cosmetic changes, it's 100% compatible with the Kevacoin Network.
+Contains QT and Boost updates, minor cosmetic changes, it's 100% compatible with Kevacoin Network.
 
 Instead of `master` use `kvazar` branch as main.
 The `master` branch required for legacy [contributions](https://github.com/kevacoin-project/kevacoin/pulls) and get updates from the original upstream only.
@@ -34,7 +34,7 @@ Take a look at [awesome-kevacoin](https://github.com/kvazar-network/awesome-keva
 
 ```
 git clone https://github.com/kvazar-network/kevacoin.git
-cd kevacoin`
+cd kevacoin
 ./contrib/install_db4.sh `pwd`
 export BDB_PREFIX='/given/path/to/db4'
 ./autogen.sh
