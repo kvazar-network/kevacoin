@@ -4,7 +4,8 @@ This project created to keep alive [Kevacoin Core](https://github.com/kevacoin-p
 
 Contains QT and Boost updates, minor cosmetic changes and 100% compatible with the Kevacoin Network.
 
-Some [contributions](https://github.com/kevacoin-project/kevacoin/pulls) from this brach still sending to the `master` branch.
+Instead of `master` we're using `kvazar` branch here as main.
+The `master` branch is only for legacy [contributions](https://github.com/kevacoin-project/kevacoin/pulls).
 
 Join to development by sending [PR](https://github.com/kevacoin-project/kevacoin/pulls) or just open [Issue](https://github.com/kevacoin-project/kevacoin/issues) for any questions!
 
