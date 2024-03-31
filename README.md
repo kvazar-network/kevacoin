@@ -1,8 +1,8 @@
 # KevaCoin by Community
 
-This project created to keep going [Kevacoin Core](https://github.com/kevacoin-project/kevacoin) ecosystem.
+This project created to keep working [Kevacoin Core](https://github.com/kevacoin-project/kevacoin) ecosystem.
 
-Contains QT and Boost updates, minor cosmetic changes and 100% compatible with the Kevacoin Network.
+Contains QT and Boost updates, minor cosmetic changes and it's 100% compatible with the Kevacoin Network.
 
 Instead of `master` we're using `kvazar` branch here as main.
 The `master` branch is only for legacy [contributions](https://github.com/kevacoin-project/kevacoin/pulls).
