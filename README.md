@@ -9,18 +9,18 @@ The `master` branch required for legacy [contributions](https://github.com/kevac
 
 Join the development by sending [PR](https://github.com/kevacoin-project/kevacoin/pulls) or just open [Issue](https://github.com/kevacoin-project/kevacoin/issues) for any questions!
 
-# What is Kevacoin?
+## What is Kevacoin?
 
 Kevacoin is a decentralized open source key-value data store based on Litecoin (which is in turn based on Bitcoin) cryptocurrency. Kevacoin is largely influenced by Namecoin [https://namecoin.org](https://namecoin.org), even though it serves very different purposes and works very differently.
 
-# What does it do?
+## What does it do?
 
 * Securely record keys and their values. Size of value is up to `3072` bytes. No hard limits on the number of keys.
 * Update or delete the keys and their values.
 * Maintain network-unqiue namespaces. Keys are grouped under namespaces to avoid name conflicts.
 * Transact the digital currency kevacoins (KVA).
 
-# What can it be used for?
+## What can it be used for?
 
 As a decentralized key-value database, it can be used to store data for all kinds of applications, such as social media, microblogging, public identity information, notary service. Kevacoin has limited support for smart contracts (similar to Bitcoin and Litecoin), but one can still develop decentralized apps (dApps) on Kevacoin. The data is decentralized while the application logic is developed off the blockchain.
 
