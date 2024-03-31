@@ -46,7 +46,7 @@ make
 
 If you have any problems with connection to existing DNS, try following peers:
 
-* `[201:23b4:991a:634d:8359:4521:5576:15b7]:9338` - Secure connections with [Yggdrasil](https://yggdrasil-network.github.io) (by [YGGverse](https://github.com/YGGverse))
+* `[201:23b4:991a:634d:8359:4521:5576:15b7]:9338` - Secure connections with [Yggdrasil](https://yggdrasil-network.github.io) by [YGGverse](https://github.com/YGGverse)
 
 ## License
 
