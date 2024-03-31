@@ -1,6 +1,6 @@
 # KevaCoin by Community
 
-This project created to keep alive [Kevacoin Core](https://github.com/kevacoin-project/kevacoin) ecosystem.
+This project created to keep going [Kevacoin Core](https://github.com/kevacoin-project/kevacoin) ecosystem.
 
 Contains QT and Boost updates, minor cosmetic changes and 100% compatible with the Kevacoin Network.
 
