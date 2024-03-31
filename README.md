@@ -31,13 +31,15 @@ Visit [awesome-kevacoin](https://github.com/kvazar-network/awesome-kevacoin) to 
 
 ### Linux
 
-1. `git clone https://github.com/kvazar-network/kevacoin.git`
-2. `cd kevacoin`
-3. `./contrib/install_db4.sh `pwd``
-4. `export BDB_PREFIX='/given/path/to/db4'`
-5. `./autogen.sh`
-6. `./configure BDB_LIBS="-L${BDB_PREFIX}/lib -ldb_cxx-4.8" BDB_CFLAGS="-I${BDB_PREFIX}/include"`
-7. `make`
+```
+git clone https://github.com/kvazar-network/kevacoin.git
+cd kevacoin`
+./contrib/install_db4.sh `pwd`
+export BDB_PREFIX='/given/path/to/db4'
+./autogen.sh
+./configure BDB_LIBS="-L${BDB_PREFIX}/lib -ldb_cxx-4.8" BDB_CFLAGS="-I${BDB_PREFIX}/include"
+make
+```
 
 ## License
 
