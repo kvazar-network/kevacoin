@@ -26,7 +26,7 @@ As a decentralized key-value database, it can be used to store data for all kind
 
 Our major observation for decentralized apps is that data is significantly more important than the application. In fact, that is the case for all kinds of applications. It is common these days to hear that companies rewrite their applications using better technologies, but it is rare for any of them to make big changes to their valuable data.
 
-Visit [awesome-kevacoin](https://github.com/kvazar-network/awesome-kevacoin) to learn more!
+Take a look at [awesome-kevacoin](https://github.com/kvazar-network/awesome-kevacoin) catalog, also you're welcome to share new service there!
 
 ## Build
 
