@@ -169,6 +169,7 @@ public:
 
         // Note that of those with the service bits flag, most only support a subset of possible options
         vSeeds.emplace_back("dnsseed.kevacoin.org");
+        vSeeds.emplace_back("dnsseed.keva.one");
 
         // Third party DNS
         vSeeds.emplace_back("kex.keva.one"); // by https://bitcointalk.org/index.php?topic=5213046.msg63803088#msg63803088
