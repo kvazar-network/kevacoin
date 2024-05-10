@@ -36,6 +36,7 @@ public:
     enum ColumnWidths {
         DATE_COLUMN_WIDTH = 130,
         KEY_COLUMN_WIDTH = 120,
+        TRANSACTION_ID_MINIMUM_COLUMN_WIDTH = 200,
         BLOCK_MINIMUM_COLUMN_WIDTH = 100,
         MINIMUM_COLUMN_WIDTH = 100
     };

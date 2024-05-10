@@ -101,6 +101,7 @@ void KevaDialog::setModel(WalletModel *_model)
         tableView->setSelectionMode(QAbstractItemView::ContiguousSelection);
         tableView->setColumnWidth(KevaTableModel::Date, DATE_COLUMN_WIDTH);
         tableView->setColumnWidth(KevaTableModel::Key, KEY_COLUMN_WIDTH);
+        tableView->setColumnWidth(KevaTableModel::TransactionID, TRANSACTION_ID_MINIMUM_COLUMN_WIDTH);
         tableView->setColumnWidth(KevaTableModel::Block, BLOCK_MINIMUM_COLUMN_WIDTH);
 
         connect(ui->kevaView->selectionModel(), SIGNAL(selectionChanged(QItemSelection,QItemSelection)),

@@ -805,6 +805,8 @@ void WalletModel::getKevaEntries(std::vector<KevaEntry>& vKevaEntries, std::stri
         entry.key = ValtypeToString(key);
         entry.value = ValtypeToString(data.getValue());
         entry.block = data.getHeight();
+        entry.transactionID = data.getUpdateOutpoint().hash.ToString();
+
         CBlockIndex* pblockindex = chainActive[entry.block];
         if (pblockindex) {
             entry.date.setTime_t(pblockindex->nTime);

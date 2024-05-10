@@ -20,6 +20,7 @@ public:
 
     std::string key;
     std::string value;
+    std::string transactionID;
     int64_t block;
     QDateTime date;
 };
@@ -51,7 +52,8 @@ public:
         Date = 0,
         Key = 1,
         Value = 2,
-        Block = 3,
+        TransactionID = 3,
+        Block = 4,
         NUMBER_OF_COLUMNS
     };
 

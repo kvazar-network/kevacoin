@@ -18,7 +18,7 @@ KevaTableModel::KevaTableModel(CWallet *wallet, WalletModel *parent) :
     Q_UNUSED(wallet)
 
     /* These columns must match the indices in the ColumnIndex enumeration */
-    columns << tr("Date") << tr("Key") << tr("Value") << tr("Block");
+    columns << tr("Date") << tr("Key") << tr("Value") << tr("Transaction ID") << tr("Block");
 
     // TODO: display new keva entry when it arrives.
     // connect(walletModel->getOptionsModel(), SIGNAL(displayUnitChanged(int)), this, SLOT(updateDisplayUnit()));
@@ -67,6 +67,8 @@ QVariant KevaTableModel::data(const QModelIndex &index, int role) const
             return QString::fromStdString(rec->key);
         case Value:
             return QString::fromStdString(rec->value);
+        case TransactionID:
+            return QString::fromStdString(rec->transactionID);
         case Block:
             return QString::number(rec->block);
         }
@@ -172,6 +174,8 @@ bool KevaEntryLessThan::operator()(KevaEntry &left, KevaEntry &right) const
         return pLeft->date.toTime_t() < pRight->date.toTime_t();
     case KevaTableModel::Block:
         return pLeft->block < pRight->block;
+    case KevaTableModel::TransactionID:
+        return pLeft->transactionID < pRight->transactionID;
     case KevaTableModel::Key:
         return pLeft->key < pRight->key;
     case KevaTableModel::Value:
