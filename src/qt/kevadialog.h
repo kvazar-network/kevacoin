@@ -84,10 +84,10 @@ private Q_SLOTS:
     void on_bookmarkNamespace_clicked();
     void updateDisplayUnit();
     void showMenu(const QPoint &point);
-    void copyURI();
-    void copyLabel();
-    void copyMessage();
-    void copyAmount();
+    void copyKey();
+    void copyValue();
+    void copyBlock();
+    void copyTransaction();
 };
 
 #endif // BITCOIN_QT_KEVADIALOG_H

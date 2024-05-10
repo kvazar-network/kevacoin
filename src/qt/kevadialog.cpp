@@ -53,10 +53,10 @@ KevaDialog::KevaDialog(const PlatformStyle *_platformStyle, QWidget *parent) :
     }
 
     // context menu actions
-    QAction *copyURIAction = new QAction(tr("Copy URI"), this);
-    QAction *copyLabelAction = new QAction(tr("Copy label"), this);
-    QAction *copyMessageAction = new QAction(tr("Copy message"), this);
-    QAction *copyAmountAction = new QAction(tr("Copy amount"), this);
+    QAction *copyKeyAction = new QAction(tr("Copy key"), this);
+    QAction *copyValueAction = new QAction(tr("Copy value"), this);
+    QAction *copyBlockAction = new QAction(tr("Copy block height"), this);
+    QAction *copyTransactionAction = new QAction(tr("Copy transaction ID"), this);
 
     bookmarks = new KevaBookmarksModel(NULL, NULL);
     bookmarks->loadBookmarks();
@@ -69,17 +69,17 @@ KevaDialog::KevaDialog(const PlatformStyle *_platformStyle, QWidget *parent) :
 
     // context menu
     contextMenu = new QMenu(this);
-    contextMenu->addAction(copyURIAction);
-    contextMenu->addAction(copyLabelAction);
-    contextMenu->addAction(copyMessageAction);
-    contextMenu->addAction(copyAmountAction);
+    contextMenu->addAction(copyKeyAction);
+    contextMenu->addAction(copyValueAction);
+    contextMenu->addAction(copyBlockAction);
+    contextMenu->addAction(copyTransactionAction);
 
     // context menu signals
     connect(ui->kevaView, SIGNAL(customContextMenuRequested(QPoint)), this, SLOT(showMenu(QPoint)));
-    connect(copyURIAction, SIGNAL(triggered()), this, SLOT(copyURI()));
-    connect(copyLabelAction, SIGNAL(triggered()), this, SLOT(copyLabel()));
-    connect(copyMessageAction, SIGNAL(triggered()), this, SLOT(copyMessage()));
-    connect(copyAmountAction, SIGNAL(triggered()), this, SLOT(copyAmount()));
+    connect(copyKeyAction, SIGNAL(triggered()), this, SLOT(copyKey()));
+    connect(copyValueAction, SIGNAL(triggered()), this, SLOT(copyValue()));
+    connect(copyBlockAction, SIGNAL(triggered()), this, SLOT(copyBlock()));
+    connect(copyTransactionAction, SIGNAL(triggered()), this, SLOT(copyTransaction()));
 
     connect(ui->nameSpace, SIGNAL(textChanged(const QString &)), this, SLOT(onNamespaceChanged(const QString &)));
 }
@@ -460,39 +460,29 @@ void KevaDialog::showMenu(const QPoint &point)
     contextMenu->exec(QCursor::pos());
 }
 
-// context menu action: copy URI
-void KevaDialog::copyURI()
-{
-#if 0
-    QModelIndex sel = selectedRow();
-    if (!sel.isValid()) {
-        return;
-    }
-
-    const KevaTableModel * const submodel = model->getKevaTableModel();
-    const QString uri = GUIUtil::formatBitcoinURI(submodel->entry(sel.row()).recipient);
-    GUIUtil::setClipboard(uri);
-#endif
-}
-
-// context menu action: copy label
-void KevaDialog::copyLabel()
+// context menu action: copy key
+void KevaDialog::copyKey()
 {
     copyColumnToClipboard(KevaTableModel::Key);
 }
 
-// context menu action: copy message
-void KevaDialog::copyMessage()
+// context menu action: copy value
+void KevaDialog::copyValue()
 {
     copyColumnToClipboard(KevaTableModel::Value);
 }
 
-// context menu action: copy amount
-void KevaDialog::copyAmount()
+// context menu action: copy block
+void KevaDialog::copyBlock()
 {
     copyColumnToClipboard(KevaTableModel::Block);
 }
 
+// context menu action: copy transaction ID
+void KevaDialog::copyTransaction()
+{
+    copyColumnToClipboard(KevaTableModel::TransactionID);
+}
 
 int KevaDialog::createNamespace(std::string displayName, std::string& namespaceId)
 {
