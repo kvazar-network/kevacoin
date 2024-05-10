@@ -21,16 +21,11 @@ KevaDetailDialog::KevaDetailDialog(const QModelIndex &idx, QWidget *parent, cons
     this->nameSpace = nameSpace;
 
     setWindowTitle(
-        idx.sibling(
-            idx.row(),
-            KevaTableModel::Key
-        ).data(
-            Qt::DisplayRole
-        ).toString()
+        "Record browser"
     );
 
-    /* @TODO multi-tab data/meta browser
-        ui->detailKey->setText(
+    // Data tab
+    ui->detailKey->setText(
         idx.sibling(
             idx.row(),
             KevaTableModel::Key
@@ -38,12 +33,43 @@ KevaDetailDialog::KevaDetailDialog(const QModelIndex &idx, QWidget *parent, cons
             Qt::DisplayRole
         ).toString()
     );
-    */
 
     ui->detailValue->setText(
         idx.sibling(
             idx.row(),
             KevaTableModel::Value
+        ).data(
+            Qt::DisplayRole
+        ).toString()
+    );
+
+    // Meta tab
+    ui->detailDate->setText(
+        idx.sibling(
+            idx.row(),
+            KevaTableModel::Date
+        ).data(
+            Qt::DisplayRole
+        ).toString()
+    );
+
+    ui->detailBlock->setText(
+        idx.sibling(
+            idx.row(),
+            KevaTableModel::Block
+        ).data(
+            Qt::DisplayRole
+        ).toString()
+    );
+
+    ui->detailNamespace->setText(
+        nameSpace
+    );
+
+    ui->detailTransaction->setText(
+        idx.sibling(
+            idx.row(),
+            KevaTableModel::TransactionID
         ).data(
             Qt::DisplayRole
         ).toString()
