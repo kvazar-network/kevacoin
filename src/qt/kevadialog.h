@@ -73,9 +73,10 @@ private Q_SLOTS:
     void on_showContent_clicked();
     void on_createNamespace_clicked();
     void on_listNamespaces_clicked();
-    void on_showValueButton_clicked();
-    void on_removeButton_clicked();
-    void on_addKVButton_clicked();
+    void on_createButton_clicked();
+    void on_readButton_clicked();
+    void on_updateButton_clicked();
+    void on_deleteButton_clicked();
     void on_kevaView_doubleClicked(const QModelIndex &index);
     void kevaView_selectionChanged();
     void on_bookmarksButton_clicked();

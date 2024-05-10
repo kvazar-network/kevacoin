@@ -15,13 +15,56 @@
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
    <item>
-    <widget class="QTextEdit" name="detailText">
-     <property name="toolTip">
-      <string>This pane shows the value associated with a give key</string>
+     <!-- @TODO -->
+     <widget class="QLabel" name="detailKey">
+      <property name="text">
+        <string/>
+      </property>
+      <property name="font">
+       <!--
+       <font>
+        <bold>true</bold>
+       </font>
+       -->
+      </property>
+      <property name="wordWrap">
+        <bool>true</bool>
+      </property>
+      <property name="alignment">
+       <set>Qt::AlignLeft</set>
+      </property>
+      <property name="textInteractionFlags">
+       <set>Qt::LinksAccessibleByMouse|Qt::TextSelectableByKeyboard|Qt::TextSelectableByMouse</set>
+      </property>
+      <property name="textFormat">
+       <!-- exlude remote content loading -->
+       <enum>Qt::PlainText</enum>
+      </property>
+     </widget>
+   </item>
+   <item>
+    <widget class="QScrollArea" name="scrollArea">
+     <property name="widgetResizable">
+      <bool>true</bool>
      </property>
-     <property name="readOnly">
-      <bool>false</bool>
-     </property>
+     <widget class="QLabel" name="detailValue">
+      <property name="text">
+        <string/>
+      </property>
+      <property name="wordWrap">
+        <bool>true</bool>
+      </property>
+      <property name="alignment">
+       <set>Qt::AlignLeft</set>
+      </property>
+      <property name="textInteractionFlags">
+       <set>Qt::LinksAccessibleByMouse|Qt::TextSelectableByKeyboard|Qt::TextSelectableByMouse</set>
+      </property>
+       <property name="textFormat">
+       <!-- exlude remote content loading -->
+       <enum>Qt::PlainText</enum>
+      </property>
+     </widget>
     </widget>
    </item>
    <item>
@@ -30,7 +73,7 @@
       <enum>Qt::Horizontal</enum>
      </property>
      <property name="standardButtons">
-      <set>QDialogButtonBox::Close|QDialogButtonBox::Save</set>
+      <set>QDialogButtonBox::Close</set>
      </property>
     </widget>
    </item>

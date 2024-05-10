@@ -263,15 +263,55 @@
             <item>
               <layout class="QHBoxLayout" name="horizontalLayout_2">
                 <item>
-                  <widget class="QPushButton" name="showValueButton">
+                  <widget class="QPushButton" name="createButton">
                     <property name="enabled">
                       <bool>false</bool>
                     </property>
                     <property name="toolTip">
-                      <string>Show the selected request (does the same as double clicking an entry)</string>
+                      <string>Create new record</string>
                     </property>
                     <property name="text">
-                      <string>Show</string>
+                      <string>Create</string>
+                    </property>
+                    <property name="icon">
+                      <iconset resource="../bitcoin.qrc">
+                        <normaloff>:/icons/add</normaloff>:/icons/add</iconset>
+                    </property>
+                    <property name="autoDefault">
+                      <bool>false</bool>
+                    </property>
+                  </widget>
+                </item>
+                <item>
+                  <widget class="QPushButton" name="readButton">
+                    <property name="enabled">
+                      <bool>false</bool>
+                    </property>
+                    <property name="toolTip">
+                      <string>Read selected record</string>
+                    </property>
+                    <property name="text">
+                      <string>Read</string>
+                    </property>
+                    <property name="icon">
+                      <iconset resource="../bitcoin.qrc">
+                        <normaloff>:/icons/eye</normaloff>:/icons/eye</iconset>
+                    </property>
+                    <property name="autoDefault">
+                      <bool>false</bool>
+                    </property>
+                  </widget>
+                </item>
+                <item>
+                  <widget class="QPushButton" name="updateButton">
+                    <property name="enabled">
+                      <bool>false</bool>
+                    </property>
+                    <property name="toolTip">
+                      <string>Update selected record</string>
+                    </property>
+                    <property name="text">
+                      <string>Update</string>
                     </property>
                     <property name="icon">
                       <iconset resource="../bitcoin.qrc">
@@ -283,39 +323,19 @@
                   </widget>
                 </item>
                 <item>
-                  <widget class="QPushButton" name="removeButton">
+                  <widget class="QPushButton" name="deleteButton">
                     <property name="enabled">
                       <bool>false</bool>
                     </property>
                     <property name="toolTip">
-                      <string>Remove the selected entries from the list</string>
+                      <string>Delete the selected entries from the list</string>
                     </property>
                     <property name="text">
-                      <string>Remove</string>
+                      <string>Delete</string>
                     </property>
                     <property name="icon">
                       <iconset resource="../bitcoin.qrc">
                         <normaloff>:/icons/remove</normaloff>:/icons/remove</iconset>
-                    </property>
-                    <property name="autoDefault">
-                      <bool>false</bool>
-                    </property>
-                  </widget>
-                </item>
-                <item>
-                  <widget class="QPushButton" name="addKVButton">
-                    <property name="enabled">
-                      <bool>false</bool>
-                    </property>
-                    <property name="toolTip">
-                      <string>Add new key-value pair</string>
-                    </property>
-                    <property name="text">
-                      <string>Add key-value</string>
-                    </property>
-                    <property name="icon">
-                      <iconset resource="../bitcoin.qrc">
-                        <normaloff>:/icons/add</normaloff>:/icons/add</iconset>
                     </property>
                     <property name="autoDefault">
                       <bool>false</bool>
@@ -355,8 +375,8 @@
     <tabstop>receiveButton</tabstop>
     <tabstop>clearButton</tabstop>
     <tabstop>recentRequestsView</tabstop>
-    <tabstop>showValueButton</tabstop>
-    <tabstop>removeButton</tabstop>
+    <tabstop>readButton</tabstop>
+    <tabstop>deleteButton</tabstop>
   </tabstops>
   <resources>
     <include location="../bitcoin.qrc"/>

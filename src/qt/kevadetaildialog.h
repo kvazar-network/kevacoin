@@ -7,7 +7,6 @@
 
 #include <QObject>
 #include <QString>
-
 #include <QDialog>
 
 namespace Ui {
@@ -26,10 +25,6 @@ class KevaDetailDialog : public QDialog
 public:
     explicit KevaDetailDialog(const QModelIndex &idx, QWidget *parent, const QString &nameSpace);
     ~KevaDetailDialog();
-
-public Q_SLOTS:
-    void onValueChanged();
-    void onSave();
 
 private:
     Ui::KevaDetailDialog *ui;

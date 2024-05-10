@@ -28,6 +28,20 @@ KevaAddKeyDialog::~KevaAddKeyDialog()
     delete ui;
 }
 
+void KevaAddKeyDialog::setKey(const QString &value)
+{
+    ui->keyText->setText(
+        value
+    );
+}
+
+void KevaAddKeyDialog::setValue(const QString &value)
+{
+    ui->valueText->setPlainText(
+        value
+    );
+}
+
 void KevaAddKeyDialog::create()
 {
     KevaDialog* dialog = (KevaDialog*)this->parentWidget();

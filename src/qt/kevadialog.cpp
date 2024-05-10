@@ -40,13 +40,16 @@ KevaDialog::KevaDialog(const PlatformStyle *_platformStyle, QWidget *parent) :
 
     if (!_platformStyle->getImagesOnButtons()) {
         ui->bookmarksButton->setIcon(QIcon());
-        ui->showValueButton->setIcon(QIcon());
-        ui->removeButton->setIcon(QIcon());
+        ui->createButton->setIcon(QIcon());
+        ui->readButton->setIcon(QIcon());
+        ui->updateButton->setIcon(QIcon());
+        ui->deleteButton->setIcon(QIcon());
     } else {
         ui->bookmarksButton->setIcon(_platformStyle->SingleColorIcon(":/icons/address-book"));
-        ui->showValueButton->setIcon(_platformStyle->SingleColorIcon(":/icons/edit"));
-        ui->removeButton->setIcon(_platformStyle->SingleColorIcon(":/icons/remove"));
-        ui->addKVButton->setIcon(_platformStyle->SingleColorIcon(":/icons/add"));
+        ui->createButton->setIcon(_platformStyle->SingleColorIcon(":/icons/add"));
+        ui->readButton->setIcon(_platformStyle->SingleColorIcon(":/icons/eye"));
+        ui->updateButton->setIcon(_platformStyle->SingleColorIcon(":/icons/edit"));
+        ui->deleteButton->setIcon(_platformStyle->SingleColorIcon(":/icons/remove"));
     }
 
     // context menu actions
@@ -158,10 +161,10 @@ void KevaDialog::onNamespaceChanged(const QString& nameSpace)
     valtype nameSpaceVal;
     bool isValidNamespace = false;
     if (DecodeKevaNamespace(namespaceStr, Params(), nameSpaceVal)) {
-        ui->addKVButton->setEnabled(true);
+        ui->createButton->setEnabled(true);
         isValidNamespace = true;
     } else {
-        ui->addKVButton->setEnabled(false);
+        ui->createButton->setEnabled(false);
         ui->bookmarkNamespace->setIcon(QIcon(":/icons/star_empty"));
     }
 
@@ -285,13 +288,22 @@ void KevaDialog::on_bookmarkNamespace_clicked()
 
 void KevaDialog::kevaView_selectionChanged()
 {
-    // Enable Show/Remove buttons only if anything is selected.
+    // Enable Read/Delete buttons only if anything is selected.
     bool enable = !ui->kevaView->selectionModel()->selectedRows().isEmpty();
-    ui->showValueButton->setEnabled(enable);
-    ui->removeButton->setEnabled(enable);
+    ui->readButton->setEnabled(enable);
+    ui->updateButton->setEnabled(enable);
+    ui->deleteButton->setEnabled(enable);
 }
 
-void KevaDialog::on_showValueButton_clicked()
+void KevaDialog::on_createButton_clicked()
+{
+    QString ns = ui->nameSpace->text();
+    KevaAddKeyDialog *dialog = new KevaAddKeyDialog(this, ns);
+    dialog->setAttribute(Qt::WA_DeleteOnClose);
+    dialog->show();
+}
+
+void KevaDialog::on_readButton_clicked()
 {
     if(!model || !model->getKevaTableModel() || !ui->kevaView->selectionModel())
         return;
@@ -302,7 +314,44 @@ void KevaDialog::on_showValueButton_clicked()
     }
 }
 
-void KevaDialog::on_removeButton_clicked()
+void KevaDialog::on_updateButton_clicked()
+{
+    QString ns = ui->nameSpace->text();
+
+    KevaAddKeyDialog *dialog = new KevaAddKeyDialog(this, ns);
+
+    if(!model || !model->getKevaTableModel() || !ui->kevaView->selectionModel())
+        return;
+
+    for (const QModelIndex& index : ui->kevaView->selectionModel()->selectedRows())
+    {
+        dialog->setKey(
+            index.sibling(
+                index.row(),
+                KevaTableModel::Key
+            ).data(
+                Qt::DisplayRole
+            ).toString()
+        );
+
+        dialog->setValue(
+            index.sibling(
+                index.row(),
+                KevaTableModel::Value
+            ).data(
+                Qt::DisplayRole
+            ).toString()
+        );
+    }
+
+    dialog->setAttribute(
+        Qt::WA_DeleteOnClose
+    );
+
+    dialog->show();
+}
+
+void KevaDialog::on_deleteButton_clicked()
 {
     if(!model || !model->getKevaTableModel() || !ui->kevaView->selectionModel())
         return;
@@ -349,14 +398,6 @@ void KevaDialog::on_removeButton_clicked()
     // correct for selection mode ContiguousSelection
     QModelIndex firstIndex = selection.at(0);
     model->getKevaTableModel()->removeRows(firstIndex.row(), selection.length(), firstIndex.parent());
-}
-
-void KevaDialog::on_addKVButton_clicked()
-{
-    QString ns = ui->nameSpace->text();
-    KevaAddKeyDialog *dialog = new KevaAddKeyDialog(this, ns);
-    dialog->setAttribute(Qt::WA_DeleteOnClose);
-    dialog->show();
 }
 
 // We override the virtual resizeEvent of the QWidget to adjust tables column

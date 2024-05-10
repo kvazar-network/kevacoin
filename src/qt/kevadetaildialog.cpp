@@ -17,40 +17,40 @@ KevaDetailDialog::KevaDetailDialog(const QModelIndex &idx, QWidget *parent, cons
     ui(new Ui::KevaDetailDialog)
 {
     ui->setupUi(this);
-    QModelIndex keyIdx = idx.sibling(idx.row(), KevaTableModel::Key);
-    QModelIndex valueIdx = idx.sibling(idx.row(), KevaTableModel::Value);
+
     this->nameSpace = nameSpace;
-    key = keyIdx.data(Qt::DisplayRole).toString();
-    setWindowTitle(tr("Value for %1").arg(key));
-    QString desc = valueIdx.data(Qt::DisplayRole).toString();
-    connect(ui->detailText, SIGNAL(textChanged()), this, SLOT(onValueChanged()));
-    //ui->detailText->setHtml(desc);
-    ui->detailText->setPlainText(desc);
-    ui->buttonBox->button(QDialogButtonBox::Save)->setEnabled(false);
-    connect(ui->buttonBox->button(QDialogButtonBox::Save), SIGNAL(clicked()), this, SLOT(onSave()));
+
+    setWindowTitle(
+        idx.sibling(
+            idx.row(),
+            KevaTableModel::Key
+        ).data(
+            Qt::DisplayRole
+        ).toString()
+    );
+
+    /* @TODO multi-tab data/meta browser
+        ui->detailKey->setText(
+        idx.sibling(
+            idx.row(),
+            KevaTableModel::Key
+        ).data(
+            Qt::DisplayRole
+        ).toString()
+    );
+    */
+
+    ui->detailValue->setText(
+        idx.sibling(
+            idx.row(),
+            KevaTableModel::Value
+        ).data(
+            Qt::DisplayRole
+        ).toString()
+    );
 }
 
 KevaDetailDialog::~KevaDetailDialog()
 {
     delete ui;
-}
-
-void KevaDetailDialog::onValueChanged()
-{
-    bool enabled = ui->detailText->toPlainText().length() > 0;
-    ui->buttonBox->button(QDialogButtonBox::Save)->setEnabled(enabled);
-}
-
-void KevaDetailDialog::onSave()
-{
-    KevaDialog* dialog = (KevaDialog*)this->parentWidget();
-    std::string keyText  = key.toStdString();
-    std::string valueText  = ui->detailText->toPlainText().toStdString();
-    std::string ns = nameSpace.toStdString();
-    if (!dialog->addKeyValue(ns, keyText, valueText)) {
-        QDialog::close();
-        return;
-    }
-    dialog->showNamespace(nameSpace);
-    QDialog::close();
 }
