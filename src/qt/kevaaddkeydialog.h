@@ -34,6 +34,7 @@ private:
 public Q_SLOTS:
     void create();
     void cancel();
+    void setTitle(const QString& value);
     void setKey(const QString& value);
     void setValue(const QString& value);
     void onKeyChanged(const QString& key);

@@ -325,6 +325,10 @@ void KevaDialog::on_updateButton_clicked()
 
     for (const QModelIndex& index : ui->kevaView->selectionModel()->selectedRows())
     {
+        dialog->setTitle(
+            "Create new record for this key"
+        );
+
         dialog->setKey(
             index.sibling(
                 index.row(),

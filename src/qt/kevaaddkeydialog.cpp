@@ -28,11 +28,24 @@ KevaAddKeyDialog::~KevaAddKeyDialog()
     delete ui;
 }
 
+void KevaAddKeyDialog::setTitle(const QString &value)
+{
+    setWindowTitle(
+        value
+    );
+}
+
 void KevaAddKeyDialog::setKey(const QString &value)
 {
+    ui->keyText->setEnabled(
+        true
+    );
+
     ui->keyText->setText(
         value
     );
+
+    ui->keyText->setFocus();
 }
 
 void KevaAddKeyDialog::setValue(const QString &value)
@@ -40,6 +53,8 @@ void KevaAddKeyDialog::setValue(const QString &value)
     ui->valueText->setPlainText(
         value
     );
+
+    ui->valueText->setFocus();
 }
 
 void KevaAddKeyDialog::create()
