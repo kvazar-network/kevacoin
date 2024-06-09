@@ -82,6 +82,12 @@
              <property name="styleSheet">
               <string notr="true">#detailValue { background: transparent }</string>
              </property>
+            <property name="sizePolicy">
+              <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
              <property name="text">
                <string/>
              </property>
