@@ -79,13 +79,13 @@ void KevaAddKeyDialog::cancel()
 void KevaAddKeyDialog::onKeyChanged(const QString& key)
 {
     // Calculate current size
-    int keyTextLength   = key.toStdString().size();
-    int valueTextLength = ui->valueText->toPlainText().toStdString().size();
+    int keySize   = key.toStdString().size();
+    int valueSize = ui->valueText->toPlainText().toStdString().size();
 
     // Update counter value
     ui->keyCounter->setText(
         QString::number(
-            keyTextLength
+            keySize
         ) + "/" + QString::number(
             255
         )
@@ -96,7 +96,7 @@ void KevaAddKeyDialog::onKeyChanged(const QString& key)
 
     keyCounterPalette.setColor(
         QPalette::WindowText,
-        keyTextLength > 255 ? Qt::red : Qt::darkGreen
+        keySize > 255 ? Qt::red : Qt::darkGreen
     );
 
     ui->keyCounter->setPalette(
@@ -104,8 +104,8 @@ void KevaAddKeyDialog::onKeyChanged(const QString& key)
     );
 
     // Update button status
-    bool enabled = keyTextLength > 0    && valueTextLength > 0 &&
-                   keyTextLength <= 255 && valueTextLength < MAX_SCRIPT_ELEMENT_SIZE + 1;
+    bool enabled = keySize > 0    && valueSize > 0 &&
+                   keySize <= 255 && valueSize < MAX_SCRIPT_ELEMENT_SIZE + 1;
 
     ui->buttonBox->button(QDialogButtonBox::Save)->setEnabled(enabled);
 }
@@ -113,13 +113,13 @@ void KevaAddKeyDialog::onKeyChanged(const QString& key)
 void KevaAddKeyDialog::onValueChanged()
 {
     // Calculate current size
-    int keyTextLength   = ui->keyText->text().toStdString().size();
-    int valueTextLength = ui->valueText->toPlainText().toStdString().size();
+    int keySize   = ui->keyText->text().toStdString().size();
+    int valueSize = ui->valueText->toPlainText().toStdString().size();
 
     // Update counter value
     ui->valueCounter->setText(
         QString::number(
-            valueTextLength
+            valueSize
         ) + "/" + QString::number(
             MAX_SCRIPT_ELEMENT_SIZE
         )
@@ -130,7 +130,7 @@ void KevaAddKeyDialog::onValueChanged()
 
     valueCounterPalette.setColor(
         QPalette::WindowText,
-        valueTextLength > MAX_SCRIPT_ELEMENT_SIZE ? Qt::red : Qt::darkGreen
+        valueSize > MAX_SCRIPT_ELEMENT_SIZE ? Qt::red : Qt::darkGreen
     );
 
     ui->valueCounter->setPalette(
@@ -138,8 +138,8 @@ void KevaAddKeyDialog::onValueChanged()
     );
 
     // Update button status
-    bool enabled = keyTextLength > 0    && valueTextLength > 0 &&
-                   keyTextLength <= 255 && valueTextLength < MAX_SCRIPT_ELEMENT_SIZE + 1;
+    bool enabled = keySize > 0    && valueSize > 0 &&
+                   keySize <= 255 && valueSize < MAX_SCRIPT_ELEMENT_SIZE + 1;
 
     ui->buttonBox->button(QDialogButtonBox::Save)->setEnabled(enabled);
 }
