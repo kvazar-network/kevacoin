@@ -78,9 +78,9 @@ void KevaAddKeyDialog::cancel()
 
 void KevaAddKeyDialog::onKeyChanged(const QString& key)
 {
-    // Calculate current length
-    int keyTextLength   = key.length();
-    int valueTextLength = ui->valueText->toPlainText().length();
+    // Calculate current size
+    int keyTextLength   = key.toStdString().size();
+    int valueTextLength = ui->valueText->toPlainText().toStdString().size();
 
     // Update counter value
     ui->keyCounter->setText(
@@ -112,9 +112,9 @@ void KevaAddKeyDialog::onKeyChanged(const QString& key)
 
 void KevaAddKeyDialog::onValueChanged()
 {
-    // Calculate current length
-    int keyTextLength   = ui->keyText->text().length();
-    int valueTextLength = ui->valueText->toPlainText().length();
+    // Calculate current size
+    int keyTextLength   = ui->keyText->text().toStdString().size();
+    int valueTextLength = ui->valueText->toPlainText().toStdString().size();
 
     // Update counter value
     ui->valueCounter->setText(
