@@ -42,6 +42,10 @@ export BDB_PREFIX='/given/path/to/db4'
 make
 ```
 
+### Windows
+
+Follow [this guide](https://github.com/kvazar-network/kevacoin/blob/kvazar/doc/build-windows.md)
+
 ## Connect
 
 If you have any problems with connection to existing DNS, try following peers:
