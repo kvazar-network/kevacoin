@@ -36,7 +36,7 @@ Check out the source code in the following directory hierarchy.
     git clone https://github.com/kevacoin-project/gitian.sigs.ltc.git
     git clone https://github.com/kevacoin-project/kevacoin-detached-sigs.git
     git clone https://github.com/devrandom/gitian-builder.git
-    git clone https://github.com/kevacoin-project/kevacoin.git
+    git clone https://github.com/kvazar-network/kevacoin.git
 
 ### Kevacoin maintainers/release engineers, suggestion for writing release notes
 

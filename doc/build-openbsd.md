@@ -18,7 +18,7 @@ pkg_add automake # (select highest version, e.g. 1.15)
 pkg_add python # (select highest version, e.g. 3.6)
 pkg_add boost
 
-git clone https://github.com/kevacoin-project/kevacoin.git
+git clone https://github.com/kvazar-network/kevacoin.git
 ```
 
 See [dependencies.md](dependencies.md) for a complete overview.
@@ -97,4 +97,3 @@ If your user is in the `staff` group the limit can be raised with:
 The change will only affect the current shell and processes spawned by it. To
 make the change system-wide, change `datasize-cur` and `datasize-max` in
 `/etc/login.conf`, and reboot.
-
