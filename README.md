@@ -34,7 +34,7 @@ Take a look at [awesome-kevacoin](https://github.com/kvazar-network/awesome-keva
 * [NetBSD](https://github.com/kvazar-network/kevacoin/blob/kvazar/doc/build-netbsd.md)
 * [OpenBSD](https://github.com/kvazar-network/kevacoin/blob/kvazar/doc/build-openbsd.md)
 * [OSX](https://github.com/kvazar-network/kevacoin/blob/kvazar/doc/build-osx.md)
-* [Unix](https://github.com/kvazar-network/kevacoin/blob/kvazar/doc/unix.md)
+* [Unix](https://github.com/kvazar-network/kevacoin/blob/kvazar/doc/build-unix.md)
 * [Windows](https://github.com/kvazar-network/kevacoin/blob/kvazar/doc/build-windows.md)
 
 ## Connect
