@@ -30,21 +30,12 @@ Take a look at [awesome-kevacoin](https://github.com/kvazar-network/awesome-keva
 
 ## Build
 
-### Linux
-
-```
-git clone https://github.com/kvazar-network/kevacoin.git
-cd kevacoin
-./contrib/install_db4.sh `pwd`
-export BDB_PREFIX='/given/path/to/db4'
-./autogen.sh
-./configure BDB_LIBS="-L${BDB_PREFIX}/lib -ldb_cxx-4.8" BDB_CFLAGS="-I${BDB_PREFIX}/include"
-make
-```
-
-### Windows
-
-Follow [this guide](https://github.com/kvazar-network/kevacoin/blob/kvazar/doc/build-windows.md)
+* [Fedora](https://github.com/kvazar-network/kevacoin/blob/kvazar/doc/build-fedora.md)
+* [NetBSD](https://github.com/kvazar-network/kevacoin/blob/kvazar/doc/build-netbsd.md)
+* [OpenBSD](https://github.com/kvazar-network/kevacoin/blob/kvazar/doc/build-openbsd.md)
+* [OSX](https://github.com/kvazar-network/kevacoin/blob/kvazar/doc/build-osx.md)
+* [Unix](https://github.com/kvazar-network/kevacoin/blob/kvazar/doc/unix.md)
+* [Windows](https://github.com/kvazar-network/kevacoin/blob/kvazar/doc/build-windows.md)
 
 ## Connect
 
