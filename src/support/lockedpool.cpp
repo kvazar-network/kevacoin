@@ -27,6 +27,7 @@
 #endif
 
 #include <algorithm>
+#include <stdexcept>
 #include <memory>
 
 LockedPoolManager* LockedPoolManager::_instance = nullptr;
