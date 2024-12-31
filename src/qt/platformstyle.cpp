@@ -93,7 +93,7 @@ PlatformStyle::PlatformStyle(const QString &_name, bool _imagesOnButtons, bool _
         singleColor = colorbase;
     }*/
 
-    singleColor = QColor(150, 120, 200);
+    singleColor = QColor(106, 95, 219);
 
     // Determine text color
     textColor = QColor(QApplication::palette().color(QPalette::WindowText));
