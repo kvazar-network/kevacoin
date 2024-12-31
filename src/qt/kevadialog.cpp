@@ -44,12 +44,20 @@ KevaDialog::KevaDialog(const PlatformStyle *_platformStyle, QWidget *parent) :
         ui->readButton->setIcon(QIcon());
         ui->updateButton->setIcon(QIcon());
         ui->deleteButton->setIcon(QIcon());
+
+        ui->listNamespaces->setIcon(QIcon());
+        ui->createNamespace->setIcon(QIcon());
+        ui->showContent->setIcon(QIcon());
     } else {
         ui->bookmarksButton->setIcon(_platformStyle->SingleColorIcon(":/icons/address-book"));
         ui->createButton->setIcon(_platformStyle->SingleColorIcon(":/icons/add"));
         ui->readButton->setIcon(_platformStyle->SingleColorIcon(":/icons/eye"));
         ui->updateButton->setIcon(_platformStyle->SingleColorIcon(":/icons/edit"));
         ui->deleteButton->setIcon(_platformStyle->SingleColorIcon(":/icons/remove"));
+
+        ui->listNamespaces->setIcon(_platformStyle->SingleColorIcon(":/icons/editpaste"));
+        ui->createNamespace->setIcon(_platformStyle->SingleColorIcon(":/icons/add"));
+        ui->showContent->setIcon(_platformStyle->SingleColorIcon(":/icons/eye"));
     }
 
     // context menu actions
