@@ -91,7 +91,7 @@ void setDarkMode(QApplication &app)
     palette.setColor(QPalette::Base, QColor(30, 30, 30));
     palette.setColor(QPalette::Button, QColor(30, 30, 30));
     palette.setColor(QPalette::ButtonText, QColor(210, 210, 210));
-    palette.setColor(QPalette::Highlight, QColor(106, 95, 219, 130));
+    palette.setColor(QPalette::Highlight, QColor(106, 95, 219, 80));
     palette.setColor(QPalette::HighlightedText, QColor(215, 215, 215));
     palette.setColor(QPalette::Text, QColor(210, 210, 210));
     palette.setColor(QPalette::ToolTipBase, QColor(210, 210, 210));
