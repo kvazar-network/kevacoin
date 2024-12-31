@@ -100,6 +100,8 @@ void setDarkMode(QApplication &app)
     palette.setColor(QPalette::WindowText, QColor(210, 210, 210));
 
     app.setPalette(palette);
+
+    app.setStyleSheet("QToolTip {color: rgb(210, 210, 210); background-color: rgba(20, 20, 20); border: 1px solid rgb(106, 95, 219); padding: 4px}");
 }
 
 // Declare meta types used for QMetaObject::invokeMethod
