@@ -77,6 +77,33 @@ Q_IMPORT_PLUGIN(QCocoaIntegrationPlugin);
 #include <QTextCodec>
 #endif
 
+
+#include <QMainWindow>
+#include <QPalette>
+#include <QPushButton>
+
+// see also: src/qt/platformstyle.cpp
+void setDarkMode(QApplication &app)
+{
+    QPalette palette;
+
+    palette.setColor(QPalette::AlternateBase, QColor(20, 20, 20));
+    palette.setColor(QPalette::Base, QColor(30, 30, 30));
+    palette.setColor(QPalette::Button, QColor(30, 30, 30));
+    palette.setColor(QPalette::ButtonText, QColor(210, 210, 210));
+    palette.setColor(QPalette::Highlight, QColor(130, 90, 205));
+    palette.setColor(QPalette::HighlightedText, QColor(30, 30, 30));
+    palette.setColor(QPalette::Text, QColor(210, 210, 210));
+    palette.setColor(QPalette::ToolTipBase, QColor(0, 0, 0));
+    palette.setColor(QPalette::ToolTipBase, QColor(210, 210, 210));
+    palette.setColor(QPalette::ToolTipText, QColor(210, 210, 210));
+    palette.setColor(QPalette::ToolTipText, QColor(30, 30, 30));
+    palette.setColor(QPalette::Window, QColor(30, 30, 30));
+    palette.setColor(QPalette::WindowText, QColor(210, 210, 210));
+
+    app.setPalette(palette);
+}
+
 // Declare meta types used for QMetaObject::invokeMethod
 Q_DECLARE_METATYPE(bool*)
 Q_DECLARE_METATYPE(CAmount)
@@ -693,6 +720,8 @@ int main(int argc, char *argv[])
     int rv = EXIT_SUCCESS;
     try
     {
+        setDarkMode(app);
+
         app.createWindow(networkStyle.data());
         // Perform base initialization before spinning up initialization/shutdown thread
         // This is acceptable because this function only contains steps that are quick to execute,

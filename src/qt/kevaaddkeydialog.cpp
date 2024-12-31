@@ -96,7 +96,7 @@ void KevaAddKeyDialog::onKeyChanged(const QString& key)
 
     keyCounterPalette.setColor(
         QPalette::WindowText,
-        keySize > 255 ? Qt::red : Qt::darkGreen
+        keySize > 255 ? QColor(230, 120, 105) : QColor(150, 227, 138)
     );
 
     ui->keyCounter->setPalette(
@@ -130,7 +130,7 @@ void KevaAddKeyDialog::onValueChanged()
 
     valueCounterPalette.setColor(
         QPalette::WindowText,
-        valueSize > MAX_SCRIPT_ELEMENT_SIZE ? Qt::red : Qt::darkGreen
+        valueSize > MAX_SCRIPT_ELEMENT_SIZE ? QColor(230, 120, 105) : QColor(150, 227, 138)
     );
 
     ui->valueCounter->setPalette(

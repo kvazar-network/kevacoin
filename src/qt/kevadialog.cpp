@@ -174,7 +174,7 @@ void KevaDialog::onNamespaceChanged(const QString& nameSpace)
         isValidNamespace = true;
     } else {
         ui->createButton->setEnabled(false);
-        ui->bookmarkNamespace->setIcon(QIcon(":/icons/star_empty"));
+        ui->bookmarkNamespace->setIcon(platformStyle->SingleColorIcon(":/icons/star_empty"));
     }
 
     if (!isValidNamespace) {
@@ -184,7 +184,7 @@ void KevaDialog::onNamespaceChanged(const QString& nameSpace)
     if (bookmarks->isBookmarked(namespaceStr)) {
         ui->bookmarkNamespace->setIcon(QIcon(":/icons/star"));
     } else {
-        ui->bookmarkNamespace->setIcon(QIcon(":/icons/star_empty"));
+        ui->bookmarkNamespace->setIcon(platformStyle->SingleColorIcon(":/icons/star_empty"));
     }
 }
 
@@ -272,7 +272,7 @@ void KevaDialog::on_bookmarkNamespace_clicked()
     if (index >= 0) {
         // Remove bookmark
         array.removeAt(index);
-        ui->bookmarkNamespace->setIcon(QIcon(":/icons/star_empty"));
+        ui->bookmarkNamespace->setIcon(platformStyle->SingleColorIcon(":/icons/star_empty"));
     } else {
         // Add bookmark
         QJsonObject entry;

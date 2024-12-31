@@ -79,6 +79,7 @@ PlatformStyle::PlatformStyle(const QString &_name, bool _imagesOnButtons, bool _
     textColor(0,0,0)
 {
     // Determine icon highlighting color
+    /* src/qt/bitcoin.cpp:85
     if (colorizeIcons) {
         const QColor colorHighlightBg(QApplication::palette().color(QPalette::Highlight));
         const QColor colorHighlightFg(QApplication::palette().color(QPalette::HighlightedText));
@@ -90,7 +91,10 @@ PlatformStyle::PlatformStyle(const QString &_name, bool _imagesOnButtons, bool _
         else
             colorbase = colorHighlightFg;
         singleColor = colorbase;
-    }
+    }*/
+
+    singleColor = QColor(150, 120, 200);
+
     // Determine text color
     textColor = QColor(QApplication::palette().color(QPalette::WindowText));
 }
@@ -141,4 +145,3 @@ const PlatformStyle *PlatformStyle::instantiate(const QString &platformId)
     }
     return 0;
 }
-
