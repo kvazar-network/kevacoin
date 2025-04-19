@@ -13,6 +13,7 @@ sudo dnf install git autoconf automake libtool make \
 
 * `git clone https://github.com/kvazar-network/kevacoin.git`
 * `cd kevacoin`
+* `./autogen.sh`
 * `./configure --with-incompatible-bdb --with-gui`
   * to build with legacy Berkeley DB version, visit [this guide](https://github.com/kvazar-network/kevacoin/blob/kvazar/doc/berkeleydb-48.md)
 * `make`
