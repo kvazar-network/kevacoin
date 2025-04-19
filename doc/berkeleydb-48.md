@@ -1,7 +1,7 @@
-Berkley DB 4.8 build guide
+Berkeley DB 4.8 build guide
 ==========================
 
-Kevacoin should work with modern Berkley DB but if your distributive requires legacy version,
+Kevacoin should work with modern Berkeley DB but if your distributive requires legacy version,
 run following installation script (or watch the implementation details):
 
 ``` bash

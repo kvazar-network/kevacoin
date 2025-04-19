@@ -1586,7 +1586,7 @@
     </message>
     <message>
         <source>Using BerkeleyDB version</source>
-        <translation>使用中のBerkleyDBバージョン</translation>
+        <translation>使用中のBerkeleyDBバージョン</translation>
     </message>
     <message>
         <source>Datadir</source>
