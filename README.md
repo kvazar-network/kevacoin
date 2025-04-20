@@ -35,7 +35,7 @@ Please, visit the [Releases](https://github.com/kvazar-network/kevacoin/releases
 ## Build
 
 > [!TIP]
-> See also the [Flatpak](https://github.com/kvazar-network/kevacoin/blob/kvazar/doc/build-flatpak.md) build instructions!
+> See also the [Flatpak](https://github.com/kvazar-network/kevacoin/blob/kvazar/doc/flatpak.md) build instructions!
 
 * [Fedora](https://github.com/kvazar-network/kevacoin/blob/kvazar/doc/build-fedora.md)
 * [NetBSD](https://github.com/kvazar-network/kevacoin/blob/kvazar/doc/build-netbsd.md)
