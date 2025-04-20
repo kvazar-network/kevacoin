@@ -30,7 +30,7 @@ Take a look at [awesome-kevacoin](https://github.com/kvazar-network/awesome-keva
 
 ## Install
 
-Please refer the [Releases](https://github.com/kvazar-network/kevacoin/releases) page to get the latest stable version and precompiled binaries!
+Please, visit the [Releases](https://github.com/kvazar-network/kevacoin/releases) page to get the latest stable version and precompiled binaries!
 
 ## Build
 
