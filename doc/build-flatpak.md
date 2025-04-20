@@ -1,4 +1,4 @@
-# The Flatpak bundle
+# Create the Flatpak bundle
 
 > [!TIP]
 > Check out latest [Releases](https://github.com/kvazar-network/kevacoin/releases) to get the precompiled bundle!
@@ -43,6 +43,13 @@ Follow these steps if you want to build the latest `.flatpak` file from the repo
 * `flatpak build-bundle repo kevacoin-qt.flatpak io.github.kvazar_network.kevacoin-qt` - create the bundle (`kevacoin-qt.flatpak`)
 * `flatpak install --user kevacoin-qt.flatpak` - install from the `kevacoin-qt.flatpak` bundle
     * to uninstall the bundle, run: `flatpak uninstall io.github.kvazar_network.kevacoin-qt`
+
+### Profile data
+
+On Linux systems, the profile data can be found at:
+```
+~/.var/app/io.github.kvazar_network.kevacoin-qt/.kevacoin
+```
 
 ### Feedback
 
