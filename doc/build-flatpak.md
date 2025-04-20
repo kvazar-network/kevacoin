@@ -42,6 +42,7 @@ Follow these steps if you want to build the latest `.flatpak` file from the repo
 * `git pull` - make sure the source is up to date
 * `flatpak build-bundle repo kevacoin-qt.flatpak io.github.kvazar_network.kevacoin-qt` - create the bundle (`kevacoin-qt.flatpak`)
 * `flatpak install --user kevacoin-qt.flatpak` - install from the `kevacoin-qt.flatpak` bundle
+    * to uninstall the bundle, run: `flatpak uninstall io.github.kvazar_network.kevacoin-qt`
 
 ### Feedback
 
