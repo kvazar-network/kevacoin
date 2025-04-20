@@ -28,7 +28,14 @@ Our major observation for decentralized apps is that data is significantly more 
 
 Take a look at [awesome-kevacoin](https://github.com/kvazar-network/awesome-kevacoin) catalog, also you're welcome to share new service there!
 
+## Install
+
+Please refer the [Releases](https://github.com/kvazar-network/kevacoin/releases) page to get the latest stable version and precompiled binaries!
+
 ## Build
+
+> [!TIP]
+> See also the [Flatpak](https://github.com/kvazar-network/kevacoin/blob/kvazar/doc/build-flatpak.md) build instructions!
 
 * [Fedora](https://github.com/kvazar-network/kevacoin/blob/kvazar/doc/build-fedora.md)
 * [NetBSD](https://github.com/kvazar-network/kevacoin/blob/kvazar/doc/build-netbsd.md)
