@@ -1,4 +1,4 @@
-# Create the Flatpak bundle
+# The Flatpak bundle
 
 > [!TIP]
 > Check out latest [Releases](https://github.com/kvazar-network/kevacoin/releases) to get the precompiled bundle!
