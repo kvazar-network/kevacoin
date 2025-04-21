@@ -12,9 +12,9 @@
         "--socket=x11"
     ],
     "cleanup": [
+        "*.a",
+        "*.la",
         "/include",
-        "/lib/*.a",
-        "/lib/*.la",
         "/lib/cmake",
         "/lib/pkgconfig",
         "/share/cmake",
