@@ -1,6 +1,0 @@
-[Desktop Entry]
-Name=KevaCoin
-Exec=kevacoin-qt
-Type=Application
-Icon=io.github.kvazar_network.kevacoin
-Categories=Network;P2P;
