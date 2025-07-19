@@ -46,9 +46,8 @@ Please, visit the [Releases](https://github.com/kvazar-network/kevacoin/releases
 
 ## Connect
 
-If you have any problems with connection to existing DNS, try following peers:
-
-* `[201:23b4:991a:634d:8359:4521:5576:15b7]:9338` - Secure connections with [Yggdrasil](https://yggdrasil-network.github.io) by [YGGverse](https://github.com/YGGverse)
+If you have any problems with the connection out of the box or any issues with your provider,
+try alternative [DNS](https://github.com/kvazar-network/awesome-kevacoin#dns) and [Peers](https://github.com/kvazar-network/awesome-kevacoin#peers).
 
 ## License
 
