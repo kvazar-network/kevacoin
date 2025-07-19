@@ -1483,31 +1483,31 @@ void ThreadMapPort()
 
     struct UPNPUrls urls;
     struct IGDdatas data;
+    char externalIPAddress[40];
     int r;
 
-    r = UPNP_GetValidIGD(devlist, &urls, &data, lanaddr, sizeof(lanaddr));
+    if (fDiscover) {
+        r = UPNP_GetExternalIPAddress(urls.controlURL, data.first.servicetype, externalIPAddress);
+        if(r != UPNPCOMMAND_SUCCESS)
+            LogPrintf("UPnP: GetExternalIPAddress() returned %d\n", r);
+        else
+        {
+            if(externalIPAddress[0])
+            {
+                CNetAddr resolved;
+                if(LookupHost(externalIPAddress, resolved, false)) {
+                    LogPrintf("UPnP: ExternalIPAddress = %s\n", resolved.ToString().c_str());
+                    AddLocal(resolved, LOCAL_UPNP);
+                }
+            }
+            else
+                LogPrintf("UPnP: GetExternalIPAddress failed.\n");
+        }
+    }
+
+    r = UPNP_GetValidIGD(devlist, &urls, &data, lanaddr, sizeof(lanaddr), externalIPAddress, sizeof(externalIPAddress));
     if (r == 1)
     {
-        if (fDiscover) {
-            char externalIPAddress[40];
-            r = UPNP_GetExternalIPAddress(urls.controlURL, data.first.servicetype, externalIPAddress);
-            if(r != UPNPCOMMAND_SUCCESS)
-                LogPrintf("UPnP: GetExternalIPAddress() returned %d\n", r);
-            else
-            {
-                if(externalIPAddress[0])
-                {
-                    CNetAddr resolved;
-                    if(LookupHost(externalIPAddress, resolved, false)) {
-                        LogPrintf("UPnP: ExternalIPAddress = %s\n", resolved.ToString().c_str());
-                        AddLocal(resolved, LOCAL_UPNP);
-                    }
-                }
-                else
-                    LogPrintf("UPnP: GetExternalIPAddress failed.\n");
-            }
-        }
-
         std::string strDesc = "Kevacoin " + FormatFullVersion();
 
         try {
