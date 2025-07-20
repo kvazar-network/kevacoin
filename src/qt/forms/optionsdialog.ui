@@ -267,13 +267,13 @@
           <widget class="QLineEdit" name="proxyPort">
            <property name="minimumSize">
             <size>
-             <width>60</width>
+             <width>64</width>
              <height>0</height>
             </size>
            </property>
            <property name="maximumSize">
             <size>
-             <width>60</width>
+             <width>64</width>
              <height>16777215</height>
             </size>
            </property>
@@ -454,13 +454,13 @@
           <widget class="QLineEdit" name="proxyPortTor">
            <property name="minimumSize">
             <size>
-             <width>60</width>
+             <width>64</width>
              <height>0</height>
             </size>
            </property>
            <property name="maximumSize">
             <size>
-             <width>60</width>
+             <width>64</width>
              <height>16777215</height>
             </size>
            </property>
