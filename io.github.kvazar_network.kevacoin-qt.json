@@ -128,8 +128,8 @@
             "sources": [
                 {
                     "type": "archive",
-                    "url": "https://github.com/miniupnp/miniupnp/releases/download/miniupnpc_2_2_1/miniupnpc-2.2.1.tar.gz",
-                    "sha256": "3a3167e57727bf1d2a7b4861f7c7b57a663f58b9cf68227762ed2fc64e8ea11f"
+                    "url": "https://github.com/miniupnp/miniupnp/releases/download/miniupnpc_2_3_3/miniupnpc-2.3.3.tar.gz",
+                    "sha256": "d52a0afa614ad6c088cc9ddff1ae7d29c8c595ac5fdd321170a05f41e634bd1a"
                 }
             ]
         },
@@ -149,7 +149,7 @@
                 {
                     "type": "git",
                     "url": "https://github.com/kvazar-network/kevacoin.git",
-                    "commit": "e094c6591e1a7a84f818062280575f7aca455109"
+                    "commit": "e2e0e54e475823753330ef14da1c83d845f0e59e"
                 }
             ]
         }
