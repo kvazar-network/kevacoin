@@ -235,13 +235,13 @@
           <widget class="QValidatedLineEdit" name="proxyIp">
            <property name="minimumSize">
             <size>
-             <width>140</width>
+             <width>320</width>
              <height>0</height>
             </size>
            </property>
            <property name="maximumSize">
             <size>
-             <width>140</width>
+             <width>320</width>
              <height>16777215</height>
             </size>
            </property>
@@ -422,13 +422,13 @@
           <widget class="QValidatedLineEdit" name="proxyIpTor">
            <property name="minimumSize">
             <size>
-             <width>140</width>
+             <width>320</width>
              <height>0</height>
             </size>
            </property>
            <property name="maximumSize">
             <size>
-             <width>140</width>
+             <width>320</width>
              <height>16777215</height>
             </size>
            </property>
