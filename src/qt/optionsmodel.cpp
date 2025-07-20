@@ -26,6 +26,7 @@
 #include <QNetworkProxy>
 #include <QSettings>
 #include <QStringList>
+#include <QUrl>
 
 const char *DEFAULT_GUI_PROXY_HOST = "127.0.0.1";
 
@@ -62,7 +63,7 @@ void OptionsModel::Init(bool resetSettings)
         settings.setValue("fHideTrayIcon", false);
     fHideTrayIcon = settings.value("fHideTrayIcon").toBool();
     Q_EMIT hideTrayIconChanged(fHideTrayIcon);
-    
+
     if (!settings.contains("fMinimizeToTray"))
         settings.setValue("fMinimizeToTray", false);
     fMinimizeToTray = settings.value("fMinimizeToTray").toBool() && !fHideTrayIcon;
@@ -212,17 +213,20 @@ struct ProxySetting {
 static ProxySetting GetProxySetting(QSettings &settings, const QString &name)
 {
     static const ProxySetting default_val = {false, DEFAULT_GUI_PROXY_HOST, QString("%1").arg(DEFAULT_GUI_PROXY_PORT)};
+
     // Handle the case that the setting is not set at all
     if (!settings.contains(name)) {
         return default_val;
     }
-    // contains IP at index 0 and port at index 1
-    QStringList ip_port = settings.value(name).toString().split(":", QString::SkipEmptyParts);
-    if (ip_port.size() == 2) {
-        return {true, ip_port.at(0), ip_port.at(1)};
-    } else { // Invalid: return default
+
+    auto url = QUrl::fromUserInput(settings.value(name).toString());
+    auto host = url.host();
+    auto port = url.port();
+
+    if (!host.isEmpty() && port > 0)
+        return {true, host, QString::number(port)};
+    else
         return default_val;
-    }
 }
 
 static void SetProxySetting(QSettings &settings, const QString &name, const ProxySetting &ip_port)
@@ -338,8 +342,9 @@ bool OptionsModel::setData(const QModelIndex & index, const QVariant & value, in
             break;
         case ProxyIP: {
             auto ip_port = GetProxySetting(settings, "addrProxy");
-            if (!ip_port.is_set || ip_port.ip != value.toString()) {
-                ip_port.ip = value.toString();
+            auto ip = QUrl::fromUserInput(value.toString()).host();
+            if (!ip_port.is_set || ip_port.ip != ip) {
+                ip_port.ip = ip;
                 SetProxySetting(settings, "addrProxy", ip_port);
                 setRestartRequired(true);
             }
