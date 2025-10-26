@@ -59,9 +59,9 @@
         },
         {
             "name": "libsodium",
-            "buildsystem": "simple",
-            "build-commands": [
-                "./configure --prefix=/app && make -j $FLATPAK_BUILDER_N_JOBS && make install"
+            "buildsystem": "autotools",
+            "config-opts": [
+                "--prefix=/app"
             ],
             "sources": [
                 {
@@ -73,11 +73,9 @@
         },
         {
             "name": "libprotobuf",
-            "buildsystem": "simple",
-            "build-commands": [
-                "./autogen.sh",
-                "./configure --prefix=/app",
-                "make -j $FLATPAK_BUILDER_N_JOBS && make install"
+            "buildsystem": "autotools",
+            "config-opts": [
+                "--prefix=/app"
             ],
             "sources": [
                 {
@@ -89,11 +87,9 @@
         },
         {
             "name": "libevent",
-            "buildsystem": "simple",
-            "build-commands": [
-                "./autogen.sh",
-                "./configure --prefix=/app",
-                "make -j $FLATPAK_BUILDER_N_JOBS && make install"
+            "buildsystem": "autotools",
+            "config-opts": [
+                "--prefix=/app"
             ],
             "sources": [
                 {
@@ -105,11 +101,9 @@
         },
         {
             "name": "libzeromq",
-            "buildsystem": "simple",
-            "build-commands": [
-                "./autogen.sh",
-                "./configure --prefix=/app",
-                "make -j $FLATPAK_BUILDER_N_JOBS && make install"
+            "buildsystem": "autotools",
+            "config-opts": [
+                "--prefix=/app"
             ],
             "sources": [
                 {
@@ -134,12 +128,13 @@
             ]
         },
         {
-            "name": "core",
-            "buildsystem": "simple",
-            "build-commands": [
-                "./autogen.sh",
-                "./configure --prefix=/app --with-boost=/app --with-libdb=/app --with-gui",
-                "make -j $FLATPAK_BUILDER_N_JOBS && make install"
+            "name": "kevacoin-core",
+            "buildsystem": "autotools",
+            "config-opts": [
+                "--prefix=/app",
+                "--with-boost=/app",
+                "--with-libdb=/app",
+                "--with-gui"
             ],
             "post-install": [
                 "install -D share/icons/hicolor/scalable/apps/${FLATPAK_ID}.svg -t /app/share/icons/hicolor/symbolic/apps",
@@ -149,7 +144,7 @@
                 {
                     "type": "git",
                     "url": "https://github.com/kvazar-network/kevacoin.git",
-                    "commit": "f6b10886995b3f8e6b36e694c433842dff476034"
+                    "commit": "964db8a20f80e856f01f9c185fd4f75f4bdc6dc0"
                 }
             ]
         }
