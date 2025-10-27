@@ -172,6 +172,13 @@ public:
         vSeeds.emplace_back("dnsseed.keva.one");
         vSeeds.emplace_back("dnsseed.kevachat.dedyn.io");
 
+        // [Alfis DNS](https://github.com/Revertron/Alfis)
+        //
+        // * feel free to manage on expire
+        vSeeds.emplace_back("kevacoin.conf");     // [Internet]
+        vSeeds.emplace_back("myc.kevacoin.conf"); // [Mycelium](https://github.com/threefoldtech/mycelium)
+        vSeeds.emplace_back("ygg.kevacoin.conf"); // [Yggdrasil](https://yggdrasil-network.github.io)
+
         base58Prefixes[PUBKEY_ADDRESS] = std::vector<unsigned char>(1,45); // K
         base58Prefixes[SCRIPT_ADDRESS] = std::vector<unsigned char>(1,5);
         base58Prefixes[SCRIPT_ADDRESS2] = std::vector<unsigned char>(1,70); // V
