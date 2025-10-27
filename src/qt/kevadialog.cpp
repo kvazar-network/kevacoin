@@ -28,6 +28,7 @@
 #include <QMessageBox>
 #include <QScrollBar>
 #include <QTextDocument>
+#include <QFontDatabase>
 
 KevaDialog::KevaDialog(const PlatformStyle *_platformStyle, QWidget *parent) :
     QDialog(parent),
@@ -71,6 +72,10 @@ KevaDialog::KevaDialog(const PlatformStyle *_platformStyle, QWidget *parent) :
 
     ui->kevaView->setTextElideMode(Qt::ElideRight);
     ui->kevaView->setWordWrap(false);
+
+    const QFont fixedFont = QFontDatabase::systemFont(QFontDatabase::FixedFont);
+    ui->kevaView->setFont(fixedFont);
+
     QHeaderView *verticalHeader = ui->kevaView->verticalHeader();
     verticalHeader->setSectionResizeMode(QHeaderView::Fixed);
     verticalHeader->setDefaultSectionSize(36);

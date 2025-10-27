@@ -11,6 +11,7 @@
 
 #include <QPushButton>
 #include <QModelIndex>
+#include <QFontDatabase>
 
 KevaBookmarksDialog::KevaBookmarksDialog(QWidget *parent) :
     QDialog(parent),
@@ -35,6 +36,9 @@ void KevaBookmarksDialog::setModel(WalletModel *_model)
     {
         _model->getKevaBookmarksModel()->sort(KevaBookmarksModel::Name, Qt::DescendingOrder);
         QTableView* tableView = ui->namespaceView;
+
+        const QFont fixedFont = QFontDatabase::systemFont(QFontDatabase::FixedFont);
+        tableView->setFont(fixedFont);
 
         tableView->verticalHeader()->hide();
         tableView->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);

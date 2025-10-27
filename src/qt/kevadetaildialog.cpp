@@ -10,6 +10,7 @@
 
 #include <QModelIndex>
 #include <QPushButton>
+#include <QFontDatabase>
 
 
 KevaDetailDialog::KevaDetailDialog(const QModelIndex &idx, QWidget *parent, const QString &nameSpace) :
@@ -18,6 +19,8 @@ KevaDetailDialog::KevaDetailDialog(const QModelIndex &idx, QWidget *parent, cons
 {
     ui->setupUi(this);
 
+    const QFont fixedFont = QFontDatabase::systemFont(QFontDatabase::FixedFont);
+
     this->nameSpace = nameSpace;
 
     setWindowTitle(
@@ -25,6 +28,7 @@ KevaDetailDialog::KevaDetailDialog(const QModelIndex &idx, QWidget *parent, cons
     );
 
     // Data tab
+    ui->detailKey->setFont(fixedFont);
     ui->detailKey->setText(
         idx.sibling(
             idx.row(),
@@ -34,6 +38,7 @@ KevaDetailDialog::KevaDetailDialog(const QModelIndex &idx, QWidget *parent, cons
         ).toString()
     );
 
+    ui->detailValue->setFont(fixedFont);
     ui->detailValue->setText(
         idx.sibling(
             idx.row(),
@@ -43,7 +48,9 @@ KevaDetailDialog::KevaDetailDialog(const QModelIndex &idx, QWidget *parent, cons
         ).toString()
     );
 
+
     // Meta tab
+    ui->detailDate->setFont(fixedFont);
     ui->detailDate->setText(
         idx.sibling(
             idx.row(),
@@ -53,6 +60,7 @@ KevaDetailDialog::KevaDetailDialog(const QModelIndex &idx, QWidget *parent, cons
         ).toString()
     );
 
+    ui->detailBlock->setFont(fixedFont);
     ui->detailBlock->setText(
         idx.sibling(
             idx.row(),
@@ -62,10 +70,12 @@ KevaDetailDialog::KevaDetailDialog(const QModelIndex &idx, QWidget *parent, cons
         ).toString()
     );
 
+    ui->detailNamespace->setFont(fixedFont);
     ui->detailNamespace->setText(
         nameSpace
     );
 
+    ui->detailTransaction->setFont(fixedFont);
     ui->detailTransaction->setText(
         idx.sibling(
             idx.row(),

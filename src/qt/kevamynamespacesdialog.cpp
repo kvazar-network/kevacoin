@@ -10,6 +10,7 @@
 
 #include <QPushButton>
 #include <QModelIndex>
+#include <QFontDatabase>
 
 KevaMyNamespacesDialog::KevaMyNamespacesDialog(QWidget *parent) :
     QDialog(parent),
@@ -30,6 +31,9 @@ void KevaMyNamespacesDialog::setModel(WalletModel *_model)
     {
         _model->getKevaNamespaceModel()->sort(KevaNamespaceModel::Name, Qt::DescendingOrder);
         QTableView* tableView = ui->namespaceView;
+
+        const QFont fixedFont = QFontDatabase::systemFont(QFontDatabase::FixedFont);
+        tableView->setFont(fixedFont);
 
         tableView->verticalHeader()->hide();
         tableView->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
