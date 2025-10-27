@@ -1,10 +1,8 @@
 # KevaCoin by Community
 
-This project was created in 2021 to independently maintain the abandoned [kevacoin-core](https://github.com/kevacoin-project/kevacoin) ecosystem.
+This project was created in 2021 to independently maintain the abandoned [kevacoin-core](https://github.com/kevacoin-project/kevacoin) ecosystem, at this moment includes following changes:
 
-Fork includes:
-
-* Recent libboost and other updates
+* Recent libboost updates
 * Additional features for the Qt client
     * new theme
     * extended editor with counter and validator
