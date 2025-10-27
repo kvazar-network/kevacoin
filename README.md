@@ -1,8 +1,17 @@
 # KevaCoin by Community
 
-This project created to keep going [Kevacoin Core](https://github.com/kevacoin-project/kevacoin) ecosystem.
+This project was created in 2021 to independently maintain the abandoned [kevacoin-core](https://github.com/kevacoin-project/kevacoin) ecosystem.
 
-Contains QT and Boost updates, minor cosmetic changes, it's 100% compatible with Kevacoin Network.
+Fork includes:
+
+* Recent libboost and other updates
+* Additional features for the Qt client
+    * new theme
+    * extended editor with counter and validator
+    * lot of UI fixes, including proxy interface, timing issues, etc.
+* [Yggdrasil](https://yggdrasil-network.github.io) and [Mycelium](https://github.com/threefoldtech/mycelium) mesh networks support - mixed or single net mode (see `-onlynet`) to enhance your privacy and connectivity
+* Flatpak bundle out of the box (see [releases page](https://github.com/kvazar-network/kevacoin/releases) or [build documentation](https://github.com/kvazar-network/kevacoin?tab=readme-ov-file#build))
+* It's 100% compatible with the main Kevacoin Network
 
 Instead of `master` use `kvazar` branch as main.
 The `master` branch required for legacy [contributions](https://github.com/kevacoin-project/kevacoin/pulls) and get updates from the original upstream only.
@@ -34,8 +43,7 @@ Please, visit the [Releases](https://github.com/kvazar-network/kevacoin/releases
 
 ## Build
 
-> [!TIP]
-> See also the [Flatpak](https://github.com/kvazar-network/kevacoin/blob/kvazar/doc/flatpak.md) build instructions!
+* [Flatpak](https://github.com/kvazar-network/kevacoin/blob/kvazar/doc/flatpak.md)
 
 * [Fedora](https://github.com/kvazar-network/kevacoin/blob/kvazar/doc/build-fedora.md)
 * [NetBSD](https://github.com/kvazar-network/kevacoin/blob/kvazar/doc/build-netbsd.md)
