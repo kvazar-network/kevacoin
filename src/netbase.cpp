@@ -41,6 +41,8 @@ enum Network ParseNetwork(std::string net) {
     if (net == "ipv4") return NET_IPV4;
     if (net == "ipv6") return NET_IPV6;
     if (net == "tor" || net == "onion")  return NET_TOR;
+    if (net == "ygg" || net == "yggdrasil") return NET_YGGDRASIL;
+    if (net == "myc" || net == "mycelium") return NET_MYCELIUM;
     return NET_UNROUTABLE;
 }
 
