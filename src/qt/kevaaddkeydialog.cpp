@@ -9,6 +9,7 @@
 #include <qt/kevadialog.h>
 
 #include <QPushButton>
+#include <QFontDatabase>
 
 KevaAddKeyDialog::KevaAddKeyDialog(QWidget *parent, QString &nameSpace) :
     QDialog(parent),
@@ -16,6 +17,11 @@ KevaAddKeyDialog::KevaAddKeyDialog(QWidget *parent, QString &nameSpace) :
 {
     ui->setupUi(this);
     this->nameSpace = nameSpace;
+
+    const QFont fixedFont = QFontDatabase::systemFont(QFontDatabase::FixedFont);
+    ui->keyText->setFont(fixedFont);
+    ui->valueText->setFont(fixedFont);
+
     connect(ui->buttonBox->button(QDialogButtonBox::Cancel), SIGNAL(clicked()), this, SLOT(cancel()));
     connect(ui->buttonBox->button(QDialogButtonBox::Save), SIGNAL(clicked()), this, SLOT(create()));
     connect(ui->keyText, SIGNAL(textChanged(const QString &)), this, SLOT(onKeyChanged(const QString &)));
