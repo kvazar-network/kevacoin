@@ -10,7 +10,7 @@ The **Kvazar Network** project was created in 2021 to independently maintain the
     * UI fixes: IPv6 proxy interface support, timing corrections, and more
 * [Yggdrasil](https://yggdrasil-network.github.io) and [Mycelium](https://github.com/threefoldtech/mycelium) mesh networks out of the box: mixed or single net mode (see `-onlynet`) to enhance your privacy and connectivity
 * Additional seeds
-* Flatpak bundle out of the box (see [releases page](https://github.com/kvazar-network/kevacoin/releases) or [build documentation](https://github.com/kvazar-network/kevacoin?tab=readme-ov-file#build))
+* Flatpak bundle out of the box (see [releases page](https://github.com/kvazar-network/kevacoin/releases) or [build documentation](https://github.com/kvazar-network/kevacoin/blob/kvazar/doc/flatpak.md))
 * It's 100% compatible with the main Kevacoin Network
 
 Instead of `master` use `kvazar` branch as main.
