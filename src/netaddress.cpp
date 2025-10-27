@@ -176,6 +176,18 @@ bool CNetAddr::IsTor() const
     return (memcmp(ip, pchOnionCat, sizeof(pchOnionCat)) == 0);
 }
 
+// https://yggdrasil-network.github.io/2018/07/28/addressing.html#addressing-in-yggdrasil
+bool CNetAddr::IsYggdrasil() const
+{
+    return IsIPv6() && (ip[0] == 0x02 || ip[0] == 0x03);
+}
+
+// https://github.com/threefoldtech/mycelium
+bool CNetAddr::IsMycelium() const
+{
+    return IsIPv6() && (ip[0] == 0x04 || ip[0] == 0x05);
+}
+
 bool CNetAddr::IsLocal() const
 {
     // IPv4 loopback
@@ -252,6 +264,12 @@ enum Network CNetAddr::GetNetwork() const
 
     if (IsTor())
         return NET_TOR;
+
+    if (IsYggdrasil())
+        return NET_YGGDRASIL;
+
+    if (IsMycelium())
+        return NET_MYCELIUM;
 
     return NET_IPV6;
 }
@@ -369,6 +387,14 @@ std::vector<unsigned char> CNetAddr::GetGroup() const
         nStartByte = 6;
         nBits = 4;
     }
+    else if (IsYggdrasil())
+    {
+        nClass = NET_YGGDRASIL;
+    }
+    else if (IsMycelium())
+    {
+        nClass = NET_MYCELIUM;
+    }
     // for he.net, use /36 groups
     else if (GetByte(15) == 0x20 && GetByte(14) == 0x01 && GetByte(13) == 0x04 && GetByte(12) == 0x70)
         nBits = 36;
@@ -448,6 +474,16 @@ int CNetAddr::GetReachabilityFrom(const CNetAddr *paddrPartner) const
         default:         return REACH_DEFAULT;
         case NET_IPV4:   return REACH_IPV4; // Tor users can connect to IPv4 as well
         case NET_TOR:    return REACH_PRIVATE;
+        }
+    case NET_YGGDRASIL: // by NET_CJDNS https://github.com/bitcoin/bitcoin/blob/master/src/netaddress.cpp#L760
+        switch(ourNet) {
+        case NET_YGGDRASIL: return REACH_PRIVATE;
+        default:            return REACH_DEFAULT;
+        }
+    case NET_MYCELIUM: // same impl as Yggdrasil
+        switch(ourNet) {
+        case NET_MYCELIUM: return REACH_PRIVATE;
+        default:           return REACH_DEFAULT;
         }
     case NET_TEREDO:
         switch(ourNet) {
@@ -549,7 +585,9 @@ bool CService::GetSockAddr(struct sockaddr* paddr, socklen_t *addrlen) const
         paddrin->sin_port = htons(port);
         return true;
     }
-    if (IsIPv6()) {
+    if (IsIPv6() ||
+        IsYggdrasil() || IsMycelium() // * not sure if this required in IsIPv6 context, wants review @TODO
+    ) {
         if (*addrlen < (socklen_t)sizeof(struct sockaddr_in6))
             return false;
         *addrlen = sizeof(struct sockaddr_in6);
