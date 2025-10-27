@@ -1,6 +1,6 @@
 # KevaCoin by Community
 
-The **Kvazar Network** project was created in 2021 to independently maintain the abandoned [kevacoin-core](https://github.com/kevacoin-project/kevacoin) ecosystem. It currently maintains a separate full-node fork, which at this moment includes the following changes:
+**Kvazar Network** was created in 2021 to independently maintain the abandoned [kevacoin-core](https://github.com/kevacoin-project/kevacoin) ecosystem. It currently maintains a separate full-node fork, which at this moment includes the following changes:
 
 * Recent updates to libboost
 * Additional features for the Qt client
