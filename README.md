@@ -8,6 +8,7 @@ This project was created in 2021 to independently maintain the abandoned [kevaco
     * extended editor with counter and validator
     * lot of UI fixes, including proxy interface, timing issues, etc.
 * [Yggdrasil](https://yggdrasil-network.github.io) and [Mycelium](https://github.com/threefoldtech/mycelium) mesh networks support - mixed or single net mode (see `-onlynet`) to enhance your privacy and connectivity
+* Additional seeds
 * Flatpak bundle out of the box (see [releases page](https://github.com/kvazar-network/kevacoin/releases) or [build documentation](https://github.com/kvazar-network/kevacoin?tab=readme-ov-file#build))
 * It's 100% compatible with the main Kevacoin Network
 
