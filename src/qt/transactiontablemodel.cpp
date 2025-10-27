@@ -618,7 +618,7 @@ QVariant TransactionTableModel::data(const QModelIndex &index, int role) const
             QDateTime date = QDateTime::fromTime_t(static_cast<uint>(rec->time));
             QString txLabel = walletModel->getAddressTableModel()->labelForAddress(QString::fromStdString(rec->address));
 
-            details.append(date.toString("yyyy/MM/dd hh:mm:ss"));
+            details.append(date.toString("yyyy-MM-dd hh:mm:ss"));
             details.append(" ");
             details.append(formatTxStatus(rec));
             details.append(". ");
