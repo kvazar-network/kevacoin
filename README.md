@@ -2,11 +2,12 @@
 
 This project was created in 2021 to independently maintain the abandoned [kevacoin-core](https://github.com/kevacoin-project/kevacoin) ecosystem, at this moment includes following changes:
 
-* Recent libboost updates
+* Recent updates to libboost
 * Additional features for the Qt client
-    * new theme
-    * extended editor with counter and validator
-    * lot of UI fixes, including proxy interface, timing issues, etc.
+    * Enhanced theme: dark style and monospace font (useful for tables and ASCII art in values)
+    * Extended entries browser, which includes a transaction details tab
+    * Extended entries editor with counter and key/value on-type validation
+    * UI fixes: IPv6 proxy interface support, timing corrections, and more
 * [Yggdrasil](https://yggdrasil-network.github.io) and [Mycelium](https://github.com/threefoldtech/mycelium) mesh networks support - mixed or single net mode (see `-onlynet`) to enhance your privacy and connectivity
 * Additional seeds
 * Flatpak bundle out of the box (see [releases page](https://github.com/kvazar-network/kevacoin/releases) or [build documentation](https://github.com/kvazar-network/kevacoin?tab=readme-ov-file#build))
