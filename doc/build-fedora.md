@@ -6,7 +6,7 @@ Fedora build guide
 
 ``` bash
 sudo dnf install git autoconf automake libtool make \
-         boost-devel protobuf-devel qt5-qtbase-devel qt5-linguist libdb-cxx-devel
+         boost-devel protobuf-devel qt5-qtbase-devel qt5-linguist libdb-cxx-devel libsodium-devel
 ```
 
 ## GUI
