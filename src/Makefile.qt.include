@@ -297,9 +297,9 @@ RES_ICONS = \
   qt/res/icons/address-book.png \
   qt/res/icons/about.png \
   qt/res/icons/about_qt.png \
-  qt/res/icons/bitcoin.ico \
-  qt/res/icons/bitcoin_testnet.ico \
-  qt/res/icons/bitcoin.png \
+  qt/res/icons/kvazar.ico \
+  qt/res/icons/kvazar_testnet.ico \
+  qt/res/icons/kvazar.png \
   qt/res/icons/chevron.png \
   qt/res/icons/clock1.png \
   qt/res/icons/clock2.png \
@@ -329,7 +329,7 @@ RES_ICONS = \
   qt/res/icons/info.png \
   qt/res/icons/key.png \
   qt/res/icons/keva.png \
-  qt/res/icons/litecoin_splash.png \
+  qt/res/icons/kevacoin_splash.png \
   qt/res/icons/lock_closed.png \
   qt/res/icons/lock_open.png \
   qt/res/icons/network_disabled.png \
