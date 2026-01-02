@@ -26,14 +26,13 @@ NetworkStyle::NetworkStyle(const QString &_appName, const int iconColorHueShift,
     appName(_appName),
     titleAddText(qApp->translate("SplashScreen", _titleAddText))
 {
-    // load pixmap
-    QPixmap pixmap;
-    pixmap.load(":/icons/kevacoin_splash");
+    QPixmap kevacoin_splash;
+    kevacoin_splash.load(":/icons/kevacoin_splash");
 
     if(iconColorHueShift != 0 && iconColorSaturationReduction != 0)
     {
         // generate QImage from QPixmap
-        QImage img = pixmap.toImage();
+        QImage img = kevacoin_splash.toImage();
 
         int h,s,l,a;
 
@@ -70,14 +69,17 @@ NetworkStyle::NetworkStyle(const QString &_appName, const int iconColorHueShift,
 
         //convert back to QPixmap
 #if QT_VERSION >= 0x040700
-        pixmap.convertFromImage(img);
+        kevacoin_splash.convertFromImage(img);
 #else
-        pixmap = QPixmap::fromImage(img);
+        kevacoin_splash = QPixmap::fromImage(img);
 #endif
     }
 
-    appIcon             = QIcon(pixmap);
-    trayAndWindowIcon   = QIcon(pixmap.scaled(QSize(256,256)));
+    appIcon = QIcon(kevacoin_splash);
+
+    QPixmap kvazar;
+    kvazar.load(":/icons/kvazar");
+    trayAndWindowIcon = QIcon(kvazar.scaled(QSize(256,256)));
 }
 
 const NetworkStyle *NetworkStyle::instantiate(const QString &networkId)
