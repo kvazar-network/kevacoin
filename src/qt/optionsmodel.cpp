@@ -204,34 +204,41 @@ int OptionsModel::rowCount(const QModelIndex & parent) const
     return OptionIDRowCount;
 }
 
-struct ProxySetting {
-    bool is_set;
-    QString ip;
-    QString port;
-};
-
-static ProxySetting GetProxySetting(QSettings &settings, const QString &name)
+static QNetworkProxy GetProxySetting(QSettings &settings, const QString &name)
 {
-    static const ProxySetting default_val = {false, DEFAULT_GUI_PROXY_HOST, QString("%1").arg(DEFAULT_GUI_PROXY_PORT)};
 
-    // Handle the case that the setting is not set at all
-    if (!settings.contains(name)) {
-        return default_val;
-    }
+    QNetworkProxy network_proxy;
+
+    network_proxy.setType(QNetworkProxy::Socks5Proxy);
+    network_proxy.setHostName(DEFAULT_GUI_PROXY_HOST);
+    network_proxy.setPort(DEFAULT_GUI_PROXY_PORT);
 
     auto url = QUrl::fromUserInput(settings.value(name).toString());
     auto host = url.host();
     auto port = url.port();
 
-    if (!host.isEmpty() && port > 0)
-        return {true, host, QString::number(port)};
-    else
-        return default_val;
+    if (!host.isEmpty() && port > 0) {
+        network_proxy.setHostName(host);
+        network_proxy.setPort(port);
+    }
+
+    return network_proxy;
 }
 
-static void SetProxySetting(QSettings &settings, const QString &name, const ProxySetting &ip_port)
+static void SetProxySetting(QSettings &settings, const QString &name, const QNetworkProxy &value)
 {
-    settings.setValue(name, ip_port.ip + ":" + ip_port.port);
+    settings.setValue(
+        name,
+        QString(
+            QHostAddress(
+                value.hostName()
+            ).protocol() == QAbstractSocket::IPv6Protocol ? "[%1]:%2" : "%1:%2"
+        ).arg(
+            value.hostName()
+        ).arg(
+            value.port()
+        )
+    );
 }
 
 static const QString GetDefaultProxyAddress()
@@ -266,17 +273,17 @@ QVariant OptionsModel::data(const QModelIndex & index, int role) const
         case ProxyUse:
             return settings.value("fUseProxy", false);
         case ProxyIP:
-            return GetProxySetting(settings, "addrProxy").ip;
+            return GetProxySetting(settings, "addrProxy").hostName();
         case ProxyPort:
-            return GetProxySetting(settings, "addrProxy").port;
+            return GetProxySetting(settings, "addrProxy").port();
 
         // separate Tor proxy
         case ProxyUseTor:
             return settings.value("fUseSeparateProxyTor", false);
         case ProxyIPTor:
-            return GetProxySetting(settings, "addrSeparateProxyTor").ip;
+            return GetProxySetting(settings, "addrSeparateProxyTor").hostName();
         case ProxyPortTor:
-            return GetProxySetting(settings, "addrSeparateProxyTor").port;
+            return GetProxySetting(settings, "addrSeparateProxyTor").port();
 
 #ifdef ENABLE_WALLET
         case SpendZeroConfChange:
@@ -341,20 +348,21 @@ bool OptionsModel::setData(const QModelIndex & index, const QVariant & value, in
             }
             break;
         case ProxyIP: {
-            auto ip_port = GetProxySetting(settings, "addrProxy");
-            auto ip = QUrl::fromUserInput(value.toString()).host();
-            if (!ip_port.is_set || ip_port.ip != ip) {
-                ip_port.ip = ip;
-                SetProxySetting(settings, "addrProxy", ip_port);
+            auto addrProxy = GetProxySetting(settings, "addrProxy");
+            auto hostName = value.toString();
+            if (hostName != addrProxy.hostName()) {
+                addrProxy.setHostName(hostName);
+                SetProxySetting(settings, "addrProxy", addrProxy);
                 setRestartRequired(true);
             }
         }
         break;
         case ProxyPort: {
-            auto ip_port = GetProxySetting(settings, "addrProxy");
-            if (!ip_port.is_set || ip_port.port != value.toString()) {
-                ip_port.port = value.toString();
-                SetProxySetting(settings, "addrProxy", ip_port);
+            auto addrProxy = GetProxySetting(settings, "addrProxy");
+            auto port = value.toInt();
+            if (port != addrProxy.port()) {
+                addrProxy.setPort(port);
+                SetProxySetting(settings, "addrProxy", addrProxy);
                 setRestartRequired(true);
             }
         }
@@ -368,19 +376,21 @@ bool OptionsModel::setData(const QModelIndex & index, const QVariant & value, in
             }
             break;
         case ProxyIPTor: {
-            auto ip_port = GetProxySetting(settings, "addrSeparateProxyTor");
-            if (!ip_port.is_set || ip_port.ip != value.toString()) {
-                ip_port.ip = value.toString();
-                SetProxySetting(settings, "addrSeparateProxyTor", ip_port);
+            auto addrSeparateProxyTor = GetProxySetting(settings, "addrSeparateProxyTor");
+            auto hostName = value.toString();
+            if (hostName != addrSeparateProxyTor.hostName()) {
+                addrSeparateProxyTor.setHostName(hostName);
+                SetProxySetting(settings, "addrSeparateProxyTor", addrSeparateProxyTor);
                 setRestartRequired(true);
             }
         }
         break;
         case ProxyPortTor: {
-            auto ip_port = GetProxySetting(settings, "addrSeparateProxyTor");
-            if (!ip_port.is_set || ip_port.port != value.toString()) {
-                ip_port.port = value.toString();
-                SetProxySetting(settings, "addrSeparateProxyTor", ip_port);
+            auto addrSeparateProxyTor = GetProxySetting(settings, "addrSeparateProxyTor");
+            auto port = value.toInt();
+            if (port != addrSeparateProxyTor.port()) {
+                addrSeparateProxyTor.setPort(port);
+                SetProxySetting(settings, "addrSeparateProxyTor", addrSeparateProxyTor);
                 setRestartRequired(true);
             }
         }
