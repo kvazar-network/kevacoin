@@ -144,7 +144,7 @@
                 {
                     "type": "git",
                     "url": "https://github.com/kvazar-network/kevacoin.git",
-                    "commit": "087f24f1ba78b3ae507bf8976538ff9ac563d78b"
+                    "commit": "774b6a93799b379c72679132da5016f8a1f61bec"
                 }
             ]
         }
